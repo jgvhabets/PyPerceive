@@ -37,7 +37,6 @@ pip install -r requirements.lock
 bash install.sh
 ```
 
-**requirements.txt**
 
 | package | version |
 | ------- | ------- |
