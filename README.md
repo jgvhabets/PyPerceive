@@ -3,7 +3,7 @@
 ### Goal:
 Importing and using Perceive'd Percept data in Python
 
-[Original Perceive Toolbox (matlab-based)](https://github.com/neuromodulation/perceive)
+[Original Perceive Toolbox](https://github.com/neuromodulation/perceive) (matlab-based)
 
 
 ### Environment
@@ -39,13 +39,15 @@ bash install.sh
 
 **requirements.txt**
 
-Python sys 3.10.6 | packaged by conda-forge | (main, Aug 22 2022, 20:43:44) [Clang 13.0.1 ]
-pandas 1.5.0
-numpy 1.21.6
-mne_bids 0.11
-mne 1.2.0
-sci-py 1.9.1
-sci-kit learn 1.1.2
+| package | version |
+| ------- | ------- |
+|Python   | sys 3.10.6, packaged by conda-forge (main, Aug 22 2022, 20:43:44) [Clang 13.0.1 ] |
+| pandas  | 1.5.0 |
+| numpy   | 1.21.6 |
+| mne_bids| 0.11 |
+| mne     |  1.2.0 |
+| sci-py  | 1.9.1 |
+| sci-kit learn | 1.1.2 |
 
 
 
