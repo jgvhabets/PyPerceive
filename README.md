@@ -3,7 +3,7 @@
 ### Goal:
 Importing and using Perceive'd Percept data in Python
 
-[Original Perceive Toolbox (matlab-based)] (https://github.com/neuromodulation/perceive)
+[Original Perceive Toolbox (matlab-based)](https://github.com/neuromodulation/perceive)
 
 
 ### Environment
