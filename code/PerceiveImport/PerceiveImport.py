@@ -34,13 +34,14 @@ class PerceiveData:
     def __str__(self,):
         return f'From the Perceived data from subject {self.sub} all BrainSense {self.data_type} .mat files from the {self.timing} session are being selected.'
     
-    # find correct folder with correct timing
-    # def find_timingfolder():
-        
-    
+
     # find all matfiles within the correct timing folder
-    # def find_matfiles():
-        
+    def find_matfiles(self,):
+        for root, dirs, files in os.walk(self.data_path):
+            for file in files:
+                if self.timing in root and file.endswith(".mat"):
+                    print(file)
+    
         
     # select matfiles only for of correct datatype
     # therefore load matpart.json file with dictionary
