@@ -3,11 +3,12 @@
 import os
 from dataclasses import dataclass
 
-import mne_bids
-import mne
+# import mne_bids
+# import mne
+
 
 @dataclass (init=True, repr=True)
-class Streaming:
+class StreamingData:
     """
     BrainSense Streaming Class 
     
@@ -23,7 +24,8 @@ class Streaming:
         - 
     
     """
-    
+    sub: str
+    files: list
     # initialized fields
     
     
@@ -39,19 +41,17 @@ class Streaming:
         # ch_trials = raw._data
         # sampling_freq = raw.info['sfreq']
         # time_duration = (n_time_samps/sampling_freq).astype(float)
+
+        print('streaming functions executing')
     
-    def __str__(self,):
-        #return f'channel names are {self.ch_names}'
+    # def __str__(self,):
+    #     #return f'channel names are {self.ch_names}'
     
-    # return for every loaded file:
-    # print(
-    #   f'The data object has:\n\t{n_time_samps} time samples,'
+    # # return for every loaded file:
+    # # print(
+    # #   f'The data object has:\n\t{n_time_samps} time samples,'
     #   f'\n\tand a sample frequency of {sampling_freq} Hz' 
     #   f'\n\twith a recording duration of {time_duration} seconds.' 
     #   f'\n\t{n_chan} channels were labeled as \n{ch_names}.'
     #   )
-    
-
-    
-    
     
