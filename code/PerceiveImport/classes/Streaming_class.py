@@ -3,8 +3,6 @@
 import os
 from dataclasses import dataclass
 
-# import mne_bids
-# import mne
 
 
 @dataclass (init=True, repr=True)
