@@ -3,6 +3,8 @@
 import os
 from dataclasses import dataclass
 
+import PerceiveImport.methods.load_matfiles as loadmat
+
 
 
 @dataclass (init=True, repr=True)
@@ -30,7 +32,9 @@ class StreamingData:
     
     
     def __post_init__(self,):
-        # run load_matfile method??
+        
+        self.streaming_matfiles = loadmat.load_selection(self.files)
+
         
         # ch_names = raw.ch_names
         # n_chan = len(ch_names)
@@ -40,10 +44,10 @@ class StreamingData:
         # sampling_freq = raw.info['sfreq']
         # time_duration = (n_time_samps/sampling_freq).astype(float)
 
-        print('streaming functions executing')
+        
     
-    # def __str__(self,):
-    #     #return f'channel names are {self.ch_names}'
+    def __str__(self,):
+        return f'The Streaming Class will load all selected .mat files.'
     
     # # return for every loaded file:
     # # print(

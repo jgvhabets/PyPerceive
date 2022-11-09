@@ -56,6 +56,8 @@ class PerceiveData:
             )
 
         
+
+
     def __str__(self,):
         return f'From the Perceived data from subject {self.sub} all BrainSense {self.data_type} .mat files from the {self.timing} session are being selected.'
     
