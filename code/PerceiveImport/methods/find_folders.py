@@ -7,9 +7,9 @@ def find_project_folder():
     Return: tuple[str, str] -> project_path, data_path
     to only use one str use _ -> example: project_folder, _ = find_project_folder()
     """
-    path = os.getcwd()
-    while path[-18:] != 'PyPerceive_Project':
-        path = os.path.dirname(path)
+    project_path = os.getcwd()
+    while project_path[-18:] != 'PyPerceive_Project':
+        project_path = os.path.dirname(project_path)
     
-    data_path = os.path.join(path, 'Data')
-    return path, data_path
+    data_path = os.path.join(project_path, 'Data')
+    return project_path, data_path
