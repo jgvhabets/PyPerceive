@@ -1,14 +1,13 @@
-""" List of all subjects  """
+""" Create list of all subject folders inside of "Data" folder """
 
-import os
+Import import PerceiveImport.methods.find_folders as find_folder
 
-import PerceiveImport.methods.find_project_folder as find_folder
-
-def subject_list():
-    """ 
-    subject_list is a method that creates a list of all subject folders inside of your Data folder 
+def find_subjects():
     """
-    _, data_folder = find_folder.find_project_folder()
-    subject_list = os.listdir(os.chdir(data_folder))
+    find_subjects is a method creating a list of all subject folders within your "Data" folder
+    
+    """
+    _, data_path = find_folder.find_project_folder()
+    subject_list = os.listdir(data_path)
 
     print(subject_list)

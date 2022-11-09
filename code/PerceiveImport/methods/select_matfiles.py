@@ -3,19 +3,19 @@
 
 # import packages
 import os 
-from dataclasses import dataclass
-
 import json
+
+import PerceiveImport.classes.PerceiveMainClass as MainClass
+
 
 # import PerceiveImport.filefunctions as filefuncs -> use this line to import other .py files
 # select all .mat files in respect of the correct datatype (Survey/Streaming/Timeline) 
 
 
 
-
-    def select_matdatatype(self,):
+    def select_matdatatype():
         """
-        select_matdatatype() selects all .mat files within your project folder
+        select_matdatatype() selects all .mat files within your chosen subject folder
         Return: tuple[str, str] -> matfile_list, paths_list
         """
         matfile_list = [] # this list will contain all matfile names
@@ -24,9 +24,9 @@ import json
         with open('datatype_dict.json', 'r') as f: # read datatype_dict.json file with dictionary of datatypes
             datatype_dict = json.loads(f.read())
 
-        for root, dirs, files in os.walk(self.data_path): # walking through every root, directory and file of the given path
+        for root, dirs, files in os.walk(MainClass.PerceiveData.data_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
-                if file.endswith(".mat") and datatype_dict[self.data_type] in file: # matpart is defined earlier
+                if file.endswith(".mat") and datatype_dict[MainClass.PerceiveData.data_type] in file: # matpart is defined earlier
                     print(file) # printing makes sure, that every selected file is saved after a loop
                     matfile_list.append(file) # adding every file to the list of matfile names
             
@@ -41,7 +41,7 @@ import json
 
 
     # select all .mat files in respect of the correct timing (3MFU/12MFU/Postop)
-    def select_mattiming(self,):
+    def select_mattiming():
         """
         select_mattiming() selects all .mat files within your project folder of a specific timing (postop, 3MFU, 12MFU, 18MFU, 24MFU)
         Return: tuple[str, str] -> matfile_list, paths_list
@@ -49,9 +49,9 @@ import json
         matfile_list = [] # this list will contain all matfile names
         paths_list = [] # this list will contain all paths to the selected matfiles
 
-        for root, dirs, files in os.walk(self.data_path): # walking through every root, directory and file of the given path
+        for root, dirs, files in os.walk(MainClass.PerceiveData.data_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
-                if self.timing in root and file.endswith(".mat"):
+                if MainClass.PerceiveData.timing in root and file.endswith(".mat"):
                     print(file) # printing makes sure, that every selected file is saved after a loop
                     matfile_list.append(file) # adding every file to the list of matfile names
             
@@ -67,7 +67,7 @@ import json
     
     # selecting final selection of .mat files
     # in respect of timing and datatype
-    def select_matfinal(self,):
+    def select_matfinal():
         """
         select_mattiming() selects all .mat files within your project folder 
         of a specific timing (postop, 3MFU, 12MFU, 18MFU, 24MFU) 
@@ -81,9 +81,9 @@ import json
         with open('matpart.json', 'r') as f: # read datatype_dict.json file with dictionary of datatypes
             datatype_dict = json.loads(f.read())
 
-        for root, dirs, files in os.walk(self.data_path): # walking through every root, directory and file of the given path
+        for root, dirs, files in os.walk(MainClass.PerceiveData.data_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
-                if self.timing in root and file.endswith(".mat") and datatype_dict[self.data_type] in file: # datatype_dict is defined earlier
+                if MainClass.PerceiveData.timing in root and file.endswith(".mat") and datatype_dict[MainClass.PerceiveData.data_type] in file: # datatype_dict is defined earlier
                     print(file) # printing makes sure, that every selected file is saved after a loop
                     matfile_list.append(file) # adding every file to the list of matfile names
             
