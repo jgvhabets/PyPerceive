@@ -7,9 +7,9 @@ Importing and using Perceive'd Percept data in Python
 
 
 ### Environment
-´conda create --name pyPerceive_dev python jupyter pandas scipy numpy matplotlib statsmodels seaborn´
-´pip install mne 
-pip install mne_bids´
+```conda create --name pyPerceive_dev python jupyter pandas scipy numpy matplotlib statsmodels seaborn
+pip install mne 
+pip install mne_bids```
 
 ### Requirements
 
