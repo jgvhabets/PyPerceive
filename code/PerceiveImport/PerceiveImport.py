@@ -5,10 +5,8 @@ import os
 from dataclasses import dataclass
 
 import json
-
-# import PerceiveImport.select_matfiles as matfiles   # use this line to import other .py files
-# import importlib
-# importlib.reload(matfiles) 
+import PerceiveImport.find_project_folder as find_folder
+import PerceiveImport.select_matfiles as matfiles   # use this line to import other .py files
 
 @dataclass(init=True, repr=True) 
 class PerceiveData:
@@ -27,14 +25,17 @@ class PerceiveData:
     
     # these fields will be initialized 
     sub: str            # note that : is used, not = 
-    data_path: str 
     timing: str
     data_type: str
         
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
         print(self.sub)
+        _, self.data_path = find_folder.find_project_folder()
+    
         self.files=os.listdir(self.data_path) # self.files can only run after initialisation because it needs self.data_path
+
+
         
         # selected_matfiles = matfiles.select_matfiles()
         
@@ -97,11 +98,11 @@ class PerceiveData:
         paths_list = [] # this list will contain all paths to the selected matfiles
 
         with open('matpart.json', 'r') as f: # read matpart.json file with dictionary of datatypes
-            matpart = json.loads(f.read())
+            datatype_dict = json.loads(f.read())
 
         for root, dirs, files in os.walk(self.data_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
-                if self.timing in root and file.endswith(".mat") and matpart[self.data_type] in file: # matpart is defined earlier
+                if self.timing in root and file.endswith(".mat") and datatype_dict[self.data_type] in file: # matpart is defined earlier
                     print(file) # printing makes sure, that every selected file is saved after a loop
                     matfile_list.append(file) # adding every file to the list of matfile names
             
