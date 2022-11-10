@@ -33,7 +33,7 @@ class StreamingData:
     
     def __post_init__(self,):
         
-        self.streaming_matfiles = loadmat.load_selection(self.files)
+        self.streaming_matfiles = loadmat.load_matselection(self.files)
 
         
         # ch_names = raw.ch_names

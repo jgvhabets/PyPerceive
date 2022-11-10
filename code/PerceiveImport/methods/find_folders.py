@@ -12,5 +12,5 @@ def find_project_folder():
         project_path = os.path.dirname(project_path)
     
     data_path = os.path.join(project_path, 'Data')
-    code_path = os.path.join(project_path, 'Code')
-    return project_path, data_path, code_path
+    
+    return project_path, data_path

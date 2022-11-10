@@ -50,10 +50,10 @@ class PerceiveData:
 
         
         # STREAMING_FILES = .....
-        self.Streaming = streamingClass.StreamingData(
-            sub = self.sub,
-            files = self.selected_matfiles
-            )
+        # self.Streaming = streamingClass.StreamingData(
+        #     sub = self.sub,
+        #     files = self.selected_matfiles
+        #     )
         
 
 
