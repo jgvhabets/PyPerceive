@@ -1,27 +1,19 @@
 """ Create a Streaming Class """
 
-import os
 from dataclasses import dataclass
 
-import PerceiveImport.methods.load_matfiles as loadmat
+import PerceiveImport.methods.select_matfiles as matfiles
 
 
 @dataclass (init=True, repr=True)
-class StreamingData:
+class recModality:
     """
     BrainSense Streaming Class 
     
     parameters:
         (input from main dataclass PerceiveData)
         - sub:
-        - files: list of selected Streaming files to load
-        - timingfiles: list of selected Streaming files of a specific Follow Up timing
-
-        (manually input ??)
-        - Rec_contacts_left: "0-2", "1-3", "0-3" 
-        - Rec_contacts_left: "0-2", "1-3", "0-3" 
-        - Stim_contact_left: "Ring_0-2", "Ring_1-3", "1a", "1b", "1c", "2a", "2b" ,"2c"
-        - Stim_contact_right: "Ring_0-2", "Ring_1-3", "1a", "1b", "1c", "2a", "2b" ,"2c"
+        - rec_modality: "Streaming", "Survey", "Timeline"
 
         __post_init__
         - allmatfiles: loading all .mat files of the datatype Streaming
@@ -32,24 +24,25 @@ class StreamingData:
         - time_secs: timepoints in seconds
         - sampling_freq: sampling frequency
         - time_duration: duration of the recording
+        - stim_parameters: amplitude, freq, PW
+        - stim_contact:
+        - Peak_frequency:
     
     Returns:
         - 
     
     """
     sub: str
-    files: list
-    timingfiles: list
+    rec_modality: str
+
+    # files: list
+    # timingfiles: list
 
     # initialized fields
     
-    
-    
-    
     def __post_init__(self,):
-        
-        self.allmatfiles = loadmat.load_datatypematfiles(self.files)
-        self.timingmatfiles = loadmat.load_timingdatatypematfiles(self.files)
+    
+        self.recmod_matfilenames, self.recmod_matfilepaths = matfiles.select_matfiles(self.sub, self.rec_modality)
         
 
         

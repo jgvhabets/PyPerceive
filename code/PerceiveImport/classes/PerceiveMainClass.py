@@ -8,9 +8,7 @@ import json
 
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.Streaming_class as streamingClass
-import PerceiveImport.methods.select_matfiles as matfiles   # importing matfiles with methods from select_matfiles.py
-
+import PerceiveImport.classes.RecModality_class as rec_Mod
 
 
 @dataclass(init=True, repr=True) 
@@ -42,39 +40,54 @@ class PerceiveData:
     
     # these fields will be initialized 
     sub: str            # note that : is used, not = 
-    timing: str
-    data_type: str
+    timing: str 
+    rec_modality: str
         
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
 
         _, self.data_path = find_folder.find_project_folder() #self.data_path stores path to "Data" folder
-        self.subject_list= os.listdir(self.data_path) # self.subject_list stores a list with subject folders inside of "Data" folder
-        self.subject_path = os.path.join(self.data_path, self.sub) # self.subject_path stores the path to your chosen "sub" folder
-
-        self.timingdatatype_matfilenames = (matfiles.select_mat_timing_datatype(self.sub, self.timing, self.data_type))[0]
-        self.timingdatatype_matfilepaths = (matfiles.select_mat_timing_datatype(self.sub, self.timing, self.data_type))[1]
         
-        self.timing_matfilenames = (matfiles.select_mattiming(self.sub, self.timing))[0]
-        self.timing_matfilepaths = (matfiles.select_mattiming(self.sub, self.timing))[1]
-
-        self.datatype_matfilenames = (matfiles.select_matdatatype(self.sub, self.data_type))[0]
-        self.datatype_matfilepaths = (matfiles.select_matdatatype(self.sub, self.data_type))[1]
+       # load Excel sheet
         
-        # if data_type == "Streaming":  
+        if self.rec_modality == "Streaming":
+            self.Streaming = rec_Mod.recModality(
+                sub = self.sub,
+                rec_modality = self.rec_modality
+                )
+        
+        elif self.rec_modality == "Survey":
+            self.Survey = rec_Mod.recModality(
+                sub = self.sub,
+                rec_modality = self.rec_modality
+                )
+        
+        elif self.rec_modality == "Timeline":
+            self.Timeline = rec_Mod.recModality(
+                sub = self.sub,
+                rec_modality = self.rec_modality
+                )
+
+        # if timing == "3MFU":
+        #   self.3MFU = loadmat.load_timingmatfiles(self.sub, self.timing) 
+        #   or...???
+        #   self.3MFU =  (matfiles.select_mattiming(self.sub, self.timing))[1] # only store a list of 3MFU filepaths
+        #       if datatype == "Streaming":
+        #           self.3MFU.Streaming ... etc
         #
-        # STREAMING_FILES = .....
-        # 
-        # self.Streaming = streamingClass.StreamingData(
-        #     sub = self.sub,
-        #     files = self.datatype_matfilepaths
-        #     timingfiles = self.timingdatatype_matfilepaths
-        #     )
+        #       else loadmat.load_timingmatfiles(self.sub, self.timing)
+        
+        #setattr()
+        #getattr()
+
+        # if data_type == "Streaming":   
+
+
         
 
 
     def __str__(self,):
-        return f'From the Perceived data from subject {self.sub} all BrainSense {self.data_type} .mat files from the {self.timing} session are being selected.'
+        return f'From the Perceived data from subject {self.sub} all BrainSense {self.rec_modality} .mat files from the {self.timing} session are being selected.'
     
     # load the final selection of files into the correct datatype structure
     # e.g. load files from .select_matfiles() into Survey_class.py
@@ -111,9 +124,3 @@ class PerceiveData:
         
         
 # file_handling.py -> mit 
-
-
-# functions
-
-# 1) find files
-# 2) load files
