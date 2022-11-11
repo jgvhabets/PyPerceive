@@ -61,10 +61,14 @@ class PerceiveData:
         self.datatype_matfilenames = (matfiles.select_matdatatype(self.sub, self.data_type))[0]
         self.datatype_matfilepaths = (matfiles.select_matdatatype(self.sub, self.data_type))[1]
         
+        # if data_type == "Streaming":  
+        #
         # STREAMING_FILES = .....
+        # 
         # self.Streaming = streamingClass.StreamingData(
         #     sub = self.sub,
-        #     files = self.selected_matfiles
+        #     files = self.datatype_matfilepaths
+        #     timingfiles = self.timingdatatype_matfilepaths
         #     )
         
 
