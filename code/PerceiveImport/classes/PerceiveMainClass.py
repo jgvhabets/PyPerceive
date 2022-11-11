@@ -27,6 +27,14 @@ class PerceiveData:
         - data_path: path to your "Data" folder with all subject files 
         - subject_list: list with all subject folder names within your "Data" folder
         - subject_path: path to your chosen subject folder according to your self.sub
+
+        - timingdatatype_matfilenames: returns a list of .mat filenames of the chosen timing and datatype
+        - timing_matfilenames: returns a list of .mat filenames of the chosen timing 
+        - datatype_matfilenames: returns a list of .mat filenames of the chosen datatype
+
+        - timingdatatype_matfilenames: returns a list of .mat filepaths of the chosen timing and datatype
+        - timing_matfilenames: returns a list of .mat filepaths of the chosen timing
+        - datatype_matfilenames: returns a list of .mat filepaths of the chosen datatype
         
     Returns:
         - 
@@ -44,10 +52,14 @@ class PerceiveData:
         self.subject_list= os.listdir(self.data_path) # self.subject_list stores a list with subject folders inside of "Data" folder
         self.subject_path = os.path.join(self.data_path, self.sub) # self.subject_path stores the path to your chosen "sub" folder
 
-        self.selected_matfiles = matfiles.select_mat_timing_datatype(self.sub, self.timing, self.data_type)
-        # self.datatype_matfiles = matfiles.select_matdatatype(self.sub, self.data_type)
-        # self.timing_matfiles = matfiles.select_mattiming(self.sub, self.timing)
+        self.timingdatatype_matfilenames = (matfiles.select_mat_timing_datatype(self.sub, self.timing, self.data_type))[0]
+        self.timingdatatype_matfilepaths = (matfiles.select_mat_timing_datatype(self.sub, self.timing, self.data_type))[1]
+        
+        self.timing_matfilenames = (matfiles.select_mattiming(self.sub, self.timing))[0]
+        self.timing_matfilepaths = (matfiles.select_mattiming(self.sub, self.timing))[1]
 
+        self.datatype_matfilenames = (matfiles.select_matdatatype(self.sub, self.data_type))[0]
+        self.datatype_matfilepaths = (matfiles.select_matdatatype(self.sub, self.data_type))[1]
         
         # STREAMING_FILES = .....
         # self.Streaming = streamingClass.StreamingData(
