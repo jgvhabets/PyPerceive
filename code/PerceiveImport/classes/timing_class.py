@@ -20,8 +20,7 @@ class timingClass:
         - 
     
     """
-
-    sub = str
+    
     timing = str
 
     def __post_init__(self,):
@@ -39,15 +38,18 @@ class timingClass:
         # AND cell in column timing (4) == self.timing
         # the add matfile to self.matfile_list
         # else delete matfile from self.matfile list
-        
 
-        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
-            for file in files: # looping through every file 
-                if file.endswith(".mat") and rec_modality_dict[self.rec_modality] in file: # matpart is defined earlier
-                    # print file????
-                    self.matfile_list.append(file) # adding every file to the list of matfile names
-                    
-                    self.paths_list.append(os.path.join(root, file)) 
-                    # keep root and file joined together so the path won´t get lost
-                    # add each path to the list selection_paths
+        # get rownumbers row_x - row_y of self.matfile_list (of chosen RecModality)
+        # for name in column4 from row_x - row_y:
+        #     if cell == self.timing:
+        #         append matfilename(row_of_cell,column1) to self.matfile_list
+
+        # for file in self.matfile_list:
+        #     if cell in column_timing(4) in same row == self.timing:
+        #         self.matfile_list.keep(file)
+        #     else:
+        #         self.matfile_list.delete(file)
+        
+        
+        # is it possible to detect the path of a unique path? then we don´t have to safe the 
 

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import os
 
 import PerceiveImport.methods.find_folders as find_folder
+# import PerceiveImport.classes.Timing_class as Timing
 
 
 @dataclass (init=True, repr=True)
@@ -56,7 +57,12 @@ class recModality:
                     # add each path to the list selection_paths
 
         
-        
+        # self.Postop = Timing.timingClass(timing = "Postop")
+        # self.3MFU = Timing.timingClass(timing = "3MFU")
+        # self.12MFU = Timing.timingClass(timing = "12MFU")
+        # self.18MFU = Timing.timingClass(timing = "18MFU")
+        # self.24MFU = Timing.timingClass(timing = "24MFU")
+
 
     def __str__(self,):
         return f'The recModality Class will select all .mat files of the subject {self.sub} and the BrainSense recording modality {self.rec_modality}.'
