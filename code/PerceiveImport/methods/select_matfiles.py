@@ -12,7 +12,7 @@ import PerceiveImport.methods.find_folders as find_folder
 
 def select_matfiles(sub, rec_modality):
     """
-    select_matfiles() selects all .mat files within your chosen subject folder with respect to the chosen datatype
+    select_matfiles() selects all .mat files within your chosen subject folder with respect to the chosen rec_modality
 
     sub = name of subject folder, for example -> "sub-021"
     data_type = "Survey", "Streaming", "Timeline"
@@ -42,6 +42,8 @@ def select_matfiles(sub, rec_modality):
                 paths_list.append(single_path) # add each path to the list selection_paths
         
     return matfile_list, paths_list
+
+
 
 
 # select all .mat files in respect of the correct timing (3MFU/12MFU/Postop)

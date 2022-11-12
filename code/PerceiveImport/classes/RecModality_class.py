@@ -1,35 +1,22 @@
-""" Create a Streaming Class """
+""" Create a recording modality Class """
 
 from dataclasses import dataclass
+import os
 
-import PerceiveImport.methods.select_matfiles as matfiles
+import PerceiveImport.methods.find_folders as find_folder
 
 
 @dataclass (init=True, repr=True)
 class recModality:
     """
-    BrainSense Streaming Class 
+    BrainSense recording modality Class 
     
     parameters:
-        (input from main dataclass PerceiveData)
-        - sub:
+        - sub: e.g. "sub-021"
         - rec_modality: "Streaming", "Survey", "Timeline"
 
-        __post_init__
-        - allmatfiles: loading all .mat files of the datatype Streaming
-        - timingmatfiles: loading the selected .mat files of the chosen timing (Postop, 3MFU, 12MFU, 18MFU, 24MFU) of the datatype Streaming
-        - ch_names: channel names
-        - n_chan: number of channels
-        - n_time_samps: number of samples
-        - time_secs: timepoints in seconds
-        - sampling_freq: sampling frequency
-        - time_duration: duration of the recording
-        - stim_parameters: amplitude, freq, PW
-        - stim_contact:
-        - Peak_frequency:
-    
     Returns:
-        - 
+        -  tuple[str, str] -> matfile_list, paths_list 
     
     """
     sub: str
@@ -42,28 +29,31 @@ class recModality:
     
     def __post_init__(self,):
     
-        self.recmod_matfilenames, self.recmod_matfilepaths = matfiles.select_matfiles(self.sub, self.rec_modality)
-        
+        #self.recmod_matfilenames, self.recmod_matfilepaths = matfiles.select_matfiles(self.sub, self.rec_modality)
+        rec_modality_dict = {
+        "Survey": "LMTD",
+        "Streaming": "BrainSense",
+        "Timeline": "CHRONIC"
+        }
+    
+        self.matfile_list = [] # this list will contain all matfile names    
+        self.paths_list = [] # this list will contain all paths to the selected matfiles
 
-        
-        # ch_names = raw.ch_names
-        # n_chan = len(ch_names)
-        # n_time_samps = raw.n_times #nsamples
-        # time_secs = raw.times #timepoints set to zero
-        # ch_trials = raw._data
-        # sampling_freq = raw.info['sfreq']
-        # time_duration = (n_time_samps/sampling_freq).astype(float)
+        _, self.data_path = find_folder.find_project_folder()
+        self.subject_path = os.path.join(self.data_path, self.sub)
+
+        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
+            for file in files: # looping through every file 
+                if file.endswith(".mat") and rec_modality_dict[self.rec_modality] in file: # matpart is defined earlier
+                    # print file????
+                    self.matfile_list.append(file) # adding every file to the list of matfile names
+                    
+                    self.paths_list.append(os.path.join(root, file)) 
+                    # keep root and file joined together so the path won´t get lost
+                    # add each path to the list selection_paths
 
         
     
     def __str__(self,):
-        return f'The Streaming Class will load all selected .mat files.'
-    
-    # # return for every loaded file:
-    # # print(
-    # #   f'The data object has:\n\t{n_time_samps} time samples,'
-    #   f'\n\tand a sample frequency of {sampling_freq} Hz' 
-    #   f'\n\twith a recording duration of {time_duration} seconds.' 
-    #   f'\n\t{n_chan} channels were labeled as \n{ch_names}.'
-    #   )
+        return f'The recModality Class will select all .mat files of a given recording modality of a subject.'
     

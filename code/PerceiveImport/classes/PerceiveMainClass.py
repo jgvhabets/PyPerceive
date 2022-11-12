@@ -6,6 +6,9 @@ from dataclasses import dataclass
 
 import json
 
+import openpyxl
+from openpyxl import Workbook, load_workbook
+
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.RecModality_class as rec_Mod
@@ -18,56 +21,47 @@ class PerceiveData:
     
     parameters:
         - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
-        - timing: timing of session, e.g. "3MFU", "12MFU", "Postop"
-        - data_type: choose between "Survey", "Streaming", "Timeline"
 
     post-initialized parameters:
         - data_path: path to your "Data" folder with all subject files 
-        - subject_list: list with all subject folder names within your "Data" folder
-        - subject_path: path to your chosen subject folder according to your self.sub
-
-        - timingdatatype_matfilenames: returns a list of .mat filenames of the chosen timing and datatype
-        - timing_matfilenames: returns a list of .mat filenames of the chosen timing 
-        - datatype_matfilenames: returns a list of .mat filenames of the chosen datatype
-
-        - timingdatatype_matfilenames: returns a list of .mat filepaths of the chosen timing and datatype
-        - timing_matfilenames: returns a list of .mat filepaths of the chosen timing
-        - datatype_matfilenames: returns a list of .mat filepaths of the chosen datatype
+        - Streaming: returns a tuple[str, str] -> matfile_list, paths_list of all Streaming.mat files of the given subject
+        - Survey: returns a tuple[str, str] -> matfile_list, paths_list of all Survey.mat files of the given subject
+        - Timeline: returns a tuple[str, str] -> matfile_list, paths_list of all Timeline.mat files of the given subject
         
     Returns:
         - 
     """
     
     # these fields will be initialized 
-    sub: str            # note that : is used, not = 
-    timing: str 
-    rec_modality: str
+    sub: str            # note that : is used, not =  
         
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
 
         _, self.data_path = find_folder.find_project_folder() #self.data_path stores path to "Data" folder
-        
-       # load Excel sheet
-        
-        if self.rec_modality == "Streaming":
-            self.Streaming = rec_Mod.recModality(
+    
+        self.Streaming = rec_Mod.recModality(
                 sub = self.sub,
-                rec_modality = self.rec_modality
+                rec_modality = "Streaming"
                 )
         
-        elif self.rec_modality == "Survey":
-            self.Survey = rec_Mod.recModality(
+        self.Survey = rec_Mod.recModality(
                 sub = self.sub,
-                rec_modality = self.rec_modality
+                rec_modality = "Survey"
                 )
         
-        elif self.rec_modality == "Timeline":
-            self.Timeline = rec_Mod.recModality(
+        self.Timeline = rec_Mod.recModality(
                 sub = self.sub,
-                rec_modality = self.rec_modality
+                rec_modality = "Timeline"
                 )
+        
+        # load the Perceive_Metadata.xlsx file
+        PerceiveMetadata_wb = load_workbook('Perceive_Metadata.xlsx')
+        PerceiveMetadata_ws = PerceiveMetadata_wb.active # this gets the current active worksheet
+        
+        
 
+        
         # if timing == "3MFU":
         #   self.3MFU = loadmat.load_timingmatfiles(self.sub, self.timing) 
         #   or...???
