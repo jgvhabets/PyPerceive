@@ -16,7 +16,10 @@ class recModality:
         - rec_modality: "Streaming", "Survey", "Timeline"
 
     Returns:
-        -  tuple[str, str] -> matfile_list, paths_list 
+        - data_path: path to the "Data" folder
+        - subject_path: path to the "sub" folder with all files of the given subject
+        - matfile_list: all .mat files of the given subject and recording modality
+        - paths_list: all paths to the given .mat files of the given subject and modality
     
     """
     sub: str
@@ -53,7 +56,8 @@ class recModality:
                     # add each path to the list selection_paths
 
         
-    
+        
+
     def __str__(self,):
-        return f'The recModality Class will select all .mat files of a given recording modality of a subject.'
+        return f'The recModality Class will select all .mat files of the subject {self.sub} and the BrainSense recording modality {self.rec_modality}.'
     

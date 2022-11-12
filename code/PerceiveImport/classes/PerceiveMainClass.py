@@ -81,7 +81,7 @@ class PerceiveData:
 
 
     def __str__(self,):
-        return f'From the Perceived data from subject {self.sub} all BrainSense {self.rec_modality} .mat files from the {self.timing} session are being selected.'
+        return f'The Perceived data from subject {self.sub} are being selected.'
     
     # load the final selection of files into the correct datatype structure
     # e.g. load files from .select_matfiles() into Survey_class.py
