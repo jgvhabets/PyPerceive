@@ -14,6 +14,7 @@ import xlrd
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.RecModality_class as rec_Mod
+# import PerceiveImport.classes.PerceiveMetadataClass as metadata
 
 
 @dataclass(init=True, repr=True) 
@@ -57,11 +58,13 @@ class PerceiveData:
                 rec_modality = "Timeline"
                 )
         
-        # load the Perceive_Metadata.xlsx file
-        PerceiveMetadata = pd.read_excel('Perceive_Metadata.xlsx')
-        
+        # load the Perceive_Metadata.xlsx file as pandas DataFrame
+        os.chdir(self.data_path)
+        self.PerceiveMetadata = pd.read_excel('Perceive_Metadata.xlsx')
 
         
+
+
         # if timing == "3MFU":
         #   self.3MFU = loadmat.load_timingmatfiles(self.sub, self.timing) 
         #   or...???
@@ -72,12 +75,7 @@ class PerceiveData:
         #       else loadmat.load_timingmatfiles(self.sub, self.timing)
         
         #setattr()
-        #getattr()
-
-        # if data_type == "Streaming":   
-
-
-        
+        #getattr()   
 
 
     def __str__(self,):

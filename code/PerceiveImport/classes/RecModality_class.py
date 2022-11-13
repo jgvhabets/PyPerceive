@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import os
 
 import PerceiveImport.methods.find_folders as find_folder
-# import PerceiveImport.classes.Timing_class as Timing
+# import PerceiveImport.classes.PerceiveMetadataClass as metadata
 
 
 @dataclass (init=True, repr=True)
@@ -56,12 +56,13 @@ class recModality:
                     # keep root and file joined together so the path won´t get lost
                     # add each path to the list selection_paths
 
-        
-        # self.Postop = Timing.timingClass(timing = "Postop")
-        # self.3MFU = Timing.timingClass(timing = "3MFU")
-        # self.12MFU = Timing.timingClass(timing = "12MFU")
-        # self.18MFU = Timing.timingClass(timing = "18MFU")
-        # self.24MFU = Timing.timingClass(timing = "24MFU")
+        # conditions timing
+
+        # self.Postop = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality, timing = "Postop")
+        # self.3MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "3MFU")
+        # self.12MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "12MFU")
+        # self.18MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "18MFU")
+        # self.24MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "24MFU")
 
 
     def __str__(self,):
