@@ -36,6 +36,10 @@ import scipy
 import matplotlib.pyplot as plt
 from scipy import signal
 
+import openpyxl
+from openpyxl import Workbook, load_workbook
+import xlrd
+
 import mne_bids
 import mne
 ```

@@ -5,9 +5,11 @@ import os
 from dataclasses import dataclass
 
 import json
+import pandas as pd
+import xlrd
 
-import openpyxl
-from openpyxl import Workbook, load_workbook
+# import openpyxl
+# from openpyxl import Workbook, load_workbook
 
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
@@ -56,9 +58,7 @@ class PerceiveData:
                 )
         
         # load the Perceive_Metadata.xlsx file
-        PerceiveMetadata_wb = load_workbook('Perceive_Metadata.xlsx')
-        PerceiveMetadata_ws = PerceiveMetadata_wb.active # this gets the current active worksheet
-        
+        PerceiveMetadata = pd.read_excel('Perceive_Metadata.xlsx')
         
 
         
