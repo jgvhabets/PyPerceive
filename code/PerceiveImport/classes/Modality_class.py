@@ -55,14 +55,19 @@ class Modality:
         # selected matfiles and matpaths are being set here and stored into the the Metadata_Class
         setattr(
             self.metaClass,
-            files,
-            metaclass.MetadataClass(
-                matfile_list = self.matfile_list,
-                matpath_list = self.matpath_list)
+            "matfile_list",
+            metaclass.MetadataClass(matfile_list = self.matfile_list)
+        )
+
+        setattr(
+            self.metaClass,
+            "matpath_list",
+            metaclass.MetadataClass(matpath_list = self.matpath_list)
         )
 
 
-        for tim in self.metaClass.incl_timing:
+
+        for tim in metaclass.MetadataClass.incl_timing:
 
             assert tim in allowed_timing, (
                 f'inserted modality ({tim}) should'
@@ -74,7 +79,8 @@ class Modality:
                 tim,
                 TimClass.timingClass( 
                     sub = self.sub,
-                    timing = tim
+                    timing = tim,
+                    metaClass = self.metaClass
                 )
             )  
         # self.Postop = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality, timing = "Postop")

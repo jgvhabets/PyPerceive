@@ -51,15 +51,20 @@ class PerceiveData:
         self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
         self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
+    
 
+        # define all variables and save them in Metadata_Class, where they can continuously be modified and adjusted
         self.metaClass = metadata.MetadataClass(
             sub = self.sub,
             incl_modalities = self.incl_modalities,
             incl_timing = self.incl_timing,
             incl_medication = self.incl_medication,
             incl_stim = self.incl_stim,
-            incl_task = self.incl_task)
+            incl_task = self.incl_task,
+            PerceiveMetadata_selection = self.PerceiveMetadata) # matfile_list, matpath_list will be defined in the modality class and further subclasses
 
+        # loop through every modality input in the incl_modalities list 
+        # and set the modality valueget the matfile_list and matpath_list for each modality
         for mod in self.incl_modalities:
 
             assert mod in allowed_modalities, (
@@ -67,9 +72,10 @@ class PerceiveData:
                 f' be in {allowed_modalities}'
             )
 
+            # seattr(object,name,value) -> object=instance whose attribute is to be set, name=attribute name, value=value to be set for the attribute
             setattr(
                 self, 
-                mod, # modality in for loop
+                mod, 
                 modalityClass.Modality(
                     sub = self.sub,
                     modality = mod,
