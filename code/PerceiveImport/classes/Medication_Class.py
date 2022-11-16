@@ -1,4 +1,6 @@
-### create a Timing class """
+""" Medication Class"""
+
+
 
 from dataclasses import dataclass
 
@@ -6,7 +8,7 @@ import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Medication_Class as medclass
 
 @dataclass (init=True, repr=True)
-class timingClass:
+class medicationClass:
     """
     timing Class 
     
@@ -21,13 +23,13 @@ class timingClass:
     """
     
     sub = str
-    timing = str
+    medication = str
     metaClass = any
 
 
     def __post_init__(self,):
 
-        allowed_medication = ["Off", "On"]
+        allowed_stimulation = ["Off", "On"]
 
         matpath_list = metaclass.MetadataClass.matpath_list # get the list of paths of the .mat filenames from the Metadata_Class
 
@@ -73,37 +75,9 @@ class timingClass:
             setattr(
                 self,
                 med,
-                medclass.medicationClass( 
+                medclass.timingClass( 
                     sub = self.sub,
-                    medication = med,
+                    timing = tim,
                     metaClass = self.metaClass
                 )
             )  
-
-
-
-
-
-        #PerceiveMetadata_wb = load_workbook('Perceive_Metadata.xlsx')
-        #PerceiveMetadata_ws = PerceiveMetadata_wb.active # this gets the current active worksheet
-
-
-        # if matfilename from column matfile (1) in self.matfile_list (from RecModality Class)
-        # AND cell in column timing (4) == self.timing
-        # the add matfile to self.matfile_list
-        # else delete matfile from self.matfile list
-
-        # get rownumbers row_x - row_y of self.matfile_list (of chosen RecModality)
-        # for name in column4 from row_x - row_y:
-        #     if cell == self.timing:
-        #         append matfilename(row_of_cell,column1) to self.matfile_list
-
-        # for file in self.matfile_list:
-        #     if cell in column_timing(4) in same row == self.timing:
-        #         self.matfile_list.keep(file)
-        #     else:
-        #         self.matfile_list.delete(file)
-        
-        
-        # is it possible to detect the path of a unique path? then we don´t have to safe the 
-
