@@ -26,14 +26,16 @@ class MetadataClass:
     """
     
 
-    sub: str            # note that : is used, not =  
+    sub: str            
     incl_modalities: list
     incl_timing: list 
     incl_medication: list 
     incl_stim: list 
     incl_task: list
-    matfile_list: list
+
     matpath_list: list
+    PerceiveMetadata_selection: any # pd.DataFrame
+
 
 
     def __post_init__(self,): 
@@ -44,7 +46,7 @@ class MetadataClass:
         # allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
         #_, self.data_path = find_folder.find_project_folder() # path to "Data" folder
-        # self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
+        #self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
         #self.PerceiveMetadata_selection = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
 

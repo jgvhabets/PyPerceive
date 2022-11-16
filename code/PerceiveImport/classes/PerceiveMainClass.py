@@ -51,7 +51,6 @@ class PerceiveData:
         self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
         self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
-    
 
         # define all variables and save them in Metadata_Class, where they can continuously be modified and adjusted
         self.metaClass = metadata.MetadataClass(
@@ -61,7 +60,8 @@ class PerceiveData:
             incl_medication = self.incl_medication,
             incl_stim = self.incl_stim,
             incl_task = self.incl_task,
-            PerceiveMetadata_selection = self.PerceiveMetadata) # matfile_list, matpath_list will be defined in the modality class and further subclasses
+            PerceiveMetadata_selection = self.PerceiveMetadata) 
+        # matfile_list, matpath_list are being defined in the modality class and further subclasses, do they have to be defined here in the mainClass already????
 
         # loop through every modality input in the incl_modalities list 
         # and set the modality valueget the matfile_list and matpath_list for each modality

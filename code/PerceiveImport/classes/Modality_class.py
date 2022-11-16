@@ -39,7 +39,6 @@ class Modality:
             "Timeline": "CHRONIC"
         }
 
-        self.matfile_list = []
         self.matpath_list = [] # this list will contain all paths to the selected matfiles
 
         _, self.data_path = find_folder.find_project_folder()
@@ -48,18 +47,12 @@ class Modality:
         for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
                 if file.endswith(".mat") and modality_dict[self.modality] in file: # matpart is defined earlier
-                    self.matfile_list.append(file)
                     self.matpath_list.append(os.path.join(root, file)) 
                     # keep root and file joined together so the path won´t get lost
                     # add each path to the list selection_paths
         
 
         # selected matfiles and matpaths are being stored into the the Metadata_Class
-        setattr(
-            self.metaClass,
-            "matfile_list",
-            metaclass.MetadataClass(matfile_list = self.matfile_list)
-        )
 
         setattr(
             self.metaClass,
@@ -69,8 +62,9 @@ class Modality:
 
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list
-        PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
-
+        # PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
+        
+        PerceiveMetadata = metaclass.MetadataClass.PerceiveMetadata_selection
         self.PerceiveMetadata_selection = PerceiveMetadata[PerceiveMetadata["Perceive_filename"].isin(self.matfile_list)]
 
         #store the new selection of the DataFrame into Metadata_Class
@@ -97,15 +91,9 @@ class Modality:
                     metaClass = self.metaClass
                 )
             )  
-        # self.Postop = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality, timing = "Postop")
-        # self.3MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "3MFU")
-        # self.12MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "12MFU")
-        # self.18MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "18MFU")
-        # self.24MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "24MFU")
 
-        # self.Streaming.Postop.
 
 
     def __str__(self,):
-        return f'The recModality Class will select all .mat files of the subject {self.sub} and the BrainSense recording modality {self.rec_modality}.'
+        return f'The recModality Class will select all .mat files of the subject {self.sub} and the BrainSense recording modality {self.modality}.'
     

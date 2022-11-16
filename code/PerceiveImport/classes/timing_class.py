@@ -29,20 +29,50 @@ class timingClass:
 
     def __post_init__(self,):
 
+        #_, self.data_path = find_folder.find_project_folder()
+        #self.subject_path = os.path.join(self.data_path, self.sub)
+
+        matpath_list = metaclass.MetadataClass.matpath_list # get the list of paths of the .mat filenames from the Metadata_Class
+
+        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection # get the preselected PerceiveMetadata DataFrame selection stored in the MetadataClass
+
+
+        #select for timing:
+        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["timing"] == self.timing]
         
-        # from matpath_list select matfile paths to incl_timing
+        matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
-        for 
+        self.matpath_list = []
+        for path in matpath_list:
+            for f in matfile_list:
+                if f in path:
+                    self.matpath_list.append(path)
+        # einfacherer Weg ???
 
 
-        PerceiveMetadata_wb = load_workbook('Perceive_Metadata.xlsx')
-        PerceiveMetadata_ws = PerceiveMetadata_wb.active # this gets the current active worksheet
+        # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
+        
+        setattr(
+            self.metaClass,
+            "PerceiveMetadata_selection",
+            metaclass.MetadataClass(
+                PerceiveMetadata_selection = self.PerceiveMetadata_selection)
+        )
 
-        self.matfile_list = [] # this list will contain all matfile names    
-        self.paths_list = [] # this list will contain all paths to the selected matfiles
+        setattr(
+            self.metaClass,
+            "matpath_list",
+            metaclass.MetadataClass(
+                matpath_list = self.matpath_list)
+        )
 
-        _, self.data_path = find_folder.find_project_folder()
-        self.subject_path = os.path.join(self.data_path, self.sub)
+
+
+
+
+        #PerceiveMetadata_wb = load_workbook('Perceive_Metadata.xlsx')
+        #PerceiveMetadata_ws = PerceiveMetadata_wb.active # this gets the current active worksheet
+
 
         # if matfilename from column matfile (1) in self.matfile_list (from RecModality Class)
         # AND cell in column timing (4) == self.timing
