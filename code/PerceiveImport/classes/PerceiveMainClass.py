@@ -1,8 +1,8 @@
-"""PyFile"""
+"""Main Class"""
 
 # import packages
 import os 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import json
 import pandas as pd
@@ -13,8 +13,8 @@ import xlrd
 
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.RecModality_class as rec_Mod
-# import PerceiveImport.classes.PerceiveMetadataClass as metadata
+import PerceiveImport.classes.Modality_class as modalityClass
+import PerceiveImport.classes.Metadata_Class as metadata
 
 
 @dataclass(init=True, repr=True) 
@@ -37,31 +37,47 @@ class PerceiveData:
     
     # these fields will be initialized 
     sub: str            # note that : is used, not =  
-        
+    incl_modalities: list = field(default_factory=lambda: ["Streaming", "Survey", "Timeline"])  # default:_ if no input is given -> automatically input the full list
+    incl_timing: list = field(default_factory=lambda: ["Postop", "3MFU", "12MFU"])
+    incl_medication: list = field(default_factory=lambda: ["M0S0", "M0S1", "M1S0", "M1S1"])
+    incl_stim: list = field(default_factory=lambda: ["On", "Off", "12MFU"])
+    incl_task: list = field(default_factory=lambda: ["Rest", "DirectionalStimulation", "FatigueTest"])
+
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
+        allowed_modalities = ["Streaming", "Survey", "Timeline"] # this shows allowed values for incl_modalities
 
         _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
         self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
-        self.Streaming = rec_Mod.recModality(
-                sub = self.sub,
-                rec_modality = "Streaming"
+        self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
+
+        self.metaClass = metadata.MetadataClass(
+            sub = self.sub,
+            incl_modalities = self.incl_modalities,
+            incl_timing = self.incl_timing,
+            incl_medication = self.incl_medication,
+            incl_stim = self.incl_stim,
+            incl_task = self.incl_task)
+
+        for mod in self.incl_modalities:
+
+            assert mod in allowed_modalities, (
+                f'inserted modality ({mod}) should'
+                f' be in {allowed_modalities}'
+            )
+
+            setattr(
+                self, 
+                mod, # modality in for loop
+                modalityClass.Modality(
+                    sub = self.sub,
+                    modality = mod,
+                    metaClass = self.metaClass
                 )
+            )
+
         
-        self.Survey = rec_Mod.recModality(
-                sub = self.sub,
-                rec_modality = "Survey"
-                )
-        
-        self.Timeline = rec_Mod.recModality(
-                sub = self.sub,
-                rec_modality = "Timeline"
-                )
-        
-        # load the Perceive_Metadata.xlsx file as pandas DataFrame
-        # os.chdir(self.data_path)
-        # self.PerceiveMetadata = pd.read_excel('Perceive_Metadata.xlsx')
 
         # self.Streaming.Postop = metadata.PerceiveMetadata(
         # sub=self.sub, rec_modality="Streaming", timing = "Postop")

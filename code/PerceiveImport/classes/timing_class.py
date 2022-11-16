@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import os
 
 import PerceiveImport.methods.find_folders as find_folder
+import PerceiveImport.classes.Metadata_Class as metaclass
 
 @dataclass (init=True, repr=True)
 class timingClass:
@@ -21,9 +22,18 @@ class timingClass:
     
     """
     
+    sub = str
     timing = str
+    metaClass = any
+
 
     def __post_init__(self,):
+
+        
+        # from matpath_list select matfile paths to incl_timing
+
+        for 
+
 
         PerceiveMetadata_wb = load_workbook('Perceive_Metadata.xlsx')
         PerceiveMetadata_ws = PerceiveMetadata_wb.active # this gets the current active worksheet

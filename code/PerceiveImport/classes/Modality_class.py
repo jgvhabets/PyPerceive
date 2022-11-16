@@ -4,11 +4,11 @@ from dataclasses import dataclass
 import os
 
 import PerceiveImport.methods.find_folders as find_folder
-# import PerceiveImport.classes.PerceiveMetadataClass as metadata
-
+import PerceiveImport.classes.Metadata_Class as metaclass
+import PerceiveImport.classes.Timing_class as TimClass
 
 @dataclass (init=True, repr=True)
-class recModality:
+class Modality:
     """
     BrainSense recording modality Class 
     
@@ -24,23 +24,20 @@ class recModality:
     
     """
     sub: str
-    rec_modality: str
-
-    # files: list
-    # timingfiles: list
-
-    # initialized fields
+    modality: str
+    metaClass: any
     
     def __post_init__(self,):
-    
-        #self.recmod_matfilenames, self.recmod_matfilepaths = matfiles.select_matfiles(self.sub, self.rec_modality)
-        rec_modality_dict = {
-        "Survey": "LMTD",
-        "Streaming": "BrainSense",
-        "Timeline": "CHRONIC"
+
+        allowed_timing = ["Postop", "3MFU", "12MFU"]
+
+        modality_dict = {
+            "Survey": "LMTD",
+            "Streaming": "BrainSense",
+            "Timeline": "CHRONIC"
         }
-    
-        self.matfile_list = [] # this list will contain all matfile names    
+
+        self.matfile_list = []
         self.matpath_list = [] # this list will contain all paths to the selected matfiles
 
         _, self.data_path = find_folder.find_project_folder()
@@ -48,20 +45,45 @@ class recModality:
 
         for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
-                if file.endswith(".mat") and rec_modality_dict[self.rec_modality] in file: # matpart is defined earlier
-                    # print file????
-                    self.matfile_list.append(file) # adding every file to the list of matfile names
-                    
+                if file.endswith(".mat") and modality_dict[self.modality] in file: # matpart is defined earlier
+                    self.matfile_list.append(file)
                     self.matpath_list.append(os.path.join(root, file)) 
                     # keep root and file joined together so the path won´t get lost
                     # add each path to the list selection_paths
+        
 
-    
+        # selected matfiles and matpaths are being set here and stored into the the Metadata_Class
+        setattr(
+            self.metaClass,
+            files,
+            metaclass.MetadataClass(
+                matfile_list = self.matfile_list,
+                matpath_list = self.matpath_list)
+        )
+
+
+        for tim in self.metaClass.incl_timing:
+
+            assert tim in allowed_timing, (
+                f'inserted modality ({tim}) should'
+                f' be in {allowed_timing}'
+            )
+
+            setattr(
+                self,
+                tim,
+                TimClass.timingClass( 
+                    sub = self.sub,
+                    timing = tim
+                )
+            )  
         # self.Postop = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality, timing = "Postop")
         # self.3MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "3MFU")
         # self.12MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "12MFU")
         # self.18MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "18MFU")
         # self.24MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "24MFU")
+
+        # self.Streaming.Postop.
 
 
     def __str__(self,):
