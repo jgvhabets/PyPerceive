@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 import os
 
+import pandas as pd
+
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Timing_class as TimClass
@@ -52,7 +54,7 @@ class Modality:
                     # add each path to the list selection_paths
         
 
-        # selected matfiles and matpaths are being set here and stored into the the Metadata_Class
+        # selected matfiles and matpaths are being stored into the the Metadata_Class
         setattr(
             self.metaClass,
             "matfile_list",
@@ -65,6 +67,18 @@ class Modality:
             metaclass.MetadataClass(matpath_list = self.matpath_list)
         )
 
+
+        # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list
+        PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
+
+        self.PerceiveMetadata_selection = PerceiveMetadata[PerceiveMetadata["Perceive_filename"].isin(self.matfile_list)]
+
+        #store the new selection of the DataFrame into Metadata_Class
+        setattr(
+            self.metaClass,
+            "PerceiveMetadata_selection",
+            metaclass.MetadataClass(PerceiveMetadata_selection = self.PerceiveMetadata_selection)
+        )
 
 
         for tim in metaclass.MetadataClass.incl_timing:
