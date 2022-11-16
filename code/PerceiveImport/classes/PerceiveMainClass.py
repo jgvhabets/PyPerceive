@@ -41,8 +41,9 @@ class PerceiveData:
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
 
-        _, self.data_path = find_folder.find_project_folder() #self.data_path stores path to "Data" folder
-    
+        _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
+        self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
+
         self.Streaming = rec_Mod.recModality(
                 sub = self.sub,
                 rec_modality = "Streaming"
@@ -59,10 +60,15 @@ class PerceiveData:
                 )
         
         # load the Perceive_Metadata.xlsx file as pandas DataFrame
-        os.chdir(self.data_path)
-        self.PerceiveMetadata = pd.read_excel('Perceive_Metadata.xlsx')
+        # os.chdir(self.data_path)
+        # self.PerceiveMetadata = pd.read_excel('Perceive_Metadata.xlsx')
 
-        
+        # self.Streaming.Postop = metadata.PerceiveMetadata(
+        # sub=self.sub, rec_modality="Streaming", timing = "Postop")
+        # self.3MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "3MFU")
+        # self.12MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "12MFU")
+        # self.18MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "18MFU")
+        # self.24MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "24MFU")
 
 
         # if timing == "3MFU":

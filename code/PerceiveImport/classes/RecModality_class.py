@@ -41,7 +41,7 @@ class recModality:
         }
     
         self.matfile_list = [] # this list will contain all matfile names    
-        self.paths_list = [] # this list will contain all paths to the selected matfiles
+        self.matpath_list = [] # this list will contain all paths to the selected matfiles
 
         _, self.data_path = find_folder.find_project_folder()
         self.subject_path = os.path.join(self.data_path, self.sub)
@@ -52,12 +52,11 @@ class recModality:
                     # print file????
                     self.matfile_list.append(file) # adding every file to the list of matfile names
                     
-                    self.paths_list.append(os.path.join(root, file)) 
+                    self.matpath_list.append(os.path.join(root, file)) 
                     # keep root and file joined together so the path won´t get lost
                     # add each path to the list selection_paths
 
-        # conditions timing
-
+    
         # self.Postop = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality, timing = "Postop")
         # self.3MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "3MFU")
         # self.12MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "12MFU")
