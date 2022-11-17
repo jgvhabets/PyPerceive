@@ -14,12 +14,15 @@ class MetadataClass:
     
     parameters:
         - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
+        - incl_modalities: list
+        - incl_timing: list 
+        - incl_medication: list 
+        - incl_stim: list 
+        - incl_task: list
+        - matpath_list: list
+        - PerceiveMetadata_selection: any
 
     post-initialized parameters:
-        - data_path: path to your "Data" folder with all subject files 
-        - Streaming: returns a tuple[str, str] -> matfile_list, paths_list of all Streaming.mat files of the given subject
-        - Survey: returns a tuple[str, str] -> matfile_list, paths_list of all Survey.mat files of the given subject
-        - Timeline: returns a tuple[str, str] -> matfile_list, paths_list of all Timeline.mat files of the given subject
         
     Returns:
         - 
@@ -32,7 +35,6 @@ class MetadataClass:
     incl_medication: list 
     incl_stim: list 
     incl_task: list
-
     matpath_list: list
     PerceiveMetadata_selection: any # pd.DataFrame
 

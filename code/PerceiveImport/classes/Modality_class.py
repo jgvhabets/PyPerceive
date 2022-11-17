@@ -16,7 +16,8 @@ class Modality:
     
     parameters:
         - sub: e.g. "sub-021"
-        - rec_modality: "Streaming", "Survey", "Timeline"
+        - modality: "Streaming", "Survey", "Timeline"
+        - metaClass
 
     Returns:
         - data_path: path to the "Data" folder

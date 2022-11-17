@@ -5,17 +5,17 @@
 from dataclasses import dataclass
 
 import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.Medication_Class as medclass
+import PerceiveImport.classes.Stim_Class as stimclass
 
 @dataclass (init=True, repr=True)
 class medicationClass:
     """
-    timing Class 
+    Medication Class 
     
     parameters:
         (input from main dataclass PerceiveData)
         - sub:
-        - timing: "Postop", "3MFU", "12MFU", "18MFU", "24MFU"
+        - medication: "Off", "On"
 
     Returns:
         - 
@@ -31,16 +31,17 @@ class medicationClass:
 
         allowed_stimulation = ["Off", "On"]
 
-        matpath_list = metaclass.MetadataClass.matpath_list # get the list of paths of the .mat filenames from the Metadata_Class
+        # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
+        matpath_list = metaclass.MetadataClass.matpath_list 
+        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection 
 
-        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection # get the preselected PerceiveMetadata DataFrame selection stored in the MetadataClass
 
-
-        #select for timing:
-        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["timing"] == self.timing]
-        
+        #select the PerceiveMetadata DataFrame for the correct medication:
+        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["medication"] == self.medication]
         matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
+        # select from the matpath_list from the MetadataClass 
+        # only append paths with the selected .mat filenames to the new self.matpath_list
         self.matpath_list = []
         for path in matpath_list:
             for f in matfile_list:
@@ -65,19 +66,20 @@ class medicationClass:
                 matpath_list = self.matpath_list)
         )
 
-        for med in metaclass.MetadataClass.incl_medication:
+        for stim in metaclass.MetadataClass.incl_stim:
 
-            assert med in allowed_medication, (
-                f'inserted modality ({med}) should'
-                f' be in {allowed_medication}'
+            # Error checking: if stim is not in allowed_stimulation -> Error message
+            assert stim in allowed_stimulation, (
+                f'inserted modality ({stim}) should'
+                f' be in {allowed_stimulation}'
             )
 
             setattr(
                 self,
-                med,
-                medclass.timingClass( 
+                stim,
+                stimclass.stimulationClass( 
                     sub = self.sub,
-                    timing = tim,
+                    stimulation = stim,
                     metaClass = self.metaClass
                 )
             )  

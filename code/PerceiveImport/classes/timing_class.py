@@ -11,9 +11,9 @@ class timingClass:
     timing Class 
     
     parameters:
-        (input from main dataclass PerceiveData)
         - sub:
         - timing: "Postop", "3MFU", "12MFU", "18MFU", "24MFU"
+        - metaClass: 
 
     Returns:
         - 
@@ -29,16 +29,18 @@ class timingClass:
 
         allowed_medication = ["Off", "On"]
 
-        matpath_list = metaclass.MetadataClass.matpath_list # get the list of paths of the .mat filenames from the Metadata_Class
-
-        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection # get the preselected PerceiveMetadata DataFrame selection stored in the MetadataClass
-
-
-        #select for timing:
-        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["timing"] == self.timing]
         
+        # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
+        matpath_list = metaclass.MetadataClass.matpath_list 
+        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection 
+
+        #select for timing, save the selection in PerceiveMetadata_selection 
+        # make a list out of the matfilenames in the first column "Perceive_filename"
+        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["timing"] == self.timing]
         matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
+        # select from the matpath_list from the MetadataClass 
+        # only append paths with the selected .mat filenames to the new self.matpath_list
         self.matpath_list = []
         for path in matpath_list:
             for f in matfile_list:
@@ -48,7 +50,6 @@ class timingClass:
 
 
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
-        
         setattr(
             self.metaClass,
             "PerceiveMetadata_selection",
@@ -62,6 +63,7 @@ class timingClass:
             metaclass.MetadataClass(
                 matpath_list = self.matpath_list)
         )
+
 
         for med in metaclass.MetadataClass.incl_medication:
 
