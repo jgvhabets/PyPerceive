@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-import PerceiveImport.classes.Metadata_Class as metaclass
+# import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Task_Class as taskclass
 
 @dataclass (init=True, repr=True)
@@ -31,8 +31,8 @@ class stimulationClass:
         allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
-        matpath_list = metaclass.MetadataClass.matpath_list 
-        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection 
+        matpath_list = self.metaClass.matpath_list 
+        PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
 
 
         #select the PerceiveMetadata DataFrame for the correct medication:
@@ -54,19 +54,15 @@ class stimulationClass:
         setattr(
             self.metaClass,
             "PerceiveMetadata_selection",
-            metaclass.MetadataClass(
-                PerceiveMetadata_selection = self.PerceiveMetadata_selection)
-        )
+            self.PerceiveMetadata_selection)
 
         setattr(
             self.metaClass,
             "matpath_list",
-            metaclass.MetadataClass(
-                matpath_list = self.matpath_list)
-        )
+            self.matpath_list)
 
 
-        for task in metaclass.MetadataClass.incl_task:
+        for task in self.metaClass.incl_task:
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
             assert task in allowed_task, (

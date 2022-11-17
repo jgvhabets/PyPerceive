@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 
-import PerceiveImport.classes.Metadata_Class as metaclass
+# import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Stim_Class as stimclass
 
 @dataclass (init=True, repr=True)
@@ -32,8 +32,8 @@ class medicationClass:
         allowed_stimulation = ["Off", "On"]
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
-        matpath_list = metaclass.MetadataClass.matpath_list 
-        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection 
+        matpath_list = self.metaClass.matpath_list 
+        PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
 
 
         #select the PerceiveMetadata DataFrame for the correct medication:
@@ -55,18 +55,14 @@ class medicationClass:
         setattr(
             self.metaClass,
             "PerceiveMetadata_selection",
-            metaclass.MetadataClass(
-                PerceiveMetadata_selection = self.PerceiveMetadata_selection)
-        )
+            self.PerceiveMetadata_selection)
 
         setattr(
             self.metaClass,
             "matpath_list",
-            metaclass.MetadataClass(
-                matpath_list = self.matpath_list)
-        )
+            self.matpath_list)
 
-        for stim in metaclass.MetadataClass.incl_stim:
+        for stim in self.metaClass.incl_stim:
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
             assert stim in allowed_stimulation, (

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-import PerceiveImport.classes.Metadata_Class as metaclass
+# import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Medication_Class as medclass
 
 @dataclass (init=True, repr=True)
@@ -31,8 +31,8 @@ class timingClass:
 
         
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
-        matpath_list = metaclass.MetadataClass.matpath_list 
-        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection 
+        matpath_list = self.metaClass.matpath_list 
+        PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
 
         #select for timing, save the selection in PerceiveMetadata_selection 
         # make a list out of the matfilenames in the first column "Perceive_filename"
@@ -53,19 +53,18 @@ class timingClass:
         setattr(
             self.metaClass,
             "PerceiveMetadata_selection",
-            metaclass.MetadataClass(
-                PerceiveMetadata_selection = self.PerceiveMetadata_selection)
+            self.PerceiveMetadata_selection
         )
 
         setattr(
             self.metaClass,
             "matpath_list",
-            metaclass.MetadataClass(
-                matpath_list = self.matpath_list)
-        )
+            self.matpath_list
+            )
+        
 
 
-        for med in metaclass.MetadataClass.incl_medication:
+        for med in self.metaClass.incl_medication:
 
             assert med in allowed_medication, (
                 f'inserted modality ({med}) should'

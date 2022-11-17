@@ -1,6 +1,5 @@
 """ Metadata Class """
 
-import os 
 from dataclasses import dataclass, field
 
 import pandas as pd
@@ -41,7 +40,7 @@ class MetadataClass:
 
 
     def __post_init__(self,): 
-        
+
         print("MetadataClass has been loaded")
 
 

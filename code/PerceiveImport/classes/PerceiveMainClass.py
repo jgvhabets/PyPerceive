@@ -4,7 +4,6 @@
 import os 
 from dataclasses import dataclass, field
 
-import json
 import pandas as pd
 import xlrd
 
@@ -63,6 +62,8 @@ class PerceiveData:
         self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
         
         matfile_list = self.PerceiveMetadata["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
+        # -> Error occurs: InvalidIndexError 'Perceive_filename' ???
+
         self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
         
         for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
@@ -73,7 +74,7 @@ class PerceiveData:
                     # add each path to the list selection_paths
 
 
-        # define and store all variables in Metadata_Class, where they can continuously be called and modified from further subclasses
+        # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
             sub = self.sub,
             incl_modalities = self.incl_modalities,
@@ -100,20 +101,10 @@ class PerceiveData:
                 modalityClass.Modality(
                     sub = self.sub,
                     modality = mod,
-                    metaClass = self.metaClass
-                )
+                    metaClass = self.metaClass)
             )
 
-        
-
-        # self.Streaming.Postop = metadata.PerceiveMetadata(
-        # sub=self.sub, rec_modality="Streaming", timing = "Postop")
-        # self.3MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "3MFU")
-        # self.12MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "12MFU")
-        # self.18MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "18MFU")
-        # self.24MFU = metadata.PerceiveMetadata(sub=self.sub, rec_modality=self.rec_modality,timing = "24MFU")
-
-
+    
         # if timing == "3MFU":
         #   self.3MFU = loadmat.load_timingmatfiles(self.sub, self.timing) 
         #   or...???

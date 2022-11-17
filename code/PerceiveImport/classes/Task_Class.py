@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-import PerceiveImport.classes.Metadata_Class as metaclass
+# import PerceiveImport.classes.Metadata_Class as metaclass
 
 @dataclass (init=True, repr=True)
 class taskClass:
@@ -29,8 +29,8 @@ class taskClass:
     def __post_init__(self,):
 
         # get matpaths and PerceiveMetadata_selection from the Metadata_Class
-        matpath_list = metaclass.MetadataClass.matpath_list 
-        PerceiveMetadata_selection = metaclass.MetadataClass.PerceiveMetadata_selection 
+        matpath_list = self.metaClass.matpath_list 
+        PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
 
         #select the PerceiveMetadata DataFrame for the correct task:
         self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["task"] == self.task]
@@ -50,18 +50,13 @@ class taskClass:
         setattr(
             self.metaClass,
             "PerceiveMetadata_selection",
-            metaclass.MetadataClass(
-                PerceiveMetadata_selection = self.PerceiveMetadata_selection)
-        )
+            self.PerceiveMetadata_selection)
 
         setattr(
             self.metaClass,
             "matpath_list",
-            metaclass.MetadataClass(
-                matpath_list = self.matpath_list)
-        )
-
-
+            self.matpath_list)
+    
 
         # load the selection of .matfiles in self.matpath_list
     

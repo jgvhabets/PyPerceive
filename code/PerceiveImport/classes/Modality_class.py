@@ -6,7 +6,7 @@ import os
 import pandas as pd
 
 import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.Metadata_Class as metaclass
+# import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Timing_class as TimClass
 
 @dataclass (init=True, repr=True)
@@ -59,35 +59,35 @@ class Modality:
         #    if modality_dict[self.modality] in path:
         #        self.matpath_list.append(path)
         
-        # selected matpaths are being stored into the the Metadata_Class
+        # seattr() changes the value of the attribute matpath_list of self.metaClass 
+        
         setattr(
             self.metaClass,
             "matpath_list",
-            metaclass.MetadataClass(matpath_list = self.matpath_list)
-        )
+            self.matpath_list)
+
 
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        PerceiveMetadata = metaclass.MetadataClass.PerceiveMetadata_selection
+        PerceiveMetadata = self.metaClass.PerceiveMetadata_selection
         self.PerceiveMetadata_selection = PerceiveMetadata[PerceiveMetadata["Perceive_filename"].isin(matfile_list)]
 
         #store the new selection of the DataFrame into Metadata_Class
         setattr(
             self.metaClass,
             "PerceiveMetadata_selection",
-            metaclass.MetadataClass(PerceiveMetadata_selection = self.PerceiveMetadata_selection)
-        )
+            self.PerceiveMetadata_selection)
 
         # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
 
-        for tim in metaclass.MetadataClass.incl_timing:
+        for tim in self.metaClass.incl_timing:
 
             assert tim in allowed_timing, (
                 f'inserted modality ({tim}) should'
                 f' be in {allowed_timing}'
             )
 
-            # setattr here does what exactly??
+            # setting the attribute in this class here for tim to a value, which is the timing class with defined attributes
             setattr(
                 self,
                 tim,
