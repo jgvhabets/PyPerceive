@@ -21,7 +21,7 @@ class stimulationClass:
     
     """
     
-    sub = str
+    #sub = str
     stimulation = str
     metaClass = any
 
@@ -73,8 +73,7 @@ class stimulationClass:
             setattr(
                 self,
                 task,
-                taskclass.taskClass( 
-                    sub = self.sub,
+                taskclass.taskClass(
                     task = task,
                     metaClass = self.metaClass
                 )

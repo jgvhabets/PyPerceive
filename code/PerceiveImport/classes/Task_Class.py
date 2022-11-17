@@ -21,7 +21,7 @@ class taskClass:
     
     """
     
-    sub = str
+    #sub = str
     task = str
     metaClass = any
 

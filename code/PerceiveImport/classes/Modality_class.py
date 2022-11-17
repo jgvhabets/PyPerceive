@@ -92,7 +92,6 @@ class Modality:
                 self,
                 tim,
                 TimClass.timingClass( 
-                    sub = self.sub,
                     timing = tim,
                     metaClass = self.metaClass
                 )

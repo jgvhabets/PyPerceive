@@ -22,7 +22,7 @@ class medicationClass:
     
     """
     
-    sub = str
+    #sub = str
     medication = str
     metaClass = any
 
@@ -73,8 +73,7 @@ class medicationClass:
             setattr(
                 self,
                 stim,
-                stimclass.stimulationClass( 
-                    sub = self.sub,
+                stimclass.stimulationClass(
                     stimulation = stim,
                     metaClass = self.metaClass
                 )

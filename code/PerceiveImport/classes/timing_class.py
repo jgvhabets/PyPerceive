@@ -20,7 +20,7 @@ class timingClass:
     
     """
     
-    sub = str
+    #sub = str
     timing = str
     metaClass = any
 
@@ -74,8 +74,7 @@ class timingClass:
             setattr(
                 self,
                 med,
-                medclass.medicationClass( 
-                    sub = self.sub,
+                medclass.medicationClass(
                     medication = med,
                     metaClass = self.metaClass
                 )
