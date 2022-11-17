@@ -39,21 +39,26 @@ class Modality:
             "Timeline": "CHRONIC"
         }
 
-        self.matpath_list = [] # this list will contain all paths to the selected matfiles
-
         _, self.data_path = find_folder.find_project_folder()
         self.subject_path = os.path.join(self.data_path, self.sub)
 
+        self.matpath_list = [] # this list will contain all paths to the selected matfiles
+        matfile_list = []
+
         for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
-                if file.endswith(".mat") and modality_dict[self.modality] in file: # matpart is defined earlier
+                if file.endswith(".mat") and modality_dict[self.modality] in file:
+                    matfile_list.append(file)
                     self.matpath_list.append(os.path.join(root, file)) 
                     # keep root and file joined together so the path won´t get lost
-                    # add each path to the list selection_paths
+                    # add each path to the matpath_list 
         
-
-        # selected matfiles and matpaths are being stored into the the Metadata_Class
-
+        # alternatively, select from existing matpath_list from MetadataClass
+        # for path in metaclass.MetadataClass.matpath_list:
+        #    if modality_dict[self.modality] in path:
+        #        self.matpath_list.append(path)
+        
+        # selected matpaths are being stored into the the Metadata_Class
         setattr(
             self.metaClass,
             "matpath_list",
@@ -61,11 +66,9 @@ class Modality:
         )
 
 
-        # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list
-        # PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
-        
+        # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
         PerceiveMetadata = metaclass.MetadataClass.PerceiveMetadata_selection
-        self.PerceiveMetadata_selection = PerceiveMetadata[PerceiveMetadata["Perceive_filename"].isin(self.matfile_list)]
+        self.PerceiveMetadata_selection = PerceiveMetadata[PerceiveMetadata["Perceive_filename"].isin(matfile_list)]
 
         #store the new selection of the DataFrame into Metadata_Class
         setattr(
@@ -74,6 +77,7 @@ class Modality:
             metaclass.MetadataClass(PerceiveMetadata_selection = self.PerceiveMetadata_selection)
         )
 
+        # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
 
         for tim in metaclass.MetadataClass.incl_timing:
 
@@ -82,6 +86,7 @@ class Modality:
                 f' be in {allowed_timing}'
             )
 
+            # setattr here does what exactly??
             setattr(
                 self,
                 tim,

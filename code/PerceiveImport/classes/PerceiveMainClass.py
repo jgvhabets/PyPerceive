@@ -24,13 +24,22 @@ class PerceiveData:
     
     parameters:
         - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
+        - incl_modalities: a list of recording modalities to include ["Streaming", "Survey", "Timeline", "IndefiniteStreaming"] 
+        - incl_timing: a list of timing sessions to include ["Postop", "3MFU", "12MFU", "18MFU", "24MFU"]
+        - incl_medication: a list of medication conditions to include  ["Off", "On"]
+        - incl_stim: a list of stimulation conditions to include ["On", "Off"]
+        - incl_task: a list of tasks to include ["Rest", "DirectionalStimulation", "FatigueTest"]
 
     post-initialized parameters:
         - data_path: path to your "Data" folder with all subject files 
-        - Streaming: returns a tuple[str, str] -> matfile_list, paths_list of all Streaming.mat files of the given subject
-        - Survey: returns a tuple[str, str] -> matfile_list, paths_list of all Survey.mat files of the given subject
-        - Timeline: returns a tuple[str, str] -> matfile_list, paths_list of all Timeline.mat files of the given subject
-        
+        - subject_path: path to your "sub-0XX" folder
+        - PerceiveMetadata: reads the Excel file 'Perceive_Metadata_sub-0XX'.xlsx
+        - matpath_list: a list of all paths to the .mat files of the column 'Perceive_filename' in PerceiveMetadata
+        - Streaming: a paths_list of all Streaming.mat files of the given subject
+        - Survey: a paths_list of all Survey.mat files of the given subject
+        - Timeline: a paths_list of all Timeline.mat files of the given subject
+        #- IndefiniteStreaming: a paths_list of all IndefiniteStreaming.mat files of the given subject
+
     Returns:
         - 
     """
@@ -38,21 +47,33 @@ class PerceiveData:
     # these fields will be initialized 
     sub: str            # note that : is used, not =  
     incl_modalities: list = field(default_factory=lambda: ["Streaming", "Survey", "Timeline"])  # default:_ if no input is given -> automatically input the full list
-    incl_timing: list = field(default_factory=lambda: ["Postop", "3MFU", "12MFU"])
+    incl_timing: list = field(default_factory=lambda: ["Postop", "3MFU", "12MFU", "18MFU", "24MFU"])
     incl_medication: list = field(default_factory=lambda: ["M0S0", "M0S1", "M1S0", "M1S1"])
-    incl_stim: list = field(default_factory=lambda: ["On", "Off", "12MFU"])
+    incl_stim: list = field(default_factory=lambda: ["On", "Off"])
     incl_task: list = field(default_factory=lambda: ["Rest", "DirectionalStimulation", "FatigueTest"])
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
+        
         allowed_modalities = ["Streaming", "Survey", "Timeline"] # this shows allowed values for incl_modalities
 
         _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
         self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
         self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
+        
+        matfile_list = self.PerceiveMetadata["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
+        self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
+        
+        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
+            for file in files: # looping through every file 
+                if file.endswith(".mat") and file in matfile_list: # matpart is defined earlier
+                    self.matpath_list.append(os.path.join(root, file)) 
+                    # keep root and file joined together so the path won´t get lost
+                    # add each path to the list selection_paths
 
-        # define all variables and save them in Metadata_Class, where they can continuously be modified and adjusted
+
+        # define and store all variables in Metadata_Class, where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
             sub = self.sub,
             incl_modalities = self.incl_modalities,
@@ -60,11 +81,11 @@ class PerceiveData:
             incl_medication = self.incl_medication,
             incl_stim = self.incl_stim,
             incl_task = self.incl_task,
+            matpath_list = self.matpath_list,
             PerceiveMetadata_selection = self.PerceiveMetadata) 
-        # matfile_list, matpath_list are being defined in the modality class and further subclasses, do they have to be defined here in the mainClass already????
 
         # loop through every modality input in the incl_modalities list 
-        # and set the modality valueget the matfile_list and matpath_list for each modality
+        # and set the modality value for each modality
         for mod in self.incl_modalities:
 
             assert mod in allowed_modalities, (
