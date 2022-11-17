@@ -41,6 +41,10 @@ class MetadataClass:
 
 
     def __post_init__(self,): 
+        
+        print("MetadataClass has been loaded")
+
+
         # allowed_modalities = ["Streaming", "Survey", "Timeline"] # this shows allowed values for incl_modalities
         # allowed_timing = ["Postop", "3MFU", "12MFU"]
         # allowed_medication = ["M0S0", "M0S1", "M1S0", "M1S1"]
