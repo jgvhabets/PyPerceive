@@ -12,7 +12,7 @@ class timingClass:
     
     parameters:
         - sub:
-        - timing: "Postop", "3MFU", "12MFU", "18MFU", "24MFU"
+        - timing: "Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"
         - metaClass: 
 
     Returns:
@@ -21,8 +21,8 @@ class timingClass:
     """
     
     #sub = str
-    timing = str
-    metaClass = any
+    timing: str
+    metaClass: any
 
 
     def __post_init__(self,):

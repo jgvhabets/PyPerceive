@@ -23,8 +23,8 @@ class medicationClass:
     """
     
     #sub = str
-    medication = str
-    metaClass = any
+    medication: str
+    metaClass: any
 
 
     def __post_init__(self,):

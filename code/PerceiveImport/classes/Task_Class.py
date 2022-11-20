@@ -22,8 +22,8 @@ class taskClass:
     """
     
     #sub = str
-    task = str
-    metaClass = any
+    task: str
+    metaClass: any
 
 
     def __post_init__(self,):

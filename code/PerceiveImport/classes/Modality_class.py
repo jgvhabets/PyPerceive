@@ -32,7 +32,7 @@ class Modality:
     
     def __post_init__(self,):
 
-        allowed_timing = ["Postop", "3MFU", "12MFU", "18MFU", "24MFU"]
+        allowed_timing = ["Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"]
 
         modality_dict = {
             "Survey": "LMTD",

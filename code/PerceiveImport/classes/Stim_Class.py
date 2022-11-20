@@ -22,8 +22,8 @@ class stimulationClass:
     """
     
     #sub = str
-    stimulation = str
-    metaClass = any
+    stimulation: str
+    metaClass: any
 
 
     def __post_init__(self,):

@@ -24,7 +24,7 @@ class PerceiveData:
     parameters:
         - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
         - incl_modalities: a list of recording modalities to include ["Streaming", "Survey", "Timeline", "IndefiniteStreaming"] 
-        - incl_timing: a list of timing sessions to include ["Postop", "3MFU", "12MFU", "18MFU", "24MFU"]
+        - incl_timing: a list of timing sessions to include ["Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"]
         - incl_medication: a list of medication conditions to include  ["Off", "On"]
         - incl_stim: a list of stimulation conditions to include ["On", "Off"]
         - incl_task: a list of tasks to include ["Rest", "DirectionalStimulation", "FatigueTest"]
@@ -46,7 +46,7 @@ class PerceiveData:
     # these fields will be initialized 
     sub: str            # note that : is used, not =  
     incl_modalities: list = field(default_factory=lambda: ["Streaming", "Survey", "Timeline"])  # default:_ if no input is given -> automatically input the full list
-    incl_timing: list = field(default_factory=lambda: ["Postop", "3MFU", "12MFU", "18MFU", "24MFU"])
+    incl_timing: list = field(default_factory=lambda: ["Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"])
     incl_medication: list = field(default_factory=lambda: ["M0S0", "M0S1", "M1S0", "M1S1"])
     incl_stim: list = field(default_factory=lambda: ["On", "Off"])
     incl_task: list = field(default_factory=lambda: ["Rest", "DirectionalStimulation", "FatigueTest"])
