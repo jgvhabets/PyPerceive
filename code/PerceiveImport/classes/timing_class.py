@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Medication_Class as medclass
+import PerceiveImport.classes.Stim_Class as stimclass
+import PerceiveImport.classes.Task_Class as taskclass
 
 @dataclass (init=True, repr=True)
 class timingClass:
@@ -28,6 +30,8 @@ class timingClass:
     def __post_init__(self,):
 
         allowed_medication = ["Off", "On"]
+        allowed_stimulation = ["On", "Off"]
+        allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
         
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
@@ -81,6 +85,42 @@ class timingClass:
             )  
 
 
+        # jump to stim class
+        for stim in self.metaClass.incl_stim:
+
+            # Error checking: if stim is not in allowed_stimulation -> Error message
+            assert stim in allowed_stimulation, (
+                f'inserted modality ({stim}) should'
+                f' be in {allowed_stimulation}'
+            )
+
+            setattr(
+                self,
+                stim,
+                stimclass.stimulationClass(
+                    stimulation = stim,
+                    metaClass = self.metaClass
+                )
+            ) 
+
+
+        # jump to task class
+        for task in self.metaClass.incl_task:
+
+            # Error checking: if stim is not in allowed_stimulation -> Error message
+            assert task in allowed_task, (
+                f'inserted modality ({task}) should'
+                f' be in {allowed_task}'
+            )
+
+            setattr(
+                self,
+                task,
+                taskclass.taskClass(
+                    task = task,
+                    metaClass = self.metaClass
+                )
+            )   
 
 
 
