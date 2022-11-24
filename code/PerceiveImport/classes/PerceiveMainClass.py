@@ -28,9 +28,8 @@ class PerceiveData:
     parameters:
         - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
         - incl_modalities: a list of recording modalities to include ["Streaming", "Survey", "Timeline", "IndefiniteStreaming"] 
-        - incl_timing: a list of timing sessions to include ["Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"]
-        - incl_medication: a list of medication conditions to include  ["Off", "On"]
-        - incl_stim: a list of stimulation conditions to include ["On", "Off"]
+        - incl_timing: a list of timing sessions to include ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
+        - incl_conditions: a list of conditions to include  ["M0S0", "M0S1", "M1S0", "M1S1"]
         - incl_task: a list of tasks to include ["Rest", "DirectionalStimulation", "FatigueTest"]
 
     post-initialized parameters:
