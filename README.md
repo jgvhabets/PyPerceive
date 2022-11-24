@@ -15,8 +15,7 @@ pip install mne_bids
 pip install openpyxl
 pip install xlrd
 
-'pip install pymatreader' ??? not used yet
-'conda install -c conda-forge pymatreader' ??? not used yet
+pip install pymatreader
 ```
 
 ### Requirements

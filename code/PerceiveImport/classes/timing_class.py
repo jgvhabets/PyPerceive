@@ -3,9 +3,8 @@
 from dataclasses import dataclass
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.Medication_Class as medclass
-import PerceiveImport.classes.Stim_Class as stimclass
-import PerceiveImport.classes.Task_Class as taskclass
+import PerceiveImport.classes.Condition_Class as condclass
+#import PerceiveImport.classes.Task_Class as taskclass
 
 @dataclass (init=True, repr=True)
 class timingClass:
@@ -14,7 +13,7 @@ class timingClass:
     
     parameters:
         - sub:
-        - timing: "Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"
+        - timing: "Postop", "FU3M", "FU12M", "FU18M", "FU24M"
         - metaClass: 
 
     Returns:
@@ -29,18 +28,18 @@ class timingClass:
 
     def __post_init__(self,):
 
-        allowed_medication = ["Off", "On"]
-        allowed_stimulation = ["On", "Off"]
-        allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
+        allowed_conditions = ["M0S0", "M1S0", "M0S1", "M1S1"]
+        #allowed_task = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
         
+
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
         matpath_list = self.metaClass.matpath_list 
         PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
 
         #select for timing, save the selection in PerceiveMetadata_selection 
         # make a list out of the matfilenames in the first column "Perceive_filename"
-        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["timing"] == self.timing]
+        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["timing"] == self.timing].reset_index(drop=True)
         matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
@@ -68,59 +67,59 @@ class timingClass:
         
 
 
-        for med in self.metaClass.incl_medication:
+        for cond in self.metaClass.incl_conditions:
 
-            assert med in allowed_medication, (
-                f'inserted modality ({med}) should'
-                f' be in {allowed_medication}'
+            assert cond in allowed_conditions, (
+                f'inserted modality ({cond}) should'
+                f' be in {allowed_conditions}'
             )
 
             setattr(
                 self,
-                med,
-                medclass.medicationClass(
-                    medication = med,
+                cond,
+                condclass.conditionClass(
+                    condition = cond,
                     metaClass = self.metaClass
                 )
             )  
 
 
         # jump to stim class
-        for stim in self.metaClass.incl_stim:
+        # for stim in self.metaClass.incl_stim:
 
-            # Error checking: if stim is not in allowed_stimulation -> Error message
-            assert stim in allowed_stimulation, (
-                f'inserted modality ({stim}) should'
-                f' be in {allowed_stimulation}'
-            )
+        #     # Error checking: if stim is not in allowed_stimulation -> Error message
+        #     assert stim in allowed_stimulation, (
+        #         f'inserted modality ({stim}) should'
+        #         f' be in {allowed_stimulation}'
+        #     )
 
-            setattr(
-                self,
-                stim,
-                stimclass.stimulationClass(
-                    stimulation = stim,
-                    metaClass = self.metaClass
-                )
-            ) 
+        #     setattr(
+        #         self,
+        #         stim,
+        #         stimclass.stimulationClass(
+        #             stimulation = stim,
+        #             metaClass = self.metaClass
+        #         )
+        #     ) 
 
 
-        # jump to task class
-        for task in self.metaClass.incl_task:
+        # # jump to task class
+        # for task in self.metaClass.incl_task:
 
-            # Error checking: if stim is not in allowed_stimulation -> Error message
-            assert task in allowed_task, (
-                f'inserted modality ({task}) should'
-                f' be in {allowed_task}'
-            )
+        #     # Error checking: if stim is not in allowed_stimulation -> Error message
+        #     assert task in allowed_task, (
+        #         f'inserted modality ({task}) should'
+        #         f' be in {allowed_task}'
+        #     )
 
-            setattr(
-                self,
-                task,
-                taskclass.taskClass(
-                    task = task,
-                    metaClass = self.metaClass
-                )
-            )   
+        #     setattr(
+        #         self,
+        #         task,
+        #         taskclass.taskClass(
+        #             task = task,
+        #             metaClass = self.metaClass
+        #         )
+        #     )   
 
 
 

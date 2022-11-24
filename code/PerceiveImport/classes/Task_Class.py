@@ -2,6 +2,7 @@
 
 
 from dataclasses import dataclass
+#import mne 
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
 
@@ -26,6 +27,7 @@ class taskClass:
     metaClass: any
 
 
+
     def __post_init__(self,):
 
         # get matpaths and PerceiveMetadata_selection from the Metadata_Class
@@ -33,7 +35,7 @@ class taskClass:
         PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
 
         #select the PerceiveMetadata DataFrame for the correct task:
-        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["task"] == self.task]
+        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["task"] == self.task].reset_index(drop=True)
         matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
@@ -56,8 +58,11 @@ class taskClass:
             self.metaClass,
             "matpath_list",
             self.matpath_list)
+        
+
+        #self.data = mne.
     
 
-        # load the selection of .matfiles in self.matpath_list
+        
     
 

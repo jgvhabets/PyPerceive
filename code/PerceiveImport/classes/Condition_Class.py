@@ -1,21 +1,21 @@
-""" Medication Class"""
+""" Condition Class"""
 
 
 
 from dataclasses import dataclass
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.Stim_Class as stimclass
+import PerceiveImport.classes.Task_Class as taskclass
 
 @dataclass (init=True, repr=True)
-class medicationClass:
+class conditionClass:
     """
     Medication Class 
     
     parameters:
         (input from main dataclass PerceiveData)
         - sub:
-        - medication: "Off", "On"
+        - condition: "M0S0", "M1S0", "M0S1", "M1S1"
 
     Returns:
         - 
@@ -23,13 +23,13 @@ class medicationClass:
     """
     
     #sub = str
-    medication: str
+    condition: str
     metaClass: any
 
 
     def __post_init__(self,):
 
-        allowed_stimulation = ["Off", "On"]
+        allowed_tasks = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
         matpath_list = self.metaClass.matpath_list 
@@ -37,7 +37,7 @@ class medicationClass:
 
 
         #select the PerceiveMetadata DataFrame for the correct medication:
-        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["medication"] == self.medication]
+        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["condition"] == self.condition].reset_index(drop=True)
         matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
@@ -62,19 +62,19 @@ class medicationClass:
             "matpath_list",
             self.matpath_list)
 
-        for stim in self.metaClass.incl_stim:
+        for task in self.metaClass.incl_task:
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
-            assert stim in allowed_stimulation, (
-                f'inserted modality ({stim}) should'
-                f' be in {allowed_stimulation}'
+            assert task in allowed_tasks, (
+                f'inserted modality ({task}) should'
+                f' be in {allowed_tasks}'
             )
 
             setattr(
                 self,
-                stim,
-                stimclass.stimulationClass(
-                    stimulation = stim,
+                task,
+                taskclass.taskClass(
+                    task = task,
                     metaClass = self.metaClass
                 )
             )  

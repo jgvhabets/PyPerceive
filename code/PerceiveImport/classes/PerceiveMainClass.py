@@ -13,10 +13,10 @@ import xlrd
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.Modality_class as modalityClass
-import PerceiveImport.classes.Timing_class as TimClass
-import PerceiveImport.classes.Medication_Class as medclass
-import PerceiveImport.classes.Stim_Class as stimclass
-import PerceiveImport.classes.Task_Class as taskclass
+# import PerceiveImport.classes.Timing_class as TimClass
+# import PerceiveImport.classes.Medication_Class as medclass
+# import PerceiveImport.classes.Stim_Class as stimclass
+# import PerceiveImport.classes.Task_Class as taskclass
 import PerceiveImport.classes.Metadata_Class as metadata
 
 
@@ -50,19 +50,17 @@ class PerceiveData:
     # these fields will be initialized 
     sub: str            # note that : is used, not =  
     incl_modalities: list = field(default_factory=lambda: ["Streaming", "Survey", "Timeline"])  # default:_ if no input is given -> automatically input the full list
-    incl_timing: list = field(default_factory=lambda: ["Postop", "_3MFU", "_12MFU", "_18MFU", "_24MFU"])
-    incl_medication: list = field(default_factory=lambda: ["M0S0", "M0S1", "M1S0", "M1S1"])
-    incl_stim: list = field(default_factory=lambda: ["On", "Off"])
-    incl_task: list = field(default_factory=lambda: ["Rest", "DirectionalStimulation", "FatigueTest"])
+    incl_timing: list = field(default_factory=lambda: ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"])
+    incl_conditions: list = field(default_factory=lambda: ["M0S0", "M0S1", "M1S0", "M1S1"])
+    incl_task: list = field(default_factory=lambda: ["Rest", "UPDRS" "DirectionalStimulation", "FatigueTest"])
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
         
         allowed_modalities = ["Streaming", "Survey", "Timeline"] # this shows allowed values for incl_modalities
-        allowed_timing = ["Postop", "_3MFU", "_12MFU"]
-        allowed_medication = ["M0S0", "M0S1", "M1S0", "M1S1"]
-        allowed_stimulation = ["On", "Off"]
-        allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
+        # allowed_timing = ["Postop", "FU3M", "FU12M"]
+        # allowed_conditions = ["M0S0", "M0S1", "M1S0", "M1S1"]
+        # allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
 
         _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
@@ -70,8 +68,8 @@ class PerceiveData:
 
         self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
         
-        matfile_list = self.PerceiveMetadata["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
-        # -> Error occurs: InvalidIndexError 'Perceive_filename' ???
+         # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
+        matfile_list = self.PerceiveMetadata["Perceive_filename"].to_list()
 
         self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
         
@@ -88,8 +86,7 @@ class PerceiveData:
             sub = self.sub,
             incl_modalities = self.incl_modalities,
             incl_timing = self.incl_timing,
-            incl_medication = self.incl_medication,
-            incl_stim = self.incl_stim,
+            incl_conditions = self.incl_conditions,
             incl_task = self.incl_task,
             matpath_list = self.matpath_list,
             PerceiveMetadata_selection = self.PerceiveMetadata) 
@@ -114,76 +111,76 @@ class PerceiveData:
             )
 
         # if you don´t give any modality input -> jump to timing class
-        for tim in self.incl_timing:
+        # for tim in self.incl_timing:
 
-            assert tim in allowed_timing, (
-                f'inserted modality ({tim}) should'
-                f' be in {allowed_timing}'
-            )
+        #     assert tim in allowed_timing, (
+        #         f'inserted modality ({tim}) should'
+        #         f' be in {allowed_timing}'
+        #     )
 
-            setattr(
-                self,
-                tim,
-                TimClass.timingClass( 
-                    timing = tim,
-                    metaClass = self.metaClass
-                )
-            )  
+        #     setattr(
+        #         self,
+        #         tim,
+        #         TimClass.timingClass( 
+        #             timing = tim,
+        #             metaClass = self.metaClass
+        #         )
+        #     )  
         
-        # jump to med class
-        for med in self.metaClass.incl_medication:
+        # # jump to med class
+        # for med in self.metaClass.incl_medication:
 
-            assert med in allowed_medication, (
-                f'inserted modality ({med}) should'
-                f' be in {allowed_medication}'
-            )
+        #     assert med in allowed_medication, (
+        #         f'inserted modality ({med}) should'
+        #         f' be in {allowed_medication}'
+        #     )
 
-            setattr(
-                self,
-                med,
-                medclass.medicationClass(
-                    medication = med,
-                    metaClass = self.metaClass
-                )
-            ) 
+        #     setattr(
+        #         self,
+        #         med,
+        #         medclass.medicationClass(
+        #             medication = med,
+        #             metaClass = self.metaClass
+        #         )
+        #     ) 
         
 
-        # jump to stim class
-        for stim in self.metaClass.incl_stim:
+        # # jump to stim class
+        # for stim in self.metaClass.incl_stim:
 
-            # Error checking: if stim is not in allowed_stimulation -> Error message
-            assert stim in allowed_stimulation, (
-                f'inserted modality ({stim}) should'
-                f' be in {allowed_stimulation}'
-            )
+        #     # Error checking: if stim is not in allowed_stimulation -> Error message
+        #     assert stim in allowed_stimulation, (
+        #         f'inserted modality ({stim}) should'
+        #         f' be in {allowed_stimulation}'
+        #     )
 
-            setattr(
-                self,
-                stim,
-                stimclass.stimulationClass(
-                    stimulation = stim,
-                    metaClass = self.metaClass
-                )
-            ) 
+        #     setattr(
+        #         self,
+        #         stim,
+        #         stimclass.stimulationClass(
+        #             stimulation = stim,
+        #             metaClass = self.metaClass
+        #         )
+        #     ) 
 
 
-        # jump to task class
-        for task in self.metaClass.incl_task:
+        # # jump to task class
+        # for task in self.metaClass.incl_task:
 
-            # Error checking: if stim is not in allowed_stimulation -> Error message
-            assert task in allowed_task, (
-                f'inserted modality ({task}) should'
-                f' be in {allowed_task}'
-            )
+        #     # Error checking: if stim is not in allowed_stimulation -> Error message
+        #     assert task in allowed_task, (
+        #         f'inserted modality ({task}) should'
+        #         f' be in {allowed_task}'
+        #     )
 
-            setattr(
-                self,
-                task,
-                taskclass.taskClass(
-                    task = task,
-                    metaClass = self.metaClass
-                )
-            )   
+        #     setattr(
+        #         self,
+        #         task,
+        #         taskclass.taskClass(
+        #             task = task,
+        #             metaClass = self.metaClass
+        #         )
+        #     )   
     
         # if timing == "3MFU":
         #   self.3MFU = loadmat.load_timingmatfiles(self.sub, self.timing) 
