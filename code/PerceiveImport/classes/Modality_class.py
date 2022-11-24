@@ -44,8 +44,11 @@ class Modality:
             "Timeline": "CHRONIC"
         }
 
-        _, self.data_path = find_folder.find_project_folder()
-        self.subject_path = os.path.join(self.data_path, self.sub)
+        # _, self.data_path = find_folder.find_project_folder()
+        # self.subject_path = os.path.join(self.data_path, self.sub)
+
+        self.perceivedata = find_folder.get_onedrive_path("perceivedata")
+        self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
 
         self.matpath_list = [] # this list will contain all paths to the selected matfiles
         matfile_list = []
@@ -73,15 +76,15 @@ class Modality:
 
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        PerceiveMetadata = self.metaClass.PerceiveMetadata_selection
-        self.PerceiveMetadata_selection = PerceiveMetadata[PerceiveMetadata["Perceive_filename"].isin(matfile_list)].reset_index(drop=True)
+        metadata = self.metaClass.metadata_selection
+        self.metadata_selection = metadata[metadata["Perceive_filename"].isin(matfile_list)].reset_index(drop=True)
         # reset.index setzt die Index im DF nochmal neu
 
         #store the new selection of the DataFrame into Metadata_Class
         setattr(
             self.metaClass,
-            "PerceiveMetadata_selection",
-            self.PerceiveMetadata_selection)
+            "metadata_selection",
+            self.metadata_selection)
 
         # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
 

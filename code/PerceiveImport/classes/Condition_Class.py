@@ -33,12 +33,12 @@ class conditionClass:
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
         matpath_list = self.metaClass.matpath_list 
-        PerceiveMetadata_selection = self.metaClass.PerceiveMetadata_selection 
+        metadata_selection = self.metaClass.metadata_selection 
 
 
         #select the PerceiveMetadata DataFrame for the correct medication:
-        self.PerceiveMetadata_selection = PerceiveMetadata_selection[PerceiveMetadata_selection["condition"] == self.condition].reset_index(drop=True)
-        matfile_list = self.PerceiveMetadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
+        self.metadata_selection = metadata_selection[metadata_selection["condition"] == self.condition].reset_index(drop=True)
+        matfile_list = self.metadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
         # only append paths with the selected .mat filenames to the new self.matpath_list
@@ -54,8 +54,8 @@ class conditionClass:
         
         setattr(
             self.metaClass,
-            "PerceiveMetadata_selection",
-            self.PerceiveMetadata_selection)
+            "metadata_selection",
+            self.metadata_selection)
 
         setattr(
             self.metaClass,

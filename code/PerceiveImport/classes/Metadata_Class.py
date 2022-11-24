@@ -33,7 +33,7 @@ class MetadataClass:
     incl_conditions: list 
     incl_task: list
     matpath_list: list
-    PerceiveMetadata_selection: any # pd.DataFrame
+    metadata_selection: any # pd.DataFrame
 
 
 

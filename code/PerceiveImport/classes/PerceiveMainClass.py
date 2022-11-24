@@ -62,13 +62,18 @@ class PerceiveData:
         # allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
 
-        _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
-        self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
+        # _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
+        # self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
-        self.PerceiveMetadata = pd.read_excel(os.path.join(self.subject_path, f'Perceive_Metadata_{self.sub}.xlsx'))
+        self.onedrive = find_folder.get_onedrive_path("onedrive")
+        self.perceivedata = find_folder.get_onedrive_path("perceivedata")
+        self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
+        self.results = find_folder.get_onedrive_path("results")
+
+        self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'))
         
          # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
-        matfile_list = self.PerceiveMetadata["Perceive_filename"].to_list()
+        matfile_list = self.metadata["Perceive_filename"].to_list()
 
         self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
         
@@ -88,7 +93,7 @@ class PerceiveData:
             incl_conditions = self.incl_conditions,
             incl_task = self.incl_task,
             matpath_list = self.matpath_list,
-            PerceiveMetadata_selection = self.PerceiveMetadata) 
+            metadata_selection = self.metadata) 
 
         # loop through every modality input in the incl_modalities list 
         # and set the modality value for each modality
