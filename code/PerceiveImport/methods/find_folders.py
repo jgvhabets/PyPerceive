@@ -26,7 +26,7 @@ def get_onedrive_path(
     """
 
     folder_options = [
-        'onedrive', 'figures', 'perceivedata', 'results'
+        'onedrive', 'perceivedata', 'results'
         ]
 
     if folder.lower() not in folder_options:
