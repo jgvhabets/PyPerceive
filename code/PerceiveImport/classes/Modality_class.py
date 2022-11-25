@@ -6,7 +6,7 @@ import os
 import pandas as pd
 
 import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.Timing_class as TimClass
+import PerceiveImport.classes.Session_Class as sesClass
 # import PerceiveImport.classes.Medication_Class as medclass
 # import PerceiveImport.classes.Stim_Class as stimclass
 # import PerceiveImport.classes.Task_Class as taskclass
@@ -34,7 +34,7 @@ class Modality:
     
     def __post_init__(self,):
 
-        allowed_timing = ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
+        allowed_session = ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
         # allowed_conditions = ["M0S0"]
         # allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
@@ -88,19 +88,19 @@ class Modality:
 
         # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
 
-        for tim in self.metaClass.incl_timing:
+        for ses in self.metaClass.incl_session:
 
-            assert tim in allowed_timing, (
-                f'inserted modality ({tim}) should'
-                f' be in {allowed_timing}'
+            assert ses in allowed_session, (
+                f'inserted modality ({ses}) should'
+                f' be in {allowed_session}'
             )
 
             # setting the attribute in this class here for tim to a value, which is the timing class with defined attributes
             setattr(
                 self,
-                tim,
-                TimClass.timingClass( 
-                    timing = tim,
+                ses,
+                sesClass.sessionClass( 
+                    session = ses,
                     metaClass = self.metaClass
                 )
             )  

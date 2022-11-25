@@ -12,11 +12,11 @@ class MetadataClass:
     Metadata class to store repetitive variables that are changing constantly throughout the hierarchy
     
     parameters:
-        - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
+        - sub: subject name called sub-xxx, e.g. "021" (make sure to use exactly the same str as your subject folder is called)
         - incl_modalities: list
-        - incl_timing: list  
-        - incl_conditions: list 
-        - incl_task: list
+        - incl_session: list  
+        - incl_med: list 
+        - incl_condition: list
         - matpath_list: list
         - PerceiveMetadata_selection: any
 
@@ -29,8 +29,8 @@ class MetadataClass:
 
     sub: str            
     incl_modalities: list
-    incl_timing: list 
-    incl_conditions: list 
+    incl_session: list 
+    incl_condition: list 
     incl_task: list
     matpath_list: list
     metadata_selection: any # pd.DataFrame

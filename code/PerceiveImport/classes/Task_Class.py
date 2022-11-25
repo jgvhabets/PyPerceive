@@ -14,7 +14,15 @@ class taskClass:
     parameters:
         (input from main dataclass PerceiveData)
         - sub:
-        - task: "Rest", "DirectionalStimulation", "FatigueTest"
+        - task: "RestBSSuRingR", # BrainSense Survey Rest, Ring contacts 23, 01, 12, 02, 13, 03, right hemisphere
+                "RestBSSuRingL", # BrainSense Survey Rest, Ring contacts 23, 01, 12, 02, 13, 03, left hemisphere
+                "RestBSSuSegmInterR", # BrainSense Survey Rest, Segment contacts 1C2C, 1B2B, 1A2A (inter levels), right hemisphere
+                "RestBSSuSegmInterL", # BrainSense Survey Rest, Segment contacts 1C2C, 1B2B, 1A2A (inter levels), left hemisphere
+                "RestBSSuSegmIntraR", # BrainSense Survey Rest, Segment contacts 2A2C, 2B2C, 2A2B, 1A1C, 1B1C, 1A1B (intra levels), right hemisphere
+                "RestBSSuSegmIntraL", # BrainSense Survey Rest, Segment contacts 2A2C, 2B2C, 2A2B, 1A1C, 1B1C, 1A1B (intra levels), left hemisphere
+                "RestBSSt", # BrainSense Streaming Rest
+                "FingerTapBSSt", # BrainSense Streaming Finger tapping
+                "UPDRSBSSt", # BrainSense Streaming UPDRS
         - metaClass:
 
     Returns:

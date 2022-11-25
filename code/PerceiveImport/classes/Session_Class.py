@@ -1,4 +1,4 @@
-### create a Timing class """
+### create a Session class """
 
 from dataclasses import dataclass
 
@@ -7,13 +7,13 @@ import PerceiveImport.classes.Condition_Class as condclass
 #import PerceiveImport.classes.Task_Class as taskclass
 
 @dataclass (init=True, repr=True)
-class timingClass:
+class sessionClass:
     """
     timing Class 
     
     parameters:
         - sub:
-        - timing: "Postop", "FU3M", "FU12M", "FU18M", "FU24M"
+        - session: "Postop", "FU3M", "FU12M", "FU18M", "FU24M"
         - metaClass: 
 
     Returns:
@@ -22,13 +22,13 @@ class timingClass:
     """
     
     #sub = str
-    timing: str
+    session: str
     metaClass: any
 
 
     def __post_init__(self,):
 
-        allowed_conditions = ["M0S0", "M1S0", "M0S1", "M1S1"]
+        allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
         #allowed_task = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
         
@@ -39,7 +39,21 @@ class timingClass:
 
         #select for timing, save the selection in PerceiveMetadata_selection 
         # make a list out of the matfilenames in the first column "Perceive_filename"
-        self.metadata_selection = metadata_selection[metadata_selection["timing"] == self.timing].reset_index(drop=True)
+        
+        self.metadata_selection = []
+        matfile_list = []
+
+        # if "FU3M" in self.session:
+        #     self.metadata_selection.append(metadata_selection[metadata_selection["session"] == "3MFU"])
+        
+        # if "FU12M" in self.session:
+        #     self.metadata_selection.append(metadata_selection[metadata_selection["session"] == "12MFU"])
+
+        
+
+
+
+        self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
         matfile_list = self.metadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
@@ -67,11 +81,11 @@ class timingClass:
         
 
 
-        for cond in self.metaClass.incl_conditions:
+        for cond in self.metaClass.incl_condition:
 
-            assert cond in allowed_conditions, (
+            assert cond in allowed_condition, (
                 f'inserted modality ({cond}) should'
-                f' be in {allowed_conditions}'
+                f' be in {allowed_condition}'
             )
 
             setattr(

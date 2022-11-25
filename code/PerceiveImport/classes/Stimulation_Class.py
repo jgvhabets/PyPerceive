@@ -1,4 +1,4 @@
-""" Condition Class"""
+""" Stimulation Class"""
 
 
 
@@ -8,14 +8,14 @@ from dataclasses import dataclass
 import PerceiveImport.classes.Task_Class as taskclass
 
 @dataclass (init=True, repr=True)
-class conditionClass:
+class stimulationClass:
     """
-    condition Class 
+    Stimulation Class 
     
     parameters:
         (input from main dataclass PerceiveData)
         - sub:
-        - condition: "M0S0", "M1S0", "M0S1", "M1S1"
+        - stimulation: "On", "Off"
 
     Returns:
         - 
@@ -23,31 +23,21 @@ class conditionClass:
     """
     
     #sub = str
-    condition: str
+    stimulation: str
     metaClass: any
 
 
     def __post_init__(self,):
 
-        allowed_tasks = ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"]
+        allowed_tasks = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
         matpath_list = self.metaClass.matpath_list 
         metadata_selection = self.metaClass.metadata_selection 
 
 
-        #select the PerceiveMetadata DataFrame for the correct condition:
-        
-        # if "M0" in self.condition:
-        #     metadata_selection_M0 = metadata_selection[metadata_selection["medState"] == "On"]
-        
-        # elif "M1" in self.condition: 
-        #     metadata_selection_M1 = metadata_selection[metadata_selection["medState"] == "Off"]
-
-        # else 
-        
-
-        self.metadata_selection = metadata_selection[metadata_selection["condition"] == self.condition].reset_index(drop=True)
+        #select the PerceiveMetadata DataFrame for the correct medication:
+        self.metadata_selection = metadata_selection[metadata_selection["stimState"] == self.stimulation].reset_index(drop=True)
         matfile_list = self.metadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 

@@ -1,21 +1,21 @@
-""" Condition Class"""
+""" Medication Class"""
 
 
 
 from dataclasses import dataclass
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.Task_Class as taskclass
+import PerceiveImport.classes.Stimulation_Class as stimclass
 
 @dataclass (init=True, repr=True)
-class conditionClass:
+class medicationClass:
     """
-    condition Class 
+    Medication Class 
     
     parameters:
         (input from main dataclass PerceiveData)
         - sub:
-        - condition: "M0S0", "M1S0", "M0S1", "M1S1"
+        - condition: "On", "Off"
 
     Returns:
         - 
@@ -23,31 +23,21 @@ class conditionClass:
     """
     
     #sub = str
-    condition: str
+    medication: str
     metaClass: any
 
 
     def __post_init__(self,):
 
-        allowed_tasks = ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"]
+        allowed_stim = ["Off", "On"]
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
         matpath_list = self.metaClass.matpath_list 
         metadata_selection = self.metaClass.metadata_selection 
 
 
-        #select the PerceiveMetadata DataFrame for the correct condition:
-        
-        # if "M0" in self.condition:
-        #     metadata_selection_M0 = metadata_selection[metadata_selection["medState"] == "On"]
-        
-        # elif "M1" in self.condition: 
-        #     metadata_selection_M1 = metadata_selection[metadata_selection["medState"] == "Off"]
-
-        # else 
-        
-
-        self.metadata_selection = metadata_selection[metadata_selection["condition"] == self.condition].reset_index(drop=True)
+        #select the PerceiveMetadata DataFrame for the correct medication:
+        self.metadata_selection = metadata_selection[metadata_selection["medicationState"] == self.medication].reset_index(drop=True)
         matfile_list = self.metadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
@@ -72,19 +62,19 @@ class conditionClass:
             "matpath_list",
             self.matpath_list)
 
-        for task in self.metaClass.incl_task:
+        for stim in self.metaClass.incl_stim:
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
-            assert task in allowed_tasks, (
-                f'inserted modality ({task}) should'
-                f' be in {allowed_tasks}'
+            assert stim in allowed_stim, (
+                f'inserted modality ({stim}) should'
+                f' be in {allowed_stim}'
             )
 
             setattr(
                 self,
-                task,
-                taskclass.taskClass(
-                    task = task,
+                stim,
+                stimclass.stimulationClass(
+                    stim = stim,
                     metaClass = self.metaClass
                 )
             )  

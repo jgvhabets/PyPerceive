@@ -26,10 +26,11 @@ class PerceiveData:
     Main class to store Percept data
     
     parameters:
-        - sub: subject name called sub-xxx, e.g. "sub-021" (make sure to use exactly the same str as your subject folder is called)
+        - sub: subject name called sub-xxx, input e.g. "021" (make sure to use exactly the same str as your subject folder is called)
         - incl_modalities: a list of recording modalities to include ["Streaming", "Survey", "Timeline", "IndefiniteStreaming"] 
         - incl_timing: a list of timing sessions to include ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
-        - incl_conditions: a list of conditions to include  ["M0S0", "M0S1", "M1S0", "M1S1"]
+        - incl_med: a list of conditions to include  ["On", "Off"]
+        - incl_stim: list = field(default_factory=lambda: ["Off", "On"]
         - incl_task: a list of tasks to include ["Rest", "DirectionalStimulation", "FatigueTest"]
 
     post-initialized parameters:
@@ -49,17 +50,18 @@ class PerceiveData:
     # these fields will be initialized 
     sub: str            # note that : is used, not =  
     incl_modalities: list = field(default_factory=lambda: ["Streaming", "Survey", "Timeline"])  # default:_ if no input is given -> automatically input the full list
-    incl_timing: list = field(default_factory=lambda: ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"])
-    incl_conditions: list = field(default_factory=lambda: ["M0S0", "M0S1", "M1S0", "M1S1"])
-    incl_task: list = field(default_factory=lambda: ["Rest", "UPDRS" "DirectionalStimulation", "FatigueTest"])
+    incl_session: list = field(default_factory=lambda: ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"])
+    incl_condition: list = field(default_factory=lambda: ["M0S0", "M1S0", "M0S1", "M1S1"])
+    incl_task: list = field(default_factory=lambda: ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"])
+
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
         
         allowed_modalities = ["Streaming", "Survey", "Timeline"] # this shows allowed values for incl_modalities
-        # allowed_timing = ["Postop", "FU3M", "FU12M"]
+        # allowed_session = ["Postop", "FU3M", "FU12M"]
         # allowed_conditions = ["M0S0", "M0S1", "M1S0", "M1S1"]
-        # allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
+        # allowed_task = [""RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"]
 
 
         # _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
@@ -89,8 +91,8 @@ class PerceiveData:
         self.metaClass = metadata.MetadataClass(
             sub = self.sub,
             incl_modalities = self.incl_modalities,
-            incl_timing = self.incl_timing,
-            incl_conditions = self.incl_conditions,
+            incl_session = self.incl_session,
+            incl_condition = self.incl_condition,
             incl_task = self.incl_task,
             matpath_list = self.matpath_list,
             metadata_selection = self.metadata) 

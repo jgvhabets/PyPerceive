@@ -3,7 +3,7 @@ import numpy as np
 
 def find_project_folder():
     """
-    find_project_folder is a method to find the folder "PyPerceive_Project" on your computer
+    find_project_folder is a function to find the folder "PyPerceive_Project" on your local computer
 
     Return: tuple[str, str] -> project_path, data_path
     to only use one str use _ -> example: project_folder, _ = find_project_folder()
@@ -34,13 +34,13 @@ def get_onedrive_path(
             f'given folder: {folder} is incorrect, '
             f'should be {folder_options}')
 
+    # from your cwd get the path and stop at 'Users'
     path = os.getcwd()
 
     while os.path.dirname(path)[-5:] != 'Users':
-
         path = os.path.dirname(path) # path is now Users/username
 
-
+    # get the onedrive folder and add it to the path
     onedrive_f = [
         f for f in os.listdir(path) if np.logical_and(
             'onedrive' in f.lower(),
@@ -50,6 +50,7 @@ def get_onedrive_path(
     path = os.path.join(path, onedrive_f[0])
 
 
+    # add the folder DATA-Test to the path and from there open the folders depending on input folder
     datapath = os.path.join(path, 'DATA-TEST')
     if folder == 'onedrive': 
         return datapath
