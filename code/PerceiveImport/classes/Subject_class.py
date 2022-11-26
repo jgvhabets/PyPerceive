@@ -1,4 +1,4 @@
-""" Create a subject class """
+""" Create a subjectInfo class """
 
 
 @dataclass (init=True, repr=True)

@@ -67,15 +67,22 @@ class PerceiveData:
         # _, self.data_path = find_folder.find_project_folder() # path to "Data" folder
         # self.subject_path = os.path.join(self.data_path, self.sub) # path to "subject" folder
 
-        self.onedrive = find_folder.get_onedrive_path("onedrive")
-        self.perceivedata = find_folder.get_onedrive_path("perceivedata")
-        self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
-        self.results = find_folder.get_onedrive_path("results")
+        # self.onedrive = find_folder.get_onedrive_path("onedrive")
+        # self.perceivedata = find_folder.get_onedrive_path("perceivedata")
+        # self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
+        # self.results = find_folder.get_onedrive_path("results")
 
-        self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'))
+        # self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
         
-         # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
-        matfile_list = self.metadata["Perceive_filename"].to_list()
+        path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
+        self.subject_path = os.path.join(path_local, f'sub-{self.sub}')
+
+
+        self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
+
+
+        # make a matfile_list of the values of the column "perceiveFilename" from the new selection of the Metadata DataFrame
+        matfile_list = self.metadata["perceiveFilename"].to_list()
 
         self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
         

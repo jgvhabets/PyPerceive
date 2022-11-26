@@ -17,7 +17,7 @@ class Modality:
     BrainSense recording modality Class 
     
     parameters:
-        - sub: e.g. "sub-021"
+        - sub: e.g. "021"
         - modality: "Streaming", "Survey", "Timeline"
         - metaClass
 
@@ -47,8 +47,11 @@ class Modality:
         # _, self.data_path = find_folder.find_project_folder()
         # self.subject_path = os.path.join(self.data_path, self.sub)
 
-        self.perceivedata = find_folder.get_onedrive_path("perceivedata")
-        self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
+        # self.perceivedata = find_folder.get_onedrive_path("perceivedata")
+        # self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
+
+        path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
+        self.subject_path = os.path.join(path_local, f'sub-{self.sub}')
 
         self.matpath_list = [] # this list will contain all paths to the selected matfiles
         matfile_list = []
@@ -77,7 +80,7 @@ class Modality:
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
         metadata = self.metaClass.metadata_selection
-        self.metadata_selection = metadata[metadata["Perceive_filename"].isin(matfile_list)].reset_index(drop=True)
+        self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
         # reset.index setzt die Index im DF nochmal neu
 
         #store the new selection of the DataFrame into Metadata_Class

@@ -43,18 +43,25 @@ class sessionClass:
         self.metadata_selection = []
         matfile_list = []
 
-        # if "FU3M" in self.session:
-        #     self.metadata_selection.append(metadata_selection[metadata_selection["session"] == "3MFU"])
+        # if input is in exisiting sessions of metadata
+        # create a seperate metadata_selection for each timepoint
+        session_list = metadata_selection['session'].unique().tolist() # list of the existing sessions in metadata column "session"
+        self.session_dict = {} 
+
+        for sessionInput in self.metaClass.incl_session:
+
+            assert sessionInput in session_list, (
+                f'inserted session ({sessionInput}) has not been recorded'
+                f' and can not be found in the metadata, which only contains sessions {session_list}'
+                )
+
+            # save metadata_selection Dataframe of each timepoint in seperate dataframes
+            self.session_dict["Metadata_{0}".format(sessionInput)] =  metadata_selection[metadata_selection['session'] == sessionInput].reset_index(drop=True)
         
-        # if "FU12M" in self.session:
-        #     self.metadata_selection.append(metadata_selection[metadata_selection["session"] == "12MFU"])
-
-        
 
 
-
-        self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
-        matfile_list = self.metadata_selection["Perceive_filename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
+        # self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
+        matfile_list = self.metadata_selection["perceiveFilename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
         # only append paths with the selected .mat filenames to the new self.matpath_list
