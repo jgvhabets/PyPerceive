@@ -96,11 +96,14 @@ class PerceiveData:
         self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
 
 
-        for root, dirs, files in os.walk(): # walking through every root, directory and file of the given path
+        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
                 file_ending = file.split('_run-')[-1]
                 if file_ending in matfile_list_endings:
                     self.matpath_list.append(os.path.join(root, file)) 
+        
+        # add new column paths_to_perceive to Metadata DataFrame
+        self.metadata['paths_to_perceive'] = self.matpath_list
 
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
@@ -229,25 +232,7 @@ class PerceiveData:
     
     
     
-        # xxx = filefuncs.FUNCTIon()
-        
-        # find all files
-        
-        # select files on datatype (Survey) -> survey files
-        # select on timing (postop)
-        
-        # final selection of files of interest
-        
-            # load files
-            
-            # load into Survey structure -> class Survey (with selected files)
-            
-            
-            # goal: PerceiveData.Survey.Postop.
-            
-            # sub021 = PerceiveData(xxxxxx)
-            # sub021.Streaming.12mfu.data.LFP_L
-            
+    
             
         
         
