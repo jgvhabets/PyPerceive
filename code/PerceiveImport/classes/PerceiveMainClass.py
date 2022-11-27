@@ -84,15 +84,23 @@ class PerceiveData:
         # make a matfile_list of the values of the column "perceiveFilename" from the new selection of the Metadata DataFrame
         matfile_list = self.metadata["perceiveFilename"].to_list()
 
-        self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
-        
-        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
-            for file in files: # looping through every file 
-                if file.endswith(".mat") and file in matfile_list: # matpart is defined earlier
-                    self.matpath_list.append(os.path.join(root, file)) 
+        # for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
+        #     for file in files: # looping through every file 
+        #         if file.endswith(".mat") and file in matfile_list:
+        #             self.matpath_list.append(os.path.join(root, file)) 
                     # keep root and file joined together so the path won´t get lost
                     # add each path to the list selection_paths
 
+        # metadata filenames in Metadata table from JB and JK start differently to the .mat filenames in directory, only ending is the same
+        matfile_list_endings = [u.split('_run-')[-1] for u in matfile_list] # will keep name after '_run-'
+        self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
+
+
+        for root, dirs, files in os.walk(): # walking through every root, directory and file of the given path
+            for file in files: # looping through every file 
+                file_ending = file.split('_run-')[-1]
+                if file_ending in matfile_list_endings:
+                    self.matpath_list.append(os.path.join(root, file)) 
 
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(

@@ -40,7 +40,7 @@ class Modality:
 
         modality_dict = {
             "Survey": "LMTD",
-            "Streaming": "BrainSense",
+            "Streaming": "BSTD", 
             "Timeline": "CHRONIC"
         }
 
@@ -53,24 +53,36 @@ class Modality:
         path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
         self.subject_path = os.path.join(path_local, f'sub-{self.sub}')
 
-        self.matpath_list = [] # this list will contain all paths to the selected matfiles
-        matfile_list = []
+        # self.matpath_list = [] # this list will contain all paths to the selected matfiles
+        # matfile_list = []
 
-        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
-            for file in files: # looping through every file 
-                if file.endswith(".mat") and modality_dict[self.modality] in file:
-                    matfile_list.append(file)
-                    self.matpath_list.append(os.path.join(root, file)) 
+        # for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
+        #     for file in files: # looping through every file 
+        #         if file.endswith(".mat") and modality_dict[self.modality] in file:
+        #             matfile_list.append(file)
+        #             self.matpath_list.append(os.path.join(root, file)) 
                     # keep root and file joined together so the path won´t get lost
                     # add each path to the matpath_list 
         
+
+        matfile_list_endings = [] # will keep name after '_run-'
+        self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
+
+
+        for root, dirs, files in os.walk(): # walking through every root, directory and file of the given path
+            for file in files: # looping through every file 
+                file_ending = file.split('_run-')[-1]
+                if file.endswith(".mat") and modality_dict[self.modality] in file:
+                    matfile_list_endings.append(file_ending)
+                    self.matpath_list.append(os.path.join(root, file)) 
+
+
         # alternatively, select from existing matpath_list from MetadataClass
         # for path in metaclass.MetadataClass.matpath_list:
         #    if modality_dict[self.modality] in path:
         #        self.matpath_list.append(path)
         
         # seattr() changes the value of the attribute matpath_list of self.metaClass 
-        
         setattr(
             self.metaClass,
             "matpath_list",
@@ -80,7 +92,7 @@ class Modality:
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
         metadata = self.metaClass.metadata_selection
-        self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list_endings)].reset_index(drop=True)
         # reset.index setzt die Index im DF nochmal neu
 
         #store the new selection of the DataFrame into Metadata_Class

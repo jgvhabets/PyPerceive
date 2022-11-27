@@ -37,14 +37,11 @@ class sessionClass:
         matpath_list = self.metaClass.matpath_list 
         metadata_selection = self.metaClass.metadata_selection 
 
-        #select for timing, save the selection in PerceiveMetadata_selection 
-        # make a list out of the matfilenames in the first column "Perceive_filename"
-        
-        self.metadata_selection = []
-        matfile_list = []
+        # select the input sessions, save the selection in metadata_selection 
+    
 
         # if input is in exisiting sessions of metadata
-        # create a seperate metadata_selection for each timepoint
+        # create a seperate metadata_selection for each timepoint -> saved in dictionary(Metadata_Postop:PostOP Dataframe, Metadata_FU3M:FU3M Dataframe)
         session_list = metadata_selection['session'].unique().tolist() # list of the existing sessions in metadata column "session"
         self.session_dict = {} 
 
@@ -59,17 +56,38 @@ class sessionClass:
             self.session_dict["Metadata_{0}".format(sessionInput)] =  metadata_selection[metadata_selection['session'] == sessionInput].reset_index(drop=True)
         
 
+        # add column paths_perceiveFiles to every Dataframe 
+        
 
+
+        matfile_dict = {}
+        for i in self.session_dict.keys():
+            matfile_dict["matfiles_{0}".format(i)] = self.session_dict[i]["perceiveFilename"].to_list()
+
+
+        self.matpath_dict = {}
+        self.matpath_list = []
+        for seslist in matfile_dict.keys():
+            
+            for path in matpath_list:
+                for f in seslist:
+                    if f in path: 
+                        self.matpath_dict["matpath_{0}".format(seslist)] = self.matpath_list.append(path)
+
+
+        
         # self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
-        matfile_list = self.metadata_selection["perceiveFilename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
+        
+        # make a list out of the matfilenames in the first column "perceiveFilename"
+        # matfile_list = self.metadata_selection["perceiveFilename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
         # only append paths with the selected .mat filenames to the new self.matpath_list
-        self.matpath_list = []
-        for path in matpath_list:
-            for f in matfile_list:
-                if f in path:
-                    self.matpath_list.append(path)
+        # self.matpath_list = []
+        # for path in matpath_list:
+        #     for f in matfile_list:
+        #         if f in path:
+        #             self.matpath_list.append(path)
         # einfacherer Weg ???
 
 
