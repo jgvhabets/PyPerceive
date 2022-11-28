@@ -34,7 +34,7 @@ class Modality:
     
     def __post_init__(self,):
 
-        allowed_session = ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
+        allowed_session = ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"]
         # allowed_conditions = ["M0S0"]
         # allowed_task = ["Rest", "DirectionalStimulation", "FatigueTest"]
 
@@ -50,8 +50,8 @@ class Modality:
         # self.perceivedata = find_folder.get_onedrive_path("perceivedata")
         # self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
 
-        path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
-        self.subject_path = os.path.join(path_local, f'sub-{self.sub}')
+        # path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
+        # self.subject_path = os.path.join(path_local, f'sub-{self.sub}')
 
         # self.matpath_list = [] # this list will contain all paths to the selected matfiles
         # matfile_list = []
@@ -65,23 +65,34 @@ class Modality:
                     # add each path to the matpath_list 
         
 
-        matfile_list_endings = [] # will keep name after '_run-'
-        self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
+        # matfile_list_endings = [] # will keep name after '_run-'
+        # self.matpath_list = [] # this list will contain all paths to the matfiles in PerceiveMetadata
 
 
-        for root, dirs, files in os.walk(): # walking through every root, directory and file of the given path
-            for file in files: # looping through every file 
-                file_ending = file.split('_run-')[-1]
-                if file.endswith(".mat") and modality_dict[self.modality] in file:
-                    matfile_list_endings.append(file_ending)
-                    self.matpath_list.append(os.path.join(root, file)) 
+        # for root, dirs, files in os.walk(): # walking through every root, directory and file of the given path
+        #     for file in files: # looping through every file 
+        #         file_ending = file.split('_run-')[-1]
+        #         if file.endswith(".mat") and modality_dict[self.modality] in file:
+        #             matfile_list_endings.append(file_ending)
+        #             self.matpath_list.append(os.path.join(root, file)) 
 
 
-        # alternatively, select from existing matpath_list from MetadataClass
-        # for path in metaclass.MetadataClass.matpath_list:
-        #    if modality_dict[self.modality] in path:
-        #        self.matpath_list.append(path)
+
+        # select from existing matpath_list and column perceiveFilename from MetadataClass only filenames and paths which include correct modalities
+        self.matpath_list = []
+        matfile_list = []
+
+        for path in self.metaClass.matpath_list:
+            if modality_dict[self.modality] in path:
+                self.matpath_list.append(path)
         
+        
+        for filename in self.metaClass.metadata_selection["perceiveFilename"]:
+            if modality_dict[self.modality] in filename:
+                matfile_list.append(filename)
+
+
+
         # seattr() changes the value of the attribute matpath_list of self.metaClass 
         setattr(
             self.metaClass,
@@ -92,7 +103,7 @@ class Modality:
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
         metadata = self.metaClass.metadata_selection
-        self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list_endings)].reset_index(drop=True)
+        self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
         # reset.index setzt die Index im DF nochmal neu
 
         #store the new selection of the DataFrame into Metadata_Class
@@ -103,12 +114,20 @@ class Modality:
 
         # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
 
+        session_list = metadata['session'].unique().tolist() # list of the existing sessions in metadata column "session"
+
         for ses in self.metaClass.incl_session:
 
             assert ses in allowed_session, (
                 f'inserted modality ({ses}) should'
                 f' be in {allowed_session}'
             )
+
+            # Error checking: is sessionInput in session_list of Metadata?
+            assert ses in session_list, (
+                f'inserted session ({ses}) has not been recorded'
+                f' and can not be found in the metadata, which only contains sessions {session_list}'
+                )
 
             # setting the attribute in this class here for tim to a value, which is the timing class with defined attributes
             setattr(

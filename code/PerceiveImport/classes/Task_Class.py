@@ -1,6 +1,6 @@
 """ Task Class """
 
-
+import pandas as pd
 from dataclasses import dataclass
 #import mne 
 
@@ -39,21 +39,42 @@ class taskClass:
     def __post_init__(self,):
 
         # get matpaths and PerceiveMetadata_selection from the Metadata_Class
-        matpath_list = self.metaClass.matpath_list 
+
         metadata_selection = self.metaClass.metadata_selection 
 
-        #select the PerceiveMetadata DataFrame for the correct task:
+        # attempt to output a concatenated version of a dataframe if self.metaClass.incl_condition > 1
+        # task_dict = {}
+
+        # for taskInput in self.task:
+        #     task_dict["Metadata_{0}".format(taskInput)] =  metadata_selection[metadata_selection['task'] == taskInput].reset_index(drop=True)
+        #     # dictionary {"Metadata_M0S0": Metadata_selection M0S0, ...}
+        
+        # # from dictionary concatenate all dataframes together to one dataframe -> pd.concat
+        # self.metadata_selection = pd.concat(task_dict.values(), ignore_index=True).reset_index(drop=True)
+        
+        # # select the input sessions, save the selection in metadata_selection 
+        # self.matpath_list = []
+        # matfile_list = self.metadata_selection["perceiveFilename"]
+
+        # # select only the paths included in the new matfile_list from paths of preselected matpath_list in MetaClass
+        # for path in self.metaClass.matpath_list:
+        #     for f in matfile_list:
+        #         if f in path:
+        #             self.matpath_list.append(path)
+
+
+        # #select the PerceiveMetadata DataFrame for the correct task:
         self.metadata_selection = metadata_selection[metadata_selection["task"] == self.task].reset_index(drop=True)
         matfile_list = self.metadata_selection["perceiveFilename"].to_list() # make a matfile_list of the values of the column "perceiveFilename" from the new selection of the Metadata DataFrame
 
         # select from the matpath_list from the MetadataClass 
         # only append paths with the selected .mat filenames to the new self.matpath_list
         self.matpath_list = []
-        for path in matpath_list:
+        for path in self.metaClass.matpath_list:
             for f in matfile_list:
                 if f in path:
                     self.matpath_list.append(path)
-        # einfacherer Weg ???
+        # # einfacherer Weg ???
 
 
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class

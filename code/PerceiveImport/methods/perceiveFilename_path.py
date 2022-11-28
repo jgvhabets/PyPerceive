@@ -44,11 +44,13 @@ def perceiveFilename_path_toExcel(sub):
 
     # create new excel table only with perceiveFilenames and paths
     MetadataDF = pd.DataFrame(filename_path_tuple, columns=['perceiveFilename', 'path_to_perceive'])
-    MetadataDF.to_excel(os.path.join(path_017_local, f'metadata_017_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path", index=False)
+    MetadataDF.to_excel(os.path.join(path_017_local, f'metadata_{sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path", index=False)
 
-    MetadataExcel = pd.read_excel(os.path.join(path_017_local, f'metadata_017_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path")
-    return MetadataExcel
+    return MetadataDF
        
+    # bei LMTD filenames
+    # if LMTD in filename and _ses- to _run- identical to other LMTD filenames -> append _1, _2 etc to file and run os.walk again
+
 
 
 

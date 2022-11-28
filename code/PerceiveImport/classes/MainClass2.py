@@ -73,26 +73,60 @@ class PerceiveData:
         path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
         self.subject_path = os.path.join(path_local, f'sub-{self.sub}')
 
+        # modality_dict = {
+        #     "Survey": "LMTD",
+        #     "Streaming": "BSTD", 
+        #     "Timeline": "CHRONIC"
+        # }
+        
+        # write into new excel file -> columns: perceiveFilenames (existing in directory) + paths
+        # create tuple list of all files + paths into new Dataframe and then to Excel
+        # filename_path_tuple = []
+        
+        # for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
+        #     for file in files: # looping through every file 
+        #         for i in modality_dict:
+        #             if file.endswith(".mat") and modality_dict[i] in file: # filter matfiles only for relevant modalities
+        #                 filename_path_tuple.append([file, os.path.join(root, file)])
 
-        filename_path = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path")
-        # make a matfile_list of the values of the column "perceiveFilename" from the perceiveFilename_path excel table
-        matfile_list = filename_path["perceiveFilename"].to_list()
-        matpath_list = filename_path["path_to_perceive"].to_list()
+
+        # # create new excel table only with perceiveFilenames and paths
+        # filename_pathDF = pd.DataFrame(filename_path_tuple, columns=['perceiveFilename', 'path_to_perceive'])
+
+        # filename_pathDF.to_excel(os.path.join(self.subject_path, f'perceiveFilename_path_{self.sub}.xlsx'), sheet_name="perceiveFilename_path", index=False)
+        # # filename_path = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path")
+        
+        # # make a matfile_list of the values of the column "perceiveFilename" from the perceiveFilename_path excel table
+        # matfile_list = filename_pathDF["perceiveFilename"].to_list()
+        # matfile_list_endings = [u.split('_run-')[-1] for u in matfile_list] # will keep name after '_run-'
+
+        # matpath_list = filename_pathDF["path_to_perceive"].to_list()
+
+        # bei LMTD filenames
+        # if LMTD in filename and _ses- to _run- identical to other LMTD filenames -> append _1, _2 etc to file and run os.walk again
 
 
+        # get completed metadata table 
         # metadata filenames in Metadata table from JB and JK start differently to the .mat filenames in directory, only ending is the same
-        metadata_select = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
-        perceiveFile_list = metadata_select["perceiveFilename"].to_list()
-
-        matfile_list_endings = [u.split('_run-')[-1] for u in matfile_list] # will keep name after '_run-'
         
         # for every file in perceiveFilename from recordingInfo 
-        # if filename from filename_path sheet in file from recordingInfo: -> save row + add path in new column path
-        for file in perceiveFile_list:
-            for end in matfile_list_endings:
-                if end in file:
-                    
+        # if filename from filename_path sheet in file from recordingInfo: -> save row + add path in new column path in Dataframe (not in Excel)
+       
+        # load manually completed Excel (as long as DF isn´t completed yet)
+        self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
+        # matfile_list = self.metadata["perceiveFilename"].to_list()
 
+        self.matpath_list = []
+
+        for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
+            for file in files: # looping through every file 
+                for f in self.metadata["perceiveFilename"]:
+                    if file == f:
+                        self.matpath_list.append(os.path.join(root, file)) 
+
+        
+        # self.matpath_list = self.metadata["path_to_perceive"].to_list()
+                    
 
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
