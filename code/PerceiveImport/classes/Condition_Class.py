@@ -22,7 +22,7 @@ class conditionClass:
     
     """
     
-    #sub = str
+    sub : str
     condition: str
     metaClass: any
 
@@ -91,7 +91,7 @@ class conditionClass:
             "matpath_list",
             self.matpath_list)
 
-        task_list = metadata_selection['task'].unique().tolist() # list of the existing sessions in metadata column "session"
+        #task_list = metadata_selection['task'].unique().tolist() # list of the existing sessions in metadata column "session"
 
         for task in self.metaClass.incl_task:
 
@@ -110,6 +110,7 @@ class conditionClass:
                 self,
                 task,
                 taskclass.taskClass(
+                    sub = self.sub,
                     task = task,
                     metaClass = self.metaClass
                 )

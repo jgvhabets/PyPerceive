@@ -22,7 +22,7 @@ class sessionClass:
     
     """
     
-    #sub = str
+    sub : str
     session: str
     metaClass: any
 
@@ -86,7 +86,7 @@ class sessionClass:
             self.matpath_list
             )
         
-        condition_list = metadata_selection['condition'].unique().tolist() # list of the existing conditions in metadata column "condition"
+        #condition_list = metadata_selection['condition'].unique().tolist() # list of the existing conditions in metadata column "condition"
 
         for cond in self.metaClass.incl_condition:
 
@@ -96,14 +96,15 @@ class sessionClass:
             )
 
             # assert cond in condition_list, (
-            #     f'inserted session ({cond}) has not been recorded'
-            #     f' and can not be found in the metadata, which only contains sessions {condition_list}'
+            #     f'inserted conditions ({cond}) has not been recorded'
+            #     f' and can not be found in the metadata, which only contains conditions {condition_list}'
             #     )
 
             setattr(
                 self,
                 cond,
                 condclass.conditionClass(
+                    sub = self.sub,
                     condition = cond,
                     metaClass = self.metaClass
                 )

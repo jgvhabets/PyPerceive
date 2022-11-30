@@ -12,12 +12,16 @@ import xlrd
 
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
+import PerceiveImport.classes.Metadata_Class as metadata
 import PerceiveImport.classes.Modality_class as modalityClass
+import PerceiveImport.methods.load_mne as loadmne
+
+
 # import PerceiveImport.classes.Timing_class as TimClass
 # import PerceiveImport.classes.Medication_Class as medclass
 # import PerceiveImport.classes.Stim_Class as stimclass
 # import PerceiveImport.classes.Task_Class as taskclass
-import PerceiveImport.classes.Metadata_Class as metadata
+
 
 
 @dataclass(init=True, repr=True) 
@@ -114,18 +118,25 @@ class PerceiveData:
        
         # load manually completed Excel (as long as DF isn´t completed yet)
         self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
-        # matfile_list = self.metadata["perceiveFilename"].to_list()
-
-        self.matpath_list = []
+        
+        matpath_list = []
 
         for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
             for file in files: # looping through every file 
                 for f in self.metadata["perceiveFilename"]:
                     if file == f:
-                        self.matpath_list.append(os.path.join(root, file)) 
+                        matpath_list.append(os.path.join(root, file)) 
 
-        
-        # self.matpath_list = self.metadata["path_to_perceive"].to_list()
+
+        # matpath_list is in different order to idx from metadata, therefore add a new column to metadata and add paths corresponding to correct files
+        # add new column "path_to_perceive" to Dataframe, input path as value, if tail=filename in path equals filename in perceiveFilename
+        for path in matpath_list:
+    
+            head, tail = os.path.split(path) # head = only the filename at the end of the path
+            self.metadata.loc[self.metadata["perceiveFilename"] == tail, "path_to_perceive"] = path 
+
+        # get matpath_list in correct order from the new metadata column "path_to_perceive"
+        self.matpath_list = self.metadata["path_to_perceive"].to_list()
                     
 
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
@@ -137,6 +148,11 @@ class PerceiveData:
             incl_task = self.incl_task,
             matpath_list = self.matpath_list,
             metadata_selection = self.metadata) 
+
+        # load data from self.matpath_list top to bottom 
+        # store in a dictionary: keys=raw_0, raw_1 etc, values=single mne-loaded perceive.mat file
+        # 0,1,2, etc corresponding to index in DataFrame
+        # self.data = loadmne.load_perceiveFile(self.matpath_list)
 
         # loop through every modality input in the incl_modalities list 
         # and set the modality value for each modality

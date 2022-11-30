@@ -134,6 +134,7 @@ class Modality:
                 self,
                 ses,
                 sesClass.sessionClass( 
+                    sub = self.sub,
                     session = ses,
                     metaClass = self.metaClass
                 )

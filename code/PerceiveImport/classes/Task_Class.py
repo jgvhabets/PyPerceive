@@ -2,8 +2,10 @@
 
 import pandas as pd
 from dataclasses import dataclass
-#import mne 
+import mne 
+import mne_bids
 
+import PerceiveImport.methods.metadata_methods as metadatamethods
 # import PerceiveImport.classes.Metadata_Class as metaclass
 
 @dataclass (init=True, repr=True)
@@ -30,7 +32,7 @@ class taskClass:
     
     """
     
-    #sub = str
+    sub : str
     task: str
     metaClass: any
 
@@ -89,7 +91,24 @@ class taskClass:
             self.matpath_list)
         
 
-        #self.data = mne.
+        #self.data is a dictionary with keys(raw_1,2,3,n)
+        # each key stores one mne loaded .mat file from the selected paths
+        # e.g. 021.Survey.FU3M.M0S0.data -> loads a list of 6 .mat files 
+
+        # self.data = {}
+        # count = -1
+
+        # for f in self.matpath_list:  # matselection stores a list of the selected .mat paths 
+    
+        #     count +=1
+
+        #     self.data["raw_{0}".format(count)] = mne.io.read_raw_fieldtrip(
+        #     f,
+        #     info={},
+        #     data_name='data'
+        #     )
+        
+        self.data = metadatamethods.load_mne_raw(self.matpath_list)
     
 
         
