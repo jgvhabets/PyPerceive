@@ -67,18 +67,8 @@ class taskClass:
 
         # #select the PerceiveMetadata DataFrame for the correct task:
         self.metadata_selection = metadata_selection[metadata_selection["task"] == self.task].reset_index(drop=True)
-        matfile_list = self.metadata_selection["perceiveFilename"].to_list() # make a matfile_list of the values of the column "perceiveFilename" from the new selection of the Metadata DataFrame
-
-        # select from the matpath_list from the MetadataClass 
-        # only append paths with the selected .mat filenames to the new self.matpath_list
-        self.matpath_list = []
-        for path in self.metaClass.matpath_list:
-            for f in matfile_list:
-                if f in path:
-                    self.matpath_list.append(path)
-        # # einfacherer Weg ???
-
-
+        self.matpath_list = self.metadata_selection[self.metadata_selection["path_to_perceive"]].to_list()
+        
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
         setattr(
             self.metaClass,

@@ -79,31 +79,17 @@ class Modality:
 
 
         # select from existing matpath_list and column perceiveFilename from MetadataClass only filenames and paths which include correct modalities
-        self.matpath_list = []
+        metadata = self.metaClass.metadata_selection
         matfile_list = []
-
-        for path in self.metaClass.matpath_list:
-            if modality_dict[self.modality] in path:
-                self.matpath_list.append(path)
         
-        
-        for filename in self.metaClass.metadata_selection["perceiveFilename"]:
+        for filename in metadata["perceiveFilename"]:
             if modality_dict[self.modality] in filename:
                 matfile_list.append(filename)
 
 
-
-        # seattr() changes the value of the attribute matpath_list of self.metaClass 
-        setattr(
-            self.metaClass,
-            "matpath_list",
-            self.matpath_list)
-
-
-
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        metadata = self.metaClass.metadata_selection
         self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        self.matpath_list = self.metadata_selection[self.metadata_selection["path_to_perceive"]].to_list()
         # reset.index setzt die Index im DF nochmal neu
 
         #store the new selection of the DataFrame into Metadata_Class
@@ -111,6 +97,13 @@ class Modality:
             self.metaClass,
             "metadata_selection",
             self.metadata_selection)
+        
+        # seattr() changes the value of the attribute matpath_list of self.metaClass 
+        setattr(
+            self.metaClass,
+            "matpath_list",
+            self.matpath_list)
+
 
         # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
 

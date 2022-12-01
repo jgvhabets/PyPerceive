@@ -17,8 +17,8 @@ import PerceiveImport.methods.find_folders as find_folder
 
 
 def perceiveFilename_path_toExcel(sub):
-    """ insert_matfiles_to_Excel() method:
-    This method inserts all matfiles from a chosen subject (e.g. "021) to the first column of a new Excel sheet.
+    """ perceiveFilename_path_Excel() method:
+    This method saves all matfiles with corresponding paths from a chosen subject (e.g. "021) to a new Excel sheet.
     Choose the recording modality ("rec_modality" = "Streaming", "Survey", "Timeline").
 
     The matfilenames and corresponding paths will be inserted in the same row.
@@ -40,7 +40,8 @@ def perceiveFilename_path_toExcel(sub):
 
     filename_path_tuple = []
 
-    # append to matfile_list all .mat files with correct modality of subject
+    # create a new DF with 2 columns: 'perceiveFilename', 'path_to_perceive'
+    # walk through all existing perceived folders and select the .mat files of all modalities given in modality_dict
     for root, dirs, files in os.walk(path_017_local): # walking through every root, directory and file of the given path
         for file in files: # looping through every file 
             for mod in modality_dict:
@@ -57,10 +58,9 @@ def perceiveFilename_path_toExcel(sub):
 
 # load metadata of a defined subject as Dataframe from Excel
 # sub = str of one subject
-
 def load_metadata_matpath(sub):    
-    # self.perceivedata = find_folder.get_onedrive_path("perceivedata")
-    # self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
+    # perceivedata = find_folder.get_onedrive_path("perceivedata")
+    # subject_path = os.path.join(perceivedata, f'sub-{sub}')
 
     path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
 

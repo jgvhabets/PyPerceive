@@ -59,19 +59,7 @@ class sessionClass:
 
         
         self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
-        
-        #make a list out of the matfilenames in the first column "perceiveFilename"
-        matfile_list = self.metadata_selection["perceiveFilename"].to_list() # make a matfile_list of the values of the column "Perceive_filename" from the new selection of the Metadata DataFrame
-
-        #select from the matpath_list from the MetadataClass 
-        #only append paths with the selected .mat filenames to the new self.matpath_list
-        self.matpath_list = []
-        for path in self.metaClass.matpath_list:
-            for f in matfile_list:
-                if f in path:
-                    self.matpath_list.append(path)
-        #einfacherer Weg ???
-
+        self.matpath_list = self.metadata_selection[self.metadata_selection["path_to_perceive"]].to_list()
 
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
         setattr(
