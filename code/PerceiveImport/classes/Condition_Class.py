@@ -67,7 +67,8 @@ class conditionClass:
         
 
         self.metadata_selection = metadata_selection[metadata_selection["condition"] == self.condition].reset_index(drop=True)
-        self.matpath_list = self.metadata_selection[self.metadata_selection["path_to_perceive"]].to_list()
+        
+        #self.matpath_list =  list(self.metadata_selection["path_to_perceive"].values)
 
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
         
@@ -76,10 +77,10 @@ class conditionClass:
             "metadata_selection",
             self.metadata_selection)
 
-        setattr(
-            self.metaClass,
-            "matpath_list",
-            self.matpath_list)
+        # setattr(
+        #     self.metaClass,
+        #     "matpath_list",
+        #     self.matpath_list)
 
         #task_list = metadata_selection['task'].unique().tolist() # list of the existing sessions in metadata column "session"
 

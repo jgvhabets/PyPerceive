@@ -25,24 +25,23 @@ def perceiveFilename_path_toExcel(sub):
     The 'metadata_{sub}_perceiveFilename_path.xlsx' file be saved.
     
     """
-
-
-    path_017_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data\\sub-017'
-    # perceivedata = find_folder.get_onedrive_path("perceivedata")
-    # subject_path = os.path.join(self.perceivedata, f'sub-{sub}')
+    perceivedata = find_folder.get_onedrive_path("perceivedata")
+    subject_path = os.path.join(self.perceivedata, f'sub-{sub}')
 
     
     modality_dict = {
-            "Survey": "LMTD",
-            "Streaming": "BSTD", 
-            "Timeline": "CHRONIC"
+        "Survey": "LMTD",
+        "StreamingBrainSense": "BrainSense", 
+        "StreamingBSTD": "BSTD",
+        "Timeline": "CHRONIC",
+        "IndefiniteStreaming": "IS"
         }
 
     filename_path_tuple = []
 
     # create a new DF with 2 columns: 'perceiveFilename', 'path_to_perceive'
     # walk through all existing perceived folders and select the .mat files of all modalities given in modality_dict
-    for root, dirs, files in os.walk(path_017_local): # walking through every root, directory and file of the given path
+    for root, dirs, files in os.walk(subject_path): # walking through every root, directory and file of the given path
         for file in files: # looping through every file 
             for mod in modality_dict:
                 if file.endswith(".mat") and modality_dict[mod] in file: # filter matfiles only for relevant modalities
@@ -51,7 +50,7 @@ def perceiveFilename_path_toExcel(sub):
 
     # create new excel table only with perceiveFilenames and paths
     MetadataDF = pd.DataFrame(filename_path_tuple, columns=['perceiveFilename', 'path_to_perceive'])
-    MetadataDF.to_excel(os.path.join(path_017_local, f'metadata_{sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path", index=False)
+    MetadataDF.to_excel(os.path.join(subject_path, f'metadata_{sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path", index=False)
 
     return MetadataDF
 
@@ -59,12 +58,9 @@ def perceiveFilename_path_toExcel(sub):
 # load metadata of a defined subject as Dataframe from Excel
 # sub = str of one subject
 def load_metadata_matpath(sub):    
-    # perceivedata = find_folder.get_onedrive_path("perceivedata")
-    # subject_path = os.path.join(perceivedata, f'sub-{sub}')
+    perceivedata = find_folder.get_onedrive_path("perceivedata")
+    subject_path = os.path.join(perceivedata, f'sub-{sub}')
 
-    path_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data'
-
-    subject_path = os.path.join(path_local, f'sub-{sub}')
     metadata = pd.read_excel(os.path.join(subject_path, f'metadata_{sub}.xlsx'), sheet_name="recordingInfo")
     
     matpaths_random = []
@@ -92,9 +88,11 @@ def load_metadata_matpath(sub):
 # and outputs a new filtered matpath_selection and metadata_selection
 def filter_modality(modality, metadata):
     modality_dict = {
-            "Survey": "LMTD",
-            "Streaming": "BSTD", 
-            "Timeline": "CHRONIC"
+        "Survey": "LMTD",
+        "StreamingBrainSense": "BrainSense", 
+        "StreamingBSTD": "BSTD",
+        "Timeline": "CHRONIC",
+        "IndefiniteStreaming": "IS"
         }
     
     matpath_selection = []
@@ -105,7 +103,7 @@ def filter_modality(modality, metadata):
             matfile_list.append(filename)
     
     metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
-    matpath_selection = metadata_selection["path_to_perceive"].to_list()
+    matpath_selection = list(metadata_selection["path_to_perceive"].values)
 
     return metadata_selection, matpath_selection
 
@@ -116,7 +114,7 @@ def filter_modality(modality, metadata):
 def filter_session(session, metadata):
 
     metadata_selection = metadata[metadata["session"] == session].reset_index(drop=True)
-    matpath_selection = metadata_selection["path_to_perceive"].to_list()
+    matpath_selection = list(metadata_selection["path_to_perceive"].values)
    
     return metadata_selection, matpath_selection
 
@@ -127,7 +125,7 @@ def filter_session(session, metadata):
 def filter_condition(condition, metadata):
 
     metadata_selection = metadata[metadata["condition"] == condition].reset_index(drop=True)
-    matpath_selection = metadata_selection["path_to_perceive"].to_list()
+    matpath_selection = list(metadata_selection["path_to_perceive"].values)
    
     return metadata_selection, matpath_selection
   
@@ -136,13 +134,13 @@ def filter_condition(condition, metadata):
 
 def filter_task(task, metadata):
     metadata_selection = metadata[metadata["session"] == task].reset_index(drop=True)
-    matpath_selection = metadata_selection["path_to_perceive"].to_list()
+    matpath_selection = list(metadata_selection["path_to_perceive"].values)
    
     return metadata_selection, matpath_selection
    
 
-
-def load_mne_raw(matpath_selection):
+# this function loads matpaths from a selected list of paths
+def load_mne_path(matpath_selection):
 
     data = {}
     count = -1
@@ -159,3 +157,28 @@ def load_mne_raw(matpath_selection):
     
     return data
 
+# this function loads files from a uniform path 
+def load_mne_file(sub, filenames):
+
+    perceivedata = find_folder.get_onedrive_path("perceivedata")
+    file_path = os.path.join(perceivedata, f'sub-{sub}', f'raw_perceive')
+    path_list = []
+
+    for f in filenames: # loop through all filenames
+        path_list.extend(os.path.join(file_path, f))
+
+    data = {}
+    count = -1
+
+    for p in path_list:  # loop through all paths  
+    
+        count +=1
+
+        data["raw_{0}".format(count)] = mne.io.read_raw_fieldtrip(
+            p,
+            info={},
+            data_name='data'
+            )
+    
+    return data
+        

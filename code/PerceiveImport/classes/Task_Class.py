@@ -67,7 +67,8 @@ class taskClass:
 
         # #select the PerceiveMetadata DataFrame for the correct task:
         self.metadata_selection = metadata_selection[metadata_selection["task"] == self.task].reset_index(drop=True)
-        self.matpath_list = self.metadata_selection[self.metadata_selection["path_to_perceive"]].to_list()
+        
+        #self.matpath_list =  list(self.metadata_selection["path_to_perceive"].values)
         
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
         setattr(
@@ -75,10 +76,10 @@ class taskClass:
             "metadata_selection",
             self.metadata_selection)
 
-        setattr(
-            self.metaClass,
-            "matpath_list",
-            self.matpath_list)
+        # setattr(
+        #     self.metaClass,
+        #     "matpath_list",
+        #     self.matpath_list)
         
 
         #self.data is a dictionary with keys(raw_1,2,3,n)
@@ -98,7 +99,7 @@ class taskClass:
         #     data_name='data'
         #     )
         
-        self.data = metadatamethods.load_mne_raw(self.matpath_list)
+        # self.data = metadatamethods.load_mne_path(self.matpath_list)
     
 
         

@@ -33,7 +33,6 @@ class MetadataClass:
     incl_condition: list 
     incl_task: list
 
-    matpath_list: list
     metadata_selection: any # pd.DataFrame
 
 

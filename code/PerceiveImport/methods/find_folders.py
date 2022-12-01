@@ -17,7 +17,7 @@ def find_project_folder():
     return project_path, data_path
 
 def get_onedrive_path(
-    folder: str
+    folder: str = 'onedrive'
     ):
     """
     Device and OS independent function to find
@@ -51,7 +51,7 @@ def get_onedrive_path(
 
 
     # add the folder DATA-Test to the path and from there open the folders depending on input folder
-    datapath = os.path.join(path, 'DATA-TEST')
+    datapath = os.path.join(path, 'DATA_TEST')
     if folder == 'onedrive': 
         return datapath
 

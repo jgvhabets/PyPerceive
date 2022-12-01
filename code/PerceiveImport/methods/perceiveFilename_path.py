@@ -19,23 +19,21 @@ def perceiveFilename_path_toExcel(sub):
     The Perceive_Metadata.xlsx file be saved.
     
     """
+    perceivedata = find_folder.get_onedrive_path("perceivedata")
+    subject_path = os.path.join(perceivedata, f'sub-{sub}')
 
-
-    path_017_local = 'c:\\Users\\jebe12\\Research\\Longterm_beta_project\\Data\\sub-017'
-    # perceivedata = find_folder.get_onedrive_path("perceivedata")
-    # subject_path = os.path.join(self.perceivedata, f'sub-{sub}')
-
-    
     modality_dict = {
             "Survey": "LMTD",
-            "Streaming": "BSTD", 
-            "Timeline": "CHRONIC"
+            "StreamingBrainSense": "BrainSense", 
+            "StreamingBSTD": "BSTD",
+            "Timeline": "CHRONIC",
+            "IndefiniteStreaming": "IS"
         }
 
     filename_path_tuple = []
 
     # append to matfile_list all .mat files with correct modality of subject
-    for root, dirs, files in os.walk(path_017_local): # walking through every root, directory and file of the given path
+    for root, dirs, files in os.walk(subject_path): # walking through every root, directory and file of the given path
         for file in files: # looping through every file 
             for mod in modality_dict:
                 if file.endswith(".mat") and modality_dict[mod] in file: # filter matfiles only for relevant modalities
@@ -44,7 +42,7 @@ def perceiveFilename_path_toExcel(sub):
 
     # create new excel table only with perceiveFilenames and paths
     MetadataDF = pd.DataFrame(filename_path_tuple, columns=['perceiveFilename', 'path_to_perceive'])
-    MetadataDF.to_excel(os.path.join(path_017_local, f'metadata_{sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path", index=False)
+    MetadataDF.to_excel(os.path.join(subject_path, f'metadata_{sub}_perceiveFilename_path.xlsx'), sheet_name="perceiveFilename_path", index=False)
 
     return MetadataDF
        

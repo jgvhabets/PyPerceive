@@ -32,7 +32,7 @@ class sessionClass:
         allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
         #allowed_task = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
-        
+        print(self.sub)
 
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
         metadata_selection = self.metaClass.metadata_selection 
@@ -59,7 +59,8 @@ class sessionClass:
 
         
         self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
-        self.matpath_list = self.metadata_selection[self.metadata_selection["path_to_perceive"]].to_list()
+        
+        #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
 
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
         setattr(
@@ -68,11 +69,11 @@ class sessionClass:
             self.metadata_selection
         )
 
-        setattr(
-            self.metaClass,
-            "matpath_list",
-            self.matpath_list
-            )
+        # setattr(
+        #     self.metaClass,
+        #     "matpath_list",
+        #     self.matpath_list
+        #     )
         
         #condition_list = metadata_selection['condition'].unique().tolist() # list of the existing conditions in metadata column "condition"
 
