@@ -42,7 +42,7 @@ class taskClass:
 
         # get matpaths and PerceiveMetadata_selection from the Metadata_Class
 
-        metadata_selection = self.metaClass.metadata_selection 
+        # metadata_selection = self.metaClass.metadata_selection 
 
         # attempt to output a concatenated version of a dataframe if self.metaClass.incl_condition > 1
         # task_dict = {}
@@ -65,8 +65,22 @@ class taskClass:
         #             self.matpath_list.append(path)
 
 
+        metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
+        metadata_dict[self.task] = pd.DataFrame() # is empty
+
+        for mod in self.metaClass.incl_modalities:
+            for ses in self.metaClass.incl_session:
+                for cond in self.metaClass.incl_condition:
+                    metadata_mod_ses_cond = metadata_dict["{0}.{0}.{0}".format(mod, ses, cond)]
+                    metadata_dict["{0}.{0}.{0}.{0}".format(mod, ses, cond, self.task)] = pd.concat([metadata_dict[self.task], metadata_mod_ses_cond[metadata_mod_ses_cond["task"] == self.task]]).reset_index(drop=True)
+
+         
+        self.metadata_selection = metadata_dict
+
+
+
         # #select the PerceiveMetadata DataFrame for the correct task:
-        self.metadata_selection = metadata_selection[metadata_selection["task"] == self.task].reset_index(drop=True)
+        # self.metadata_selection = metadata_selection[metadata_selection["task"] == self.task].reset_index(drop=True)
         
         #self.matpath_list =  list(self.metadata_selection["path_to_perceive"].values)
         

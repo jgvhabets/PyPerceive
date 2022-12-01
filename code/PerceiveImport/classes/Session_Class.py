@@ -32,10 +32,9 @@ class sessionClass:
         allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
         #allowed_task = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
-        print(self.sub)
-
         # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
-        metadata_selection = self.metaClass.metadata_selection 
+        
+        #metadata_selection = self.metaClass.metadata_selection 
 
         # attempt to output a concatenated version of a dataframe if self.metaClass.incl_session > 1
         # session_dict = {}
@@ -57,8 +56,18 @@ class sessionClass:
         #         if f in path:
         #             self.matpath_list.append(path)
 
-        
-        self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
+
+        metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
+        metadata_dict[self.session] = pd.DataFrame() # is empty
+
+        for mod in self.metaClass.incl_modalities:
+            metadata_mod = metadata_dict[mod]
+            metadata_dict["{0}.{0}".format(mod, self.session)] = pd.concat([metadata_dict[self.session], metadata_mod[metadata_mod["session"] == self.session]]).reset_index(drop=True)
+
+         
+        self.metadata_selection = metadata_dict
+     
+        # self.metadata_selection = metadata_selection[metadata_selection["session"] == self.session].reset_index(drop=True)
         
         #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
 

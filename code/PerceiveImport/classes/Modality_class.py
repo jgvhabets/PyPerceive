@@ -45,20 +45,33 @@ class Modality:
         }
 
         # select from existing matpath_list and column perceiveFilename from MetadataClass only filenames and paths which include correct modalities
-        metadata = self.metaClass.metadata_selection
+        metadata = self.metaClass.metadata
+
         matfile_list = []
         
         for filename in metadata["perceiveFilename"]:
 
             if modality_dict[self.modality] in filename:
                 
-                matfile_list.extend(filename)
+                matfile_list.append(filename)
+
+        print(f"This is a list of perceiveFilenames which include {modality_dict[self.modality]}: ", matfile_list)
+
+        metadata_dict = self.metaClass.metadata_selection # is empty dictionary{}
+        metadata_dict[self.modality] = pd.DataFrame()
+        metadata_dict[self.modality] = pd.concat([metadata_dict[self.modality], metadata[metadata["perceiveFilename"].isin(matfile_list)]]).reset_index(drop=True)
+
+        self.metadata_selection = metadata_dict
+
+        #print(f"This metadata_selection stores the metadata of {self.modality} in a dictionary: ", self.metadata_selection)
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        # self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+
+        # use pd.concat instead of cropping dataframe
+        #self.metadata_selection =         
         
         #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
-        
         
 
         #store the new selection of the DataFrame into Metadata_Class

@@ -55,7 +55,7 @@ class PerceiveData:
     
     # these fields will be initialized 
     sub: str             # note that : is used, not =  
-    incl_modalities: list = field(default_factory=lambda: ["Streaming", "Survey", "Timeline"])  # default:_ if no input is given -> automatically input the full list
+    incl_modalities: list = field(default_factory=lambda: ["StreamingBrainSense", "StreamingBSTD", "Survey", "Timeline", "IndefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
     incl_session: list = field(default_factory=lambda: ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"])
     incl_condition: list = field(default_factory=lambda: ["M0S0", "M1S0", "M0S1", "M1S1"])
     incl_task: list = field(default_factory=lambda: ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"])
@@ -64,7 +64,7 @@ class PerceiveData:
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
         
-        allowed_modalities = ["StreamingBrainSense", "StreamingBSTD", "Survey", "Timeline", "IndefiniteStreaming", ] # this shows allowed values for incl_modalities
+        allowed_modalities = ["StreamingBrainSense", "StreamingBSTD", "Survey", "Timeline", "IndefiniteStreaming"] # this shows allowed values for incl_modalities
 
         self.perceivedata = find_folder.get_onedrive_path("perceivedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')

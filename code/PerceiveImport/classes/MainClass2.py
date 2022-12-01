@@ -81,7 +81,9 @@ class PerceiveData:
             incl_session = self.incl_session,
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
-            metadata_selection = self.metadata) 
+            metadata = self.metadata,
+            metadata_selection = {}
+            )
         
         # loop through every modality input in the incl_modalities list 
         # and set the modality value for each modality

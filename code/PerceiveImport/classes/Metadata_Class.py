@@ -32,8 +32,8 @@ class MetadataClass:
     incl_session: list 
     incl_condition: list 
     incl_task: list
-
-    metadata_selection: any # pd.DataFrame
+    metadata: any # pd.DataFrame from MainClass, will stay complete without being filtered! 
+    metadata_selection: dict # dict.keys: Survey, Streaming etc; dict.values: pd.DataFrame of metadata_selection
 
 
 
