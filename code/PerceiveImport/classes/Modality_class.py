@@ -36,7 +36,7 @@ class Modality:
 
         allowed_session = ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"]
 
-        modality_dict = {
+        modality_abbreviations_dict = {
             "Survey": "LMTD",
             "StreamingBrainSense": "BrainSense", 
             "StreamingBSTD": "BSTD",
@@ -45,54 +45,14 @@ class Modality:
         }
 
         # select from existing matpath_list and column perceiveFilename from MetadataClass only filenames and paths which include correct modalities
-        metadata = self.metaClass.metadata
-
-        matfile_list = []
         
-        for filename in metadata["perceiveFilename"]:
-
-            if modality_dict[self.modality] in filename:
-                
-                matfile_list.append(filename)
-
-        print(f"This is a list of perceiveFilenames which include {modality_dict[self.modality]}: ", matfile_list)
-
-
-        metadata_mod = self.metaClass.metadata_mod # is empty dictionary 
-    
-        metadata_mod[self.modality] = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        # select all rows with modality abbreviations in filename
+        abbr = modality_abbreviations_dict[self.modality]  # current modality abbreviations
+        sel = [abbr in fname for fname in self.metaClass.metadata["perceiveFilename"]]
+        sel_meta_df = self.metaClass.metadata[sel]
         
-        self.metadata_mod = metadata_mod
-
-        #print(f"This metadata_selection stores the metadata of {self.modality} in a dictionary: ", self.metadata_selection)
-
-        # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        # metadata_mod = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
-
-        # # to not overwrite the metadata_selection stored in metaClass -> concat the new selection to the existing metadata_selection
-        # self.metadata_mod = pd.concat([metadata_mod, self.metaClass.metadata_mod])
-
-        # use pd.concat instead of cropping dataframe
-        #self.metadata_selection =         
-        
-        #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
-        
-
         #store the new selection of the DataFrame into Metadata_Class
-        setattr(
-            self.metaClass,
-            "metadata_mod",
-            self.metadata_mod)
-
-        # seattr() changes the value of the attribute matpath_list of self.metaClass 
-        # setattr(
-        #     self.metaClass,
-        #     "matpath_list",
-        #     self.matpath_list)
-
-        # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
-
-        #session_list = self.metadata_selection['session'].unique().to_list() # list of the existing sessions in metadata column "session"
+        setattr(self.metaClass, "metadata", sel_meta_df)
         
         for ses in self.metaClass.incl_session:
             
@@ -117,6 +77,52 @@ class Modality:
                     metaClass = self.metaClass
                 )
             )  
+
+
+
+
+        # # take all preceive filenames in metadata-DF which contain current Modality
+        # for filename in metadata["perceiveFilename"]:
+
+        #     if modality_abbreviations_dict[self.modality] in filename:
+                
+        #         matfile_list.append(filename)
+
+        # print(f"This is a list of perceiveFilenames which include {modality_abbreviations_dict[self.modality]}: ", matfile_list)
+
+
+        # metadata_mod = self.metaClass.metadata_mod # is empty dictionary 
+
+        # metadata_mod[self.modality] = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        
+        # self.metadata_mod = metadata_mod
+
+        #print(f"This metadata_selection stores the metadata of {self.modality} in a dictionary: ", self.metadata_selection)
+
+        # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
+        # metadata_mod = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+
+        # # to not overwrite the metadata_selection stored in metaClass -> concat the new selection to the existing metadata_selection
+        # self.metadata_mod = pd.concat([metadata_mod, self.metaClass.metadata_mod])
+
+        # use pd.concat instead of cropping dataframe
+        #self.metadata_selection =         
+        
+        #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
+        
+
+        
+
+        # seattr() changes the value of the attribute matpath_list of self.metaClass 
+        # setattr(
+        #     self.metaClass,
+        #     "matpath_list",
+        #     self.matpath_list)
+
+        # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
+
+        #session_list = self.metadata_selection['session'].unique().to_list() # list of the existing sessions in metadata column "session"
+       
 
 
         # jump to med class

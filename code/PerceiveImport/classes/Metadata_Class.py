@@ -34,7 +34,7 @@ class MetadataClass:
     incl_task: list
     metadata: any # pd.DataFrame from MainClass, will stay complete without being filtered!
     
-    metadata_mod: dict # selection of metadata
+    metadata_mod: dict # selection of metadata key= Survey: valuemetadata
     metadata_ses: dict
     metadata_cond: dict
     metadata_task: dict

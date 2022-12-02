@@ -96,6 +96,7 @@ class PerceiveData:
                 f'inserted modality ({mod}) should'
                 f' be in {allowed_modalities}'
             )
+            print(f'CHECK METACLASS: shape metadata {self.metaClass.metadata.shape}')
             # seattr(object,name,value) -> object=instance whose attribute is to be set, name=attribute name, value=value to be set for the attribute
             setattr(
                 self, 
@@ -105,28 +106,6 @@ class PerceiveData:
                     modality = mod,
                     metaClass = self.metaClass)
             )
+            
+            print(f'CHECK 2 METACLASS: shape metadata {self.metaClass.metadata.shape}')
 
-        # matpath_list = []
-
-        # for root, dirs, files in os.walk(self.subject_path): # walking through every root, directory and file of the given path
-        #     for file in files: # looping through every file 
-        #         for f in self.metadata["perceiveFilename"]:
-        #             if file == f:
-        #                 matpath_list.append(os.path.join(root, file)) 
-
-
-        # # matpath_list is in different order to idx from metadata, therefore add a new column to metadata and add paths corresponding to correct files
-        # # add new column "path_to_perceive" to Dataframe, input path as value, if tail=filename in path equals filename in perceiveFilename
-        # for path in matpath_list:
-    
-        #     head, tail = os.path.split(path) # head = only the filename at the end of the path
-        #     self.metadata.loc[self.metadata["perceiveFilename"] == tail, "path_to_perceive"] = path 
-
-        # # get matpath_list in correct order from the new metadata column "path_to_perceive"
-        # self.matpath_list = self.metadata["path_to_perceive"].to_list()
-       
-
-        # load data from self.matpath_list top to bottom 
-        # store in a dictionary: keys=raw_0, raw_1 etc, values=single mne-loaded perceive.mat file
-        # 0,1,2, etc corresponding to index in DataFrame
-        # self.data = loadmne.load_perceiveFile(self.matpath_list)
