@@ -57,16 +57,20 @@ class Modality:
 
         print(f"This is a list of perceiveFilenames which include {modality_dict[self.modality]}: ", matfile_list)
 
-        metadata_dict = self.metaClass.metadata_selection # is empty dictionary{}
-        metadata_dict[self.modality] = pd.DataFrame()
-        metadata_dict[self.modality] = pd.concat([metadata_dict[self.modality], metadata[metadata["perceiveFilename"].isin(matfile_list)]]).reset_index(drop=True)
 
-        self.metadata_selection = metadata_dict
+        metadata_mod = self.metaClass.metadata_mod # is empty dictionary 
+    
+        metadata_mod[self.modality] = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        
+        self.metadata_mod = metadata_mod
 
         #print(f"This metadata_selection stores the metadata of {self.modality} in a dictionary: ", self.metadata_selection)
 
         # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        # self.metadata_selection = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+        # metadata_mod = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
+
+        # # to not overwrite the metadata_selection stored in metaClass -> concat the new selection to the existing metadata_selection
+        # self.metadata_mod = pd.concat([metadata_mod, self.metaClass.metadata_mod])
 
         # use pd.concat instead of cropping dataframe
         #self.metadata_selection =         
@@ -77,8 +81,8 @@ class Modality:
         #store the new selection of the DataFrame into Metadata_Class
         setattr(
             self.metaClass,
-            "metadata_selection",
-            self.metadata_selection)
+            "metadata_mod",
+            self.metadata_mod)
 
         # seattr() changes the value of the attribute matpath_list of self.metaClass 
         # setattr(

@@ -83,7 +83,6 @@ def load_metadata_matpath(sub):
     return metadata, matpath_list
 
 
-
 # this function filters a metadata from input, which includes a column with paths already!!: modality=list, metadata=pd.DataFrame
 # and outputs a new filtered matpath_selection and metadata_selection
 def filter_modality(modality, metadata):

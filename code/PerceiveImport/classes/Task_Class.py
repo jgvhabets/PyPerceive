@@ -40,9 +40,21 @@ class taskClass:
 
     def __post_init__(self,):
 
-        # get matpaths and PerceiveMetadata_selection from the Metadata_Class
+        # get PerceiveMetadata_selection from the Metadata_Class
 
-        # metadata_selection = self.metaClass.metadata_selection 
+
+        for cond in self.metaClass.metadata_cond.keys():
+            metadata_cond = self.metaClass.metadata_cond[cond]
+
+            metadata_task = self.metaClass.metadata_task # is empty dictionary 
+            metadata_task[self.task] = metadata_cond[metadata_cond["task"] == self.task].reset_index(drop=True)
+        
+            self.metadata_task = metadata_task
+
+        # metadata_cond = self.metaClass.metadata_cond 
+
+        # metadata_task = metadata_cond[metadata_cond["task"] == self.task].reset_index(drop=True)
+        # self.metadata_task = pd.concat([metadata_task, self.metaClass.metadata_task])
 
         # attempt to output a concatenated version of a dataframe if self.metaClass.incl_condition > 1
         # task_dict = {}
@@ -65,17 +77,17 @@ class taskClass:
         #             self.matpath_list.append(path)
 
 
-        metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
-        metadata_dict[self.task] = pd.DataFrame() # is empty
+        # metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
+        # metadata_dict[self.task] = pd.DataFrame() # is empty
 
-        for mod in self.metaClass.incl_modalities:
-            for ses in self.metaClass.incl_session:
-                for cond in self.metaClass.incl_condition:
-                    metadata_mod_ses_cond = metadata_dict["{0}.{0}.{0}".format(mod, ses, cond)]
-                    metadata_dict["{0}.{0}.{0}.{0}".format(mod, ses, cond, self.task)] = pd.concat([metadata_dict[self.task], metadata_mod_ses_cond[metadata_mod_ses_cond["task"] == self.task]]).reset_index(drop=True)
+        # for mod in self.metaClass.incl_modalities:
+        #     for ses in self.metaClass.incl_session:
+        #         for cond in self.metaClass.incl_condition:
+        #             metadata_mod_ses_cond = metadata_dict["{0}.{0}.{0}".format(mod, ses, cond)]
+        #             metadata_dict["{0}.{0}.{0}.{0}".format(mod, ses, cond, self.task)] = pd.concat([metadata_dict[self.task], metadata_mod_ses_cond[metadata_mod_ses_cond["task"] == self.task]]).reset_index(drop=True)
 
          
-        self.metadata_selection = metadata_dict
+        # self.metadata_selection = metadata_dict
 
 
 
@@ -87,8 +99,8 @@ class taskClass:
         # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
         setattr(
             self.metaClass,
-            "metadata_selection",
-            self.metadata_selection)
+            "metadata_task",
+            self.metadata_task)
 
         # setattr(
         #     self.metaClass,

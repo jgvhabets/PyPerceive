@@ -32,7 +32,18 @@ class conditionClass:
         allowed_tasks = ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"]
 
         # get the preselected PerceiveMetadata DataFrame from the Metadata_Class
-        # metadata_selection = self.metaClass.metadata_selection 
+        #metadata_ses = self.metaClass.metadata_ses
+
+        for ses in self.metaClass.metadata_ses.keys():
+            metadata_ses = self.metaClass.metadata_ses[ses]
+
+            metadata_cond = self.metaClass.metadata_cond # is empty dictionary 
+            metadata_cond[self.condition] = metadata_ses[metadata_ses["condition"] == self.condition].reset_index(drop=True)
+        
+            self.metadata_cond = metadata_cond
+
+        # metadata_cond = metadata_ses[metadata_ses["condition"] == self.condition].reset_index(drop=True)
+        # self.metadata_cond = pd.concat([metadata_cond, self.metaClass.metadata_cond])
 
         # # attempt to output a concatenated version of a dataframe if self.metaClass.incl_condition > 1
         # condition_dict = {}
@@ -66,19 +77,19 @@ class conditionClass:
         # else 
         
 
-        metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
-        metadata_dict[self.condition] = pd.DataFrame() # is empty
+        # metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
+        # metadata_dict[self.condition] = pd.DataFrame() # is empty
 
-        for mod in self.metaClass.incl_modalities:
-            for ses in self.metaClass.incl_session:
-                metadata_mod_ses = metadata_dict["{0}.{0}".format(mod, ses)]
-                metadata_dict["{0}.{0}.{0}".format(mod, ses, self.condition)] = pd.concat([metadata_dict[self.condition], metadata_mod_ses[metadata_mod_ses["condition"] == self.condition]]).reset_index(drop=True)
+        # for mod in self.metaClass.incl_modalities:
+        #     for ses in self.metaClass.incl_session:
+        #         metadata_mod_ses = metadata_dict["{0}.{0}".format(mod, ses)]
+        #         metadata_dict["{0}.{0}.{0}".format(mod, ses, self.condition)] = pd.concat([metadata_dict[self.condition], metadata_mod_ses[metadata_mod_ses["condition"] == self.condition]]).reset_index(drop=True)
 
          
-        self.metadata_selection = metadata_dict
+        # self.metadata_selection = metadata_dict
 
 
-        # self.metadata_selection = metadata_selection[metadata_selection["condition"] == self.condition].reset_index(drop=True)
+        
         
         #self.matpath_list =  list(self.metadata_selection["path_to_perceive"].values)
 
@@ -86,8 +97,8 @@ class conditionClass:
         
         setattr(
             self.metaClass,
-            "metadata_selection",
-            self.metadata_selection)
+            "metadata_cond",
+            self.metadata_cond)
 
         # setattr(
         #     self.metaClass,

@@ -82,7 +82,10 @@ class PerceiveData:
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
             metadata = self.metadata,
-            metadata_selection = {}
+            metadata_mod = {},
+            metadata_ses = {},
+            metadata_cond = {},
+            metadata_task = {}
             )
         
         # loop through every modality input in the incl_modalities list 
