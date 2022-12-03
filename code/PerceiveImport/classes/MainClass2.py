@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass, field
 
 import pandas as pd
-import xlrd
+
 
 # import openpyxl
 # from openpyxl import Workbook, load_workbook
@@ -74,6 +74,7 @@ class PerceiveData:
 
         self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
         
+        
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
             sub = self.sub,
@@ -82,12 +83,12 @@ class PerceiveData:
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
             metadata = self.metadata,
-            metadata_mod = {},
-            metadata_ses = {},
-            metadata_cond = {},
-            metadata_task = {}
             )
-        
+
+
+        #self.metaClass.copy(self.metaClass)
+
+
         # loop through every modality input in the incl_modalities list 
         # and set the modality value for each modality
         for mod in self.incl_modalities:

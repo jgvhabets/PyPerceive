@@ -30,71 +30,19 @@ class sessionClass:
     def __post_init__(self,):
 
         allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
-        #allowed_task = ["Rest", "UPDRS", "DirectionalStimulation", "FatigueTest"]
 
-        # get the list of paths of the .mat filenames and the preselected PerceiveMetadata DataFrame from the Metadata_Class
-        
-        for mod in self.metaClass.metadata_mod.keys():
-            metadata_mod = self.metaClass.metadata_mod[mod]
+        # select all rows with the chosen session in the column "session" of the metadata DF
+        sel = [self.metaClass.metadata["session"] == self.session]
+        sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
+        sel_meta_df.copy(sel_meta_df)
 
-            metadata_ses = self.metaClass.metadata_ses # is empty dictionary 
-            metadata_ses[self.session] = metadata_mod[metadata_mod["session"] == self.session].reset_index(drop=True)
-        
-            self.metadata_ses = metadata_ses
+        print("session class: ", sel_meta_df)
 
-        # metadata_ses = metadata_mod[metadata_mod["session"] == self.session].reset_index(drop=True)
-        # self.metadata_ses = pd.concat([metadata_ses, self.metaClass.metadata_ses])
+        #store the new selection of the DataFrame into Metadata_Class
+        setattr(self.metaClass, "metadata", sel_meta_df)
 
-        # attempt to output a concatenated version of a dataframe if self.metaClass.incl_session > 1
-        # session_dict = {}
-
-        # for sessionInput in self.metaClass.incl_session:
-    
-        #     session_dict["Metadata_{0}".format(sessionInput)] =  metadata_selection[metadata_selection['session'] == sessionInput].reset_index(drop=True)
-        #     # dictionary {"Metadata_Postop": Metadata_selection Postop, ...}
-        
-        # # from dictionary concatenate all dataframes together to one dataframe -> pd.concat
-        # self.metadata_selection = pd.concat(session_dict.values(), ignore_index=True).reset_index(drop=True)
-        
-        # # select the input sessions, save the selection in metadata_selection 
-        # self.matpath_list = []
-        # matfile_list = self.metadata_selection["perceiveFilename"]
-
-        # for path in self.metaClass.matpath_list:
-        #     for f in matfile_list:
-        #         if f in path:
-        #             self.matpath_list.append(path)
-
-
-        # metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
-        # metadata_dict[self.session] = pd.DataFrame() # is empty
-
-        # for mod in self.metaClass.incl_modalities:
-        #     metadata_mod = metadata_dict[mod]
-        #     metadata_dict["{0}.{0}".format(mod, self.session)] = pd.concat([metadata_dict[self.session], metadata_mod[metadata_mod["session"] == self.session]]).reset_index(drop=True)
-
-         
-        # self.metadata_selection = metadata_dict
-     
-        
-        
-        #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
-
-        # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
-        setattr(
-            self.metaClass,
-            "metadata_ses",
-            self.metadata_ses
-        )
-
-        # setattr(
-        #     self.metaClass,
-        #     "matpath_list",
-        #     self.matpath_list
-        #     )
-        
-        #condition_list = metadata_selection['condition'].unique().tolist() # list of the existing conditions in metadata column "condition"
-
+        # loop through every condition input in the incl_condition list 
+        # and set the condition value for each condition
         for cond in self.metaClass.incl_condition:
 
             assert cond in allowed_condition, (

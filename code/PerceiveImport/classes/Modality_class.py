@@ -44,16 +44,24 @@ class Modality:
             "IndefiniteStreaming": "IS"
         }
 
-        # select from existing matpath_list and column perceiveFilename from MetadataClass only filenames and paths which include correct modalities
-        
+       
         # select all rows with modality abbreviations in filename
         abbr = modality_abbreviations_dict[self.modality]  # current modality abbreviations
         sel = [abbr in fname for fname in self.metaClass.metadata["perceiveFilename"]]
-        sel_meta_df = self.metaClass.metadata[sel]
+        sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
+        sel_meta_df.copy(sel_meta_df)
         
+        print("sel_meta_df: ", sel_meta_df, sel)
+
         #store the new selection of the DataFrame into Metadata_Class
         setattr(self.metaClass, "metadata", sel_meta_df)
         
+
+        # loop through every session input in the incl_session list 
+        # and set the session value for each session
+
+        #session_list = sel_meta_df['session'].unique().tolist() # list of the existing sessions in metadata column "session"
+
         for ses in self.metaClass.incl_session:
             
             assert ses in allowed_session, (
@@ -78,107 +86,6 @@ class Modality:
                 )
             )  
 
-
-
-
-        # # take all preceive filenames in metadata-DF which contain current Modality
-        # for filename in metadata["perceiveFilename"]:
-
-        #     if modality_abbreviations_dict[self.modality] in filename:
-                
-        #         matfile_list.append(filename)
-
-        # print(f"This is a list of perceiveFilenames which include {modality_abbreviations_dict[self.modality]}: ", matfile_list)
-
-
-        # metadata_mod = self.metaClass.metadata_mod # is empty dictionary 
-
-        # metadata_mod[self.modality] = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
-        
-        # self.metadata_mod = metadata_mod
-
-        #print(f"This metadata_selection stores the metadata of {self.modality} in a dictionary: ", self.metadata_selection)
-
-        # store a selection of rows of the PerceiveMetadata DataFrame into a new selection variable, with the condition that the filename in column Perceive_filename is in the self.matfile_list        
-        # metadata_mod = metadata[metadata["perceiveFilename"].isin(matfile_list)].reset_index(drop=True)
-
-        # # to not overwrite the metadata_selection stored in metaClass -> concat the new selection to the existing metadata_selection
-        # self.metadata_mod = pd.concat([metadata_mod, self.metaClass.metadata_mod])
-
-        # use pd.concat instead of cropping dataframe
-        #self.metadata_selection =         
-        
-        #self.matpath_list = list(self.metadata_selection["path_to_perceive"].values)
-        
-
-        
-
-        # seattr() changes the value of the attribute matpath_list of self.metaClass 
-        # setattr(
-        #     self.metaClass,
-        #     "matpath_list",
-        #     self.matpath_list)
-
-        # can we take both setattr (matpath_list and PerceiveMetadata_selection) together ??
-
-        #session_list = self.metadata_selection['session'].unique().to_list() # list of the existing sessions in metadata column "session"
-       
-
-
-        # jump to med class
-        # for med in self.metaClass.incl_medication:
-
-        #     assert med in allowed_medication, (
-        #         f'inserted modality ({med}) should'
-        #         f' be in {allowed_medication}'
-        #     )
-
-        #     setattr(
-        #         self,
-        #         med,
-        #         medclass.medicationClass(
-        #             medication = med,
-        #             metaClass = self.metaClass
-        #         )
-        #     ) 
-        
-
-        # # jump to stim class
-        # for stim in self.metaClass.incl_stim:
-
-        #     # Error checking: if stim is not in allowed_stimulation -> Error message
-        #     assert stim in allowed_stimulation, (
-        #         f'inserted modality ({stim}) should'
-        #         f' be in {allowed_stimulation}'
-        #     )
-
-        #     setattr(
-        #         self,
-        #         stim,
-        #         stimclass.stimulationClass(
-        #             stimulation = stim,
-        #             metaClass = self.metaClass
-        #         )
-        #     ) 
-
-
-        # # jump to task class
-        # for task in self.metaClass.incl_task:
-
-        #     # Error checking: if stim is not in allowed_stimulation -> Error message
-        #     assert task in allowed_task, (
-        #         f'inserted modality ({task}) should'
-        #         f' be in {allowed_task}'
-        #     )
-
-        #     setattr(
-        #         self,
-        #         task,
-        #         taskclass.taskClass(
-        #             task = task,
-        #             metaClass = self.metaClass
-        #         )
-        #     )   
 
 
     def __str__(self,):

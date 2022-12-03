@@ -40,74 +40,15 @@ class taskClass:
 
     def __post_init__(self,):
 
-        # get PerceiveMetadata_selection from the Metadata_Class
+        # select all rows with the chosen session in the column "session" of the metadata DF
+        sel = [self.metaClass.metadata["condition"] == self.condition]
+        sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
+        sel_meta_df.copy(sel_meta_df)
 
+        #store the new selection of the DataFrame into Metadata_Class
+        setattr(self.metaClass, "metadata", sel_meta_df)
 
-        for cond in self.metaClass.metadata_cond.keys():
-            metadata_cond = self.metaClass.metadata_cond[cond]
-
-            metadata_task = self.metaClass.metadata_task # is empty dictionary 
-            metadata_task[self.task] = metadata_cond[metadata_cond["task"] == self.task].reset_index(drop=True)
         
-            self.metadata_task = metadata_task
-
-        # metadata_cond = self.metaClass.metadata_cond 
-
-        # metadata_task = metadata_cond[metadata_cond["task"] == self.task].reset_index(drop=True)
-        # self.metadata_task = pd.concat([metadata_task, self.metaClass.metadata_task])
-
-        # attempt to output a concatenated version of a dataframe if self.metaClass.incl_condition > 1
-        # task_dict = {}
-
-        # for taskInput in self.task:
-        #     task_dict["Metadata_{0}".format(taskInput)] =  metadata_selection[metadata_selection['task'] == taskInput].reset_index(drop=True)
-        #     # dictionary {"Metadata_M0S0": Metadata_selection M0S0, ...}
-        
-        # # from dictionary concatenate all dataframes together to one dataframe -> pd.concat
-        # self.metadata_selection = pd.concat(task_dict.values(), ignore_index=True).reset_index(drop=True)
-        
-        # # select the input sessions, save the selection in metadata_selection 
-        # self.matpath_list = []
-        # matfile_list = self.metadata_selection["perceiveFilename"]
-
-        # # select only the paths included in the new matfile_list from paths of preselected matpath_list in MetaClass
-        # for path in self.metaClass.matpath_list:
-        #     for f in matfile_list:
-        #         if f in path:
-        #             self.matpath_list.append(path)
-
-
-        # metadata_dict = self.metaClass.metadata_selection # is dictionary with keys from Modality_Class
-        # metadata_dict[self.task] = pd.DataFrame() # is empty
-
-        # for mod in self.metaClass.incl_modalities:
-        #     for ses in self.metaClass.incl_session:
-        #         for cond in self.metaClass.incl_condition:
-        #             metadata_mod_ses_cond = metadata_dict["{0}.{0}.{0}".format(mod, ses, cond)]
-        #             metadata_dict["{0}.{0}.{0}.{0}".format(mod, ses, cond, self.task)] = pd.concat([metadata_dict[self.task], metadata_mod_ses_cond[metadata_mod_ses_cond["task"] == self.task]]).reset_index(drop=True)
-
-         
-        # self.metadata_selection = metadata_dict
-
-
-
-        # #select the PerceiveMetadata DataFrame for the correct task:
-        # self.metadata_selection = metadata_selection[metadata_selection["task"] == self.task].reset_index(drop=True)
-        
-        #self.matpath_list =  list(self.metadata_selection["path_to_perceive"].values)
-        
-        # store the new values of the selected matpaths and DataFrame selection to the attributes stored in Metadata_Class
-        setattr(
-            self.metaClass,
-            "metadata_task",
-            self.metadata_task)
-
-        # setattr(
-        #     self.metaClass,
-        #     "matpath_list",
-        #     self.matpath_list)
-        
-
         #self.data is a dictionary with keys(raw_1,2,3,n)
         # each key stores one mne loaded .mat file from the selected paths
         # e.g. 021.Survey.FU3M.M0S0.data -> loads a list of 6 .mat files 
