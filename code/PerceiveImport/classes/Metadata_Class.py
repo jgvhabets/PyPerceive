@@ -31,6 +31,7 @@ class MetadataClass:
     incl_task: list
     metadata: any # pd.DataFrame from MainClass, will be modified in each class 
     
+    
 
 
 

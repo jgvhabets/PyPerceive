@@ -2,6 +2,9 @@
 
 import pandas as pd
 from dataclasses import dataclass
+
+import copy
+
 import mne 
 import mne_bids
 
@@ -41,9 +44,13 @@ class taskClass:
     def __post_init__(self,):
 
         # select all rows with the chosen session in the column "session" of the metadata DF
-        sel = [self.metaClass.metadata["condition"] == self.condition]
+        # sel = [self.metaClass.metadata["condition"] == self.condition] 
+        sel = [self.task == task for task in self.metaClass.metadata["task"]]
         sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
-        sel_meta_df.copy(sel_meta_df)
+        
+        # create a copy of the metaclass metadata which will stay the same and won´t be modified by other classes
+        self.sel_meta_df = copy.deepcopy(sel_meta_df)
+
 
         #store the new selection of the DataFrame into Metadata_Class
         setattr(self.metaClass, "metadata", sel_meta_df)

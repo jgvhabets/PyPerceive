@@ -5,6 +5,7 @@ import os
 from dataclasses import dataclass, field
 
 import pandas as pd
+import copy
 
 
 # import openpyxl
@@ -76,17 +77,18 @@ class PerceiveData:
         
         
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
-        self.metaClass = metadata.MetadataClass(
+        metaClass = metadata.MetadataClass(
             sub = self.sub,
             incl_modalities = self.incl_modalities,
             incl_session = self.incl_session,
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
-            metadata = self.metadata,
+            metadata = self.metadata
             )
 
 
-        #self.metaClass.copy(self.metaClass)
+        # create a copy of the metaclass which will stay the same and won´t be modified by other classes
+        self.metaClass_copy = copy.deepcopy(metaClass)
 
 
         # loop through every modality input in the incl_modalities list 
@@ -97,7 +99,7 @@ class PerceiveData:
                 f'inserted modality ({mod}) should'
                 f' be in {allowed_modalities}'
             )
-            print(f'CHECK METACLASS: shape metadata {self.metaClass.metadata.shape}')
+            print(f'CHECK METACLASS: shape metadata {metaClass.metadata.shape}')
             # seattr(object,name,value) -> object=instance whose attribute is to be set, name=attribute name, value=value to be set for the attribute
             setattr(
                 self, 
@@ -105,8 +107,8 @@ class PerceiveData:
                 modalityClass.Modality(
                     sub = self.sub,
                     modality = mod,
-                    metaClass = self.metaClass)
+                    metaClass = self.metaClass_copy)
             )
             
-            print(f'CHECK 2 METACLASS: shape metadata {self.metaClass.metadata.shape}')
+            print(f'CHECK 2 METACLASS: shape metadata {self.metaClass_copy.metadata.shape}')
 

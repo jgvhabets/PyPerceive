@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import os
 
 import pandas as pd
+import copy
 
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.Session_Class as sesClass
@@ -29,7 +30,7 @@ class Modality:
     
     """
     sub: str
-    modality: str
+    modality: str   # input from MainClass: copy from the metaclass from Mainclass
     metaClass: any
     
     def __post_init__(self,):
@@ -49,13 +50,17 @@ class Modality:
         abbr = modality_abbreviations_dict[self.modality]  # current modality abbreviations
         sel = [abbr in fname for fname in self.metaClass.metadata["perceiveFilename"]]
         sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
-        sel_meta_df.copy(sel_meta_df)
-        
-        print("sel_meta_df: ", sel_meta_df, sel)
+
+        print(f'CHECK METACLASS MOD: shape metadata {self.metaClass.metadata.shape}')
+
+        # create a copy of the metaclass metadata which will stay the same and won´t be modified by other classes
+        self.sel_meta_df = copy.deepcopy(sel_meta_df)
+
 
         #store the new selection of the DataFrame into Metadata_Class
-        setattr(self.metaClass, "metadata", sel_meta_df)
-        
+        setattr(self.metaClass, "metadata", sel_meta_df) # store the metadata_sel in a seperate attribute of Metadata_Class, so it won´t change metadata from main class
+
+        print("sel_meta_df: ", sel_meta_df, sel)
 
         # loop through every session input in the incl_session list 
         # and set the session value for each session
@@ -76,6 +81,7 @@ class Modality:
             #     )
 
             # setting the attribute in this class here for tim to a value, which is the timing class with defined attributes
+            print(f'CHECK METACLASS MOD: shape metadata {self.metaClass.metadata.shape}')
             setattr(
                 self,
                 ses,

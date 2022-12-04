@@ -3,6 +3,8 @@
 import pandas as pd
 from dataclasses import dataclass
 
+import copy
+
 # import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.Condition_Class as condclass
 #import PerceiveImport.classes.Task_Class as taskclass
@@ -32,11 +34,14 @@ class sessionClass:
         allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
 
         # select all rows with the chosen session in the column "session" of the metadata DF
-        sel = [self.metaClass.metadata["session"] == self.session]
+        #sel = [self.metaClass.metadata["session"] == self.session]
+        sel = [self.session == ses for ses in self.metaClass.metadata["session"]]
         sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
-        sel_meta_df.copy(sel_meta_df)
+        
 
-        print("session class: ", sel_meta_df)
+        # create a copy of the metaclass metadata which will stay the same and won´t be modified by other classes
+        self.sel_meta_df = copy.deepcopy(sel_meta_df)
+
 
         #store the new selection of the DataFrame into Metadata_Class
         setattr(self.metaClass, "metadata", sel_meta_df)
