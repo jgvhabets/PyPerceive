@@ -1,4 +1,4 @@
-""" Task Class """
+""" Task Class2"""
 
 import pandas as pd
 from dataclasses import dataclass
@@ -36,6 +36,7 @@ class taskClass:
     """
     
     sub : str
+    #hemisphere: str
     task: str
     metaClass: any
 
@@ -43,13 +44,46 @@ class taskClass:
 
     def __post_init__(self,):
 
+        task_abbreviations_dict = {
+            "Rest": "Rest",
+            "FingerTapping": "FT", 
+            "UPDRS": "UPDRS", 
+            #"MonopolarReview": ["RSBSStStim", "DSBSStStim", "FCBSStStim"]
+        }
 
-        # select all rows with the chosen tasks in the column "task" of the metadata DF 
-        sel = [self.task in task for task in self.metaClass.metadata["task"]]
-        sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
+        # task labels in metadata:
+
+        # # Survey
+        # "RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", 
+
+        # #Streaming
+        # "RestBSSt13", "RestBSSt02", "FTRBSSt02", "FTRBSSt13", "FTLBSSt02", "FTLBSSt13", "UPDRSBSSt02", "UPDRSBSSt02",
+
+        # # Indefinite Streaming
+        # "RestISRing", "RestISSegm",
+
+        # # monopolar review 
+        # "RSBSStStim1L", "RSBSStStim2L", "RSBSStStim1R", "RSBSStStim2R", 
+        # "DSBSStStim1aL", "DSBSStStim1bL", "DSBSStStim1cL", "DSBSStStim2aL", "DSBSStStim2bL", "DSBSStStim2cL", "DSBSStStim1aR", "DSBSStStim1bR", "DSBSStStim1cR", "DSBSStStim2aR", "DSBSStStim2bR", "DSBSStStim2cR",
+        # "FCBSStStim1aL", "FCBSStStim1bL", "FCBSStStim1cL", "FCBSStStim2aL", "FCBSStStim2bL", "FCBSStStim2cL", "FCBSStStim1aR", "FCBSStStim1bR", "FCBSStStim1cR", "FCBSStStim2aR", "FCBSStStim2bR", "FCBSStStim2cR"
+    
         
+        
+        
+        # preselection of right or left hemishpere, by only selecting tasks, ending with "R" or "L"
+        
+
+
+        # select all rows with task abbreviations in filename
+        abbr = task_abbreviations_dict[self.task]  # current modality abbreviations
+        sel = [abbr in task for task in self.metaClass.metadata["task"]]
+        sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
+
+        print(f'CHECK METACLASS MOD: shape metadata {self.metaClass.metadata.shape}')
+
         # create a copy of the metaclass metadata which will stay the same and won´t be modified by other classes
         self.sel_meta_df = copy.deepcopy(sel_meta_df)
+
 
 
         #store the new selection of the DataFrame into Metadata_Class

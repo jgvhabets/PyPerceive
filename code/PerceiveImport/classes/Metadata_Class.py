@@ -14,8 +14,7 @@ class MetadataClass:
         - incl_session: list  
         - incl_med: list 
         - incl_condition: list
-        - matpath_list: list
-        - PerceiveMetadata_selection: any
+        - metadata: any
 
     post-initialized parameters:
         

@@ -8,6 +8,8 @@ def find_project_folder():
     Return: tuple[str, str] -> project_path, data_path
     to only use one str use _ -> example: project_folder, _ = find_project_folder()
     """
+
+    # from the cwd get path to PyPerceive_Project (=Git Repository)
     project_path = os.getcwd()
     while project_path[-18:] != 'PyPerceive_Project':
         project_path = os.path.dirname(project_path)
@@ -29,6 +31,7 @@ def get_onedrive_path(
         'onedrive', 'perceivedata', 'results'
         ]
 
+    # Error checking, if folder input is in folder options
     if folder.lower() not in folder_options:
         raise ValueError(
             f'given folder: {folder} is incorrect, '
@@ -38,16 +41,16 @@ def get_onedrive_path(
     path = os.getcwd()
 
     while os.path.dirname(path)[-5:] != 'Users':
-        path = os.path.dirname(path) # path is now Users/username
+        path = os.path.dirname(path) # path is now leading to Users/username
 
-    # get the onedrive folder and add it to the path
+    # get the onedrive folder containing "onedrive" and "charit" and add it to the path
     onedrive_f = [
         f for f in os.listdir(path) if np.logical_and(
             'onedrive' in f.lower(),
             'charit' in f.lower())
             ]
 
-    path = os.path.join(path, onedrive_f[0])
+    path = os.path.join(path, onedrive_f[0]) # path is now leading to Onedrive folder
 
 
     # add the folder DATA-Test to the path and from there open the folders depending on input folder

@@ -34,7 +34,6 @@ class sessionClass:
         allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
 
         # select all rows with the chosen session in the column "session" of the metadata DF
-        #sel = [self.metaClass.metadata["session"] == self.session]
         sel = [self.session == ses for ses in self.metaClass.metadata["session"]]
         sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
         
@@ -46,8 +45,9 @@ class sessionClass:
         #store the new selection of the DataFrame into Metadata_Class
         setattr(self.metaClass, "metadata", sel_meta_df)
 
-        # loop through every condition input in the incl_condition list 
-        # and set the condition value for each condition
+        
+    
+        # continue to next class: Condition_Class and set the attribute of the new selection of metaClass
         for cond in self.metaClass.incl_condition:
 
             assert cond in allowed_condition, (
@@ -55,11 +55,7 @@ class sessionClass:
                 f' be in {allowed_condition}'
             )
 
-            # assert cond in condition_list, (
-            #     f'inserted conditions ({cond}) has not been recorded'
-            #     f' and can not be found in the metadata, which only contains conditions {condition_list}'
-            #     )
-
+            # set the condition value for each condition 
             setattr(
                 self,
                 cond,

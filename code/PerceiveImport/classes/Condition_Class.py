@@ -31,10 +31,9 @@ class conditionClass:
 
     def __post_init__(self,):
 
-        allowed_tasks = ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"]
+        allowed_tasks = ["Rest", "FT", "UPDRS"]
 
-        # select all rows with the chosen session in the column "session" of the metadata DF
-        # sel = [self.metaClass.metadata["condition"] == self.condition]
+        # select all rows with the chosen condition in the column "condition" of the metadata DF
         sel = [self.condition == cond for cond in self.metaClass.metadata["condition"]]
         sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
         
@@ -44,10 +43,8 @@ class conditionClass:
         #store the new selection of the DataFrame into Metadata_Class
         setattr(self.metaClass, "metadata", sel_meta_df)
 
-        #task_list = metadata_selection['task'].unique().tolist() # list of the existing sessions in metadata column "session"
 
-        # loop through every condition input in the incl_condition list 
-        # and set the condition value for each condition
+        # continue to next class: Task_Class and set the attribute of the new selection of metaClass
         for task in self.metaClass.incl_task:
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
@@ -56,11 +53,7 @@ class conditionClass:
                 f' be in {allowed_tasks}'
             )
 
-            # assert task in task_list, (
-            #     f'inserted session ({task}) has not been recorded'
-            #     f' and can not be found in the metadata, which only contains sessions {task_list}'
-            #     )
-
+            # set the task value for each condition
             setattr(
                 self,
                 task,

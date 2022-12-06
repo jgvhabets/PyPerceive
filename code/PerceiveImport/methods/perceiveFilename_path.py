@@ -2,9 +2,6 @@
 import os
 import pandas as pd
 
-# import openpyxl
-# from openpyxl import Workbook, load_workbook
-
 
 import PerceiveImport.methods.find_folders as find_folder
 
@@ -13,7 +10,7 @@ import PerceiveImport.methods.find_folders as find_folder
 def perceiveFilename_path_toExcel(sub):
     """ insert_matfiles_to_Excel() method:
     This method inserts all matfiles from a chosen subject (e.g. "021) to the first column of the Perceive_Metadata Excel sheet.
-    Choose the recording modality ("rec_modality" = "Streaming", "Survey", "Timeline") of your choice.
+    Choose the recording modality ("rec_modality" = "Streaming", "Survey", "Timeline", "IndefiniteStreaming") of your choice.
 
     The matfilenames will be inserted after the last edited row of the .xlsx sheet.
     The Perceive_Metadata.xlsx file be saved.
@@ -22,10 +19,9 @@ def perceiveFilename_path_toExcel(sub):
     perceivedata = find_folder.get_onedrive_path("perceivedata")
     subject_path = os.path.join(perceivedata, f'sub-{sub}')
 
-    modality_dict = {
+    modality_abbreviations = {
             "Survey": "LMTD",
-            "StreamingBrainSense": "BrainSense", 
-            "StreamingBSTD": "BSTD",
+            "Streaming": "BrainSense", 
             "Timeline": "CHRONIC",
             "IndefiniteStreaming": "IS"
         }
@@ -36,7 +32,7 @@ def perceiveFilename_path_toExcel(sub):
     for root, dirs, files in os.walk(subject_path): # walking through every root, directory and file of the given path
         for file in files: # looping through every file 
             for mod in modality_dict:
-                if file.endswith(".mat") and modality_dict[mod] in file: # filter matfiles only for relevant modalities
+                if file.endswith(".mat") and modality_abbreviations[mod] in file: # filter matfiles only for relevant modalities
                     filename_path_tuple.append([file, os.path.join(root, file)])
 
 

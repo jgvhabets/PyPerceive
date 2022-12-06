@@ -39,8 +39,7 @@ class Modality:
 
         modality_abbreviations_dict = {
             "Survey": "LMTD",
-            "StreamingBrainSense": "BrainSense", 
-            "StreamingBSTD": "BSTD",
+            "Streaming": "BrainSense", 
             "Timeline": "CHRONIC",
             "IndefiniteStreaming": "IS"
         }
@@ -65,7 +64,7 @@ class Modality:
         # loop through every session input in the incl_session list 
         # and set the session value for each session
 
-        #session_list = sel_meta_df['session'].unique().tolist() # list of the existing sessions in metadata column "session"
+        session_list = sel_meta_df['session'].unique().tolist() # list of the existing sessions in metadata column "session"
 
         for ses in self.metaClass.incl_session:
             
@@ -74,11 +73,11 @@ class Modality:
                 f' be in {allowed_session}'
             )
 
-            # Error checking: is sessionInput in session_list of Metadata?
-            # assert ses in session_list, (
-            #     f'inserted session ({ses}) has not been recorded'
-            #     f' and can not be found in the metadata, which only contains sessions {session_list}'
-            #     )
+            #Error checking: is sessionInput in session_list of Metadata?
+            assert ses in session_list, (
+                f'inserted session ({ses}) has not been recorded'
+                f' and can not be found in the metadata, which only contains sessions {session_list}'
+                )
 
             # setting the attribute in this class here for tim to a value, which is the timing class with defined attributes
             print(f'CHECK METACLASS MOD: shape metadata {self.metaClass.metadata.shape}')

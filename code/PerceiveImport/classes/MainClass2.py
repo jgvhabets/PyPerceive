@@ -7,21 +7,11 @@ from dataclasses import dataclass, field
 import pandas as pd
 import copy
 
-
-# import openpyxl
-# from openpyxl import Workbook, load_workbook
-
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.Metadata_Class as metadata
-import PerceiveImport.classes.Modality_class as modalityClass
-import PerceiveImport.methods.load_mne as loadmne
-
-
-# import PerceiveImport.classes.Timing_class as TimClass
-# import PerceiveImport.classes.Medication_Class as medclass
-# import PerceiveImport.classes.Stim_Class as stimclass
-# import PerceiveImport.classes.Task_Class as taskclass
+import PerceiveImport.classes.Modality_Class as modalityClass
+#import PerceiveImport.methods.load_mne as loadmne
 
 
 
@@ -34,8 +24,7 @@ class PerceiveData:
         - sub: subject name called sub-xxx, input e.g. "021" (make sure to use exactly the same str as your subject folder is called)
         - incl_modalities: a list of recording modalities to include ["Streaming", "Survey", "Timeline", "IndefiniteStreaming"] 
         - incl_timing: a list of timing sessions to include ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
-        - incl_med: a list of conditions to include  ["On", "Off"]
-        - incl_stim: list = field(default_factory=lambda: ["Off", "On"]
+        - incl_cond: a list of conditions to include  ["M0S0", "M1S0", "M0S1", "M1S1"]
         - incl_task: a list of tasks to include ["Rest", "DirectionalStimulation", "FatigueTest"]
 
     post-initialized parameters:
@@ -54,10 +43,10 @@ class PerceiveData:
     
     # these fields will be initialized 
     sub: str             # note that : is used, not =  
-    incl_modalities: list = field(default_factory=lambda: ["Survey", "StreamingBrainSense", "StreamingBSTD", "Timeline", "IndefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
+    incl_modalities: list = field(default_factory=lambda: ["Survey", "Streaming", "Timeline", "IndefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
     incl_session: list = field(default_factory=lambda: ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"])
     incl_condition: list = field(default_factory=lambda: ["M0S0", "M1S0", "M0S1", "M1S1"])
-    incl_task: list = field(default_factory=lambda: ["RestBSSuRingR", "RestBSSuRingL", "RestBSSuSegmInterR", "RestBSSuSegmInterL",  "RestBSSuSegmIntraR", "RestBSSuSegmIntraL", "RestBSSt", "FingerTapBSSt", "UPDRSBSSt"])
+    incl_task: list = field(default_factory=lambda: ["Rest", "FT", "UPDRS"])
 
 
     # note that every defined method contains (self,) don´t forget the comma after self!
@@ -65,8 +54,7 @@ class PerceiveData:
         
         allowed_modalities = [
             "Survey",
-            "StreamingBrainSense", 
-            "StreamingBSTD",
+            "Streaming", 
             "Timeline",
             "IndefiniteStreaming"] # this shows allowed values for incl_modalities
 
