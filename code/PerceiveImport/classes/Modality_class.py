@@ -8,9 +8,7 @@ import copy
 
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.Session_Class as sesClass
-# import PerceiveImport.classes.Medication_Class as medclass
-# import PerceiveImport.classes.Stim_Class as stimclass
-# import PerceiveImport.classes.Task_Class as taskclass
+
 
 @dataclass (init=True, repr=True)
 class Modality:
@@ -19,14 +17,11 @@ class Modality:
     
     parameters:
         - sub: e.g. "021"
-        - modality: "Streaming", "Survey", "Timeline"
+        - modality: "Streaming", "Survey", "Timeline", "IndefiniteStreaming"
         - metaClass
 
     Returns:
-        - data_path: path to the "Data" folder
-        - subject_path: path to the "sub" folder with all files of the given subject
-        - matfile_list: all .mat files of the given subject and recording modality
-        - paths_list: all paths to the given .mat files of the given subject and modality
+        - sel_meta_df: a selection of the metadata DataFrame from MainClass, selected are the correct rows including the given modalites
     
     """
     sub: str
@@ -59,11 +54,10 @@ class Modality:
         #store the new selection of the DataFrame into Metadata_Class
         setattr(self.metaClass, "metadata", sel_meta_df) # store the metadata_sel in a seperate attribute of Metadata_Class, so it won´t change metadata from main class
 
-        print("sel_meta_df: ", sel_meta_df, sel)
+
 
         # loop through every session input in the incl_session list 
         # and set the session value for each session
-
         session_list = sel_meta_df['session'].unique().tolist() # list of the existing sessions in metadata column "session"
 
         for ses in self.metaClass.incl_session:

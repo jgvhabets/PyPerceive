@@ -87,7 +87,7 @@ class PerceiveData:
                 f'inserted modality ({mod}) should'
                 f' be in {allowed_modalities}'
             )
-            print(f'CHECK METACLASS: shape metadata {metaClass.metadata.shape}')
+            print(f'CHECK METACLASS: shape metadata {self.metaClass_copy.metadata.shape}')
             # seattr(object,name,value) -> object=instance whose attribute is to be set, name=attribute name, value=value to be set for the attribute
             setattr(
                 self, 

@@ -164,7 +164,7 @@ def load_mne_file(sub, filenames):
     path_list = []
 
     for f in filenames: # loop through all filenames
-        path_list.extend(os.path.join(file_path, f))
+        path_list.append(os.path.join(file_path, f))
 
     data = {}
     count = -1

@@ -19,7 +19,7 @@ def find_project_folder():
     return project_path, data_path
 
 def get_onedrive_path(
-    folder: str = 'onedrive'
+    folder: str = 'onedrive', sub: str = None
     ):
     """
     Device and OS independent function to find
@@ -28,7 +28,7 @@ def get_onedrive_path(
     """
 
     folder_options = [
-        'onedrive', 'perceivedata', 'results'
+        'onedrive', 'perceivedata', 'results', 'raw_perceive'
         ]
 
     # Error checking, if folder input is in folder options
@@ -63,3 +63,6 @@ def get_onedrive_path(
 
     elif folder == 'results': # must be data or figures
         return os.path.join(datapath, 'results')
+    
+    elif folder == "raw_perceive": # containing all relevant perceive .mat files
+        return os.path.join(datapath, "perceivedata", f"sub-{sub}", "raw_perceive")

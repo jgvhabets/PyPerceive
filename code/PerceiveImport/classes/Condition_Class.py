@@ -53,7 +53,7 @@ class conditionClass:
                 f' be in {allowed_tasks}'
             )
 
-            # set the task value for each condition
+            # set the task value for each task
             setattr(
                 self,
                 task,
