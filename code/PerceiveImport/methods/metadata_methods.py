@@ -156,28 +156,3 @@ def load_mne_path(matpath_selection):
     
     return data
 
-# this function loads files from a uniform path 
-def load_mne_file(sub, filenames):
-
-    perceivedata = find_folder.get_onedrive_path("perceivedata")
-    file_path = os.path.join(perceivedata, f'sub-{sub}', f'raw_perceive')
-    path_list = []
-
-    for f in filenames: # loop through all filenames
-        path_list.append(os.path.join(file_path, f))
-
-    data = {}
-    count = -1
-
-    for p in path_list:  # loop through all paths  
-    
-        count +=1
-
-        data["raw_{0}".format(count)] = mne.io.read_raw_fieldtrip(
-            p,
-            info={},
-            data_name='data'
-            )
-    
-    return data
-        

@@ -11,16 +11,17 @@ def find_project_folder():
 
     # from the cwd get path to PyPerceive_Project (=Git Repository)
     project_path = os.getcwd()
-    while project_path[-18:] != 'PyPerceive_Project':
+    while project_path[-10:] != 'pyPerceive':
         project_path = os.path.dirname(project_path)
     
-    data_path = os.path.join(project_path, 'Data')
+    data_path = os.path.join(project_path, 'data')
     
     return project_path, data_path
 
+
 def get_onedrive_path(
     folder: str = 'onedrive', sub: str = None
-    ):
+):
     """
     Device and OS independent function to find
     the synced-OneDrive folder where data is stored

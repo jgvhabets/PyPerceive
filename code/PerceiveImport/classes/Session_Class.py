@@ -25,28 +25,15 @@ class sessionClass:
     """
     
     sub : str
+    modality: str
     session: str
     metaClass: any
+    meta_table: pd.DataFrame
 
 
-    def __post_init__(self,):
-
+    def __post_init__(self,):        
+        
         allowed_condition = ["M0S0", "M1S0", "M0S1", "M1S1"]
-
-        # select all rows with the chosen session in the column "session" of the metadata DF
-        sel = [self.session == ses for ses in self.metaClass.metadata["session"]]
-        sel_meta_df = self.metaClass.metadata[sel].reset_index(drop=True)
-        
-
-        # create a copy of the metaclass metadata which will stay the same and won´t be modified by other classes
-        self.sel_meta_df = copy.deepcopy(sel_meta_df)
-
-
-        #store the new selection of the DataFrame into Metadata_Class
-        setattr(self.metaClass, "metadata", sel_meta_df)
-
-        
-    
         # continue to next class: Condition_Class and set the attribute of the new selection of metaClass
         for cond in self.metaClass.incl_condition:
 
@@ -55,14 +42,24 @@ class sessionClass:
                 f' be in {allowed_condition}'
             )
 
+            sel = [cond.lower() == c.lower() for c in self.meta_table["condition"]]
+            sel_meta_table = self.meta_table[sel].reset_index(drop=True)
+            
+            # if no files are left after selecting, dont make new class
+            if len(sel_meta_table) == 0:
+                continue
+
             # set the condition value for each condition 
             setattr(
                 self,
                 cond,
                 condclass.conditionClass(
-                    sub = self.sub,
-                    condition = cond,
-                    metaClass = self.metaClass
-                )
+                    sub=self.sub,
+                    modality=self.modality,
+                    session=self.session,
+                    condition=cond,
+                    metaClass=self.metaClass,
+                    meta_table=sel_meta_table,
+                ),
             )  
 

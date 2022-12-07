@@ -14,6 +14,16 @@ import PerceiveImport.classes.Modality_Class as modalityClass
 #import PerceiveImport.methods.load_mne as loadmne
 
 
+import warnings
+
+def read_excel_wOut_warning(path: str, sheet_name: None):
+    """
+    Load data from an Excel file, and surpress warning
+    bceause of Excel-Dropdown menus
+    """
+    warnings.simplefilter(action='ignore', category=UserWarning)
+    return pd.read_excel(path, sheet_name=sheet_name)
+
 
 @dataclass(init=True, repr=True) 
 class PerceiveData:
@@ -60,24 +70,18 @@ class PerceiveData:
 
         self.perceivedata = find_folder.get_onedrive_path("perceivedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
-
-        self.metadata = pd.read_excel(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
+        self.meta_table = read_excel_wOut_warning(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
         
         
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
-        metaClass = metadata.MetadataClass(
+        self.metaClass = metadata.MetadataClass(
             sub = self.sub,
             incl_modalities = self.incl_modalities,
             incl_session = self.incl_session,
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
-            metadata = self.metadata
-            )
-
-
-        # create a copy of the metaclass which will stay the same and won´t be modified by other classes
-        self.metaClass_copy = copy.deepcopy(metaClass)
-
+            orig_meta_table = self.meta_table
+        )
 
         # loop through every modality input in the incl_modalities list 
         # and set the modality value for each modality
@@ -87,16 +91,31 @@ class PerceiveData:
                 f'inserted modality ({mod}) should'
                 f' be in {allowed_modalities}'
             )
-            print(f'CHECK METACLASS: shape metadata {self.metaClass_copy.metadata.shape}')
-            # seattr(object,name,value) -> object=instance whose attribute is to be set, name=attribute name, value=value to be set for the attribute
+
+            modality_abbreviations_dict = {
+                "Survey": "LMTD",
+                "Streaming": "BrainSense", 
+                "Timeline": "CHRONIC",
+                "IndefiniteStreaming": "IS"
+            }
+
+            # select all rows with modality abbreviations in filename
+            abbr = modality_abbreviations_dict[mod]  # current modality abbreviations
+            sel = [abbr in fname for fname in self.metaClass.orig_meta_table["perceiveFilename"]]
+            sel_meta_table = self.metaClass.orig_meta_table[sel].reset_index(drop=True)
+            
+            # if no files after selection, dont create subclasses
+            if len(sel_meta_table) == 0:
+                continue
+
             setattr(
                 self, 
                 mod, 
                 modalityClass.Modality(
-                    sub = self.sub,
-                    modality = mod,
-                    metaClass = self.metaClass_copy)
+                    sub=self.sub,
+                    modality=mod,
+                    metaClass=self.metaClass,
+                    meta_table=sel_meta_table)
             )
             
-            print(f'CHECK 2 METACLASS: shape metadata {self.metaClass_copy.metadata.shape}')
 

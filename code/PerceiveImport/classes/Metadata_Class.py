@@ -28,15 +28,12 @@ class MetadataClass:
     incl_session: list 
     incl_condition: list 
     incl_task: list
-    metadata: any # pd.DataFrame from MainClass, will be modified in each class 
+    orig_meta_table: any # pd.DataFrame from MainClass, will be modified in each class 
     
-    
 
+    # def __post_init__(self,): 
 
-
-    def __post_init__(self,): 
-
-        print("MetadataClass has been loaded")
+    #     # print("MetadataClass has been loaded")
 
 
 
