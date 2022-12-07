@@ -7,7 +7,7 @@ import pandas as pd
 import copy
 
 import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.Session_Class as sesClass
+import PerceiveImport.classes.session_class as sesClass
 
 
 @dataclass (init=True, repr=True)
@@ -17,11 +17,12 @@ class Modality:
     
     parameters:
         - sub: e.g. "021"
-        - modality: "Streaming", "Survey", "Timeline", "IndefiniteStreaming"
-        - metaClass
+        - modality: "survey", "streaming", "timeline", "indefiniteStreaming"
+        - metaClass: all original attributes set in Main_Class
+        - meta_table: modality selected meta_table set in Main_Class
 
     Returns:
-        - sel_meta_df: a selection of the metadata DataFrame from MainClass, selected are the correct rows including the given modalites
+        - sel_meta_table: session selected meta_table 
     
     """
     sub: str
@@ -31,7 +32,7 @@ class Modality:
     
     def __post_init__(self,):
 
-        allowed_session = ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"]
+        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
 
         
         # loop through every session input in the incl_session list 
@@ -42,7 +43,7 @@ class Modality:
         for ses in self.metaClass.incl_session:
             
             assert ses.lower() in [s.lower() for s in allowed_session], (
-                f'inserted modality ({ses}) should'
+                f'inserted session ({ses}) should'
                 f' be in {allowed_session}'
             )
 

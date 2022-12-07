@@ -9,12 +9,12 @@ class MetadataClass:
     Metadata class to store repetitive variables that are changing constantly throughout the hierarchy
     
     parameters:
-        - sub: subject name called sub-xxx, e.g. "021" (make sure to use exactly the same str as your subject folder is called)
-        - incl_modalities: list
-        - incl_session: list  
-        - incl_med: list 
-        - incl_condition: list
-        - metadata: any
+        - sub: number of subject e.g. "021" (make sure to use exactly three digits)
+        - incl_modalities: a list of recording modalities to include ["survey", "streaming", "timeline", "indefiniteStreaming"] 
+        - incl_timing: a list of timing sessions to include ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
+        - incl_cond: a list of conditions to include  ["m0s0", "m1s0", "m0s1", "m1s1"]
+        - incl_task: a list of tasks to include ["rest", "tapping", "updrs"]
+        - orig_meta_table: original metadata table read with pd.read_excel()
 
     post-initialized parameters:
         
@@ -28,12 +28,9 @@ class MetadataClass:
     incl_session: list 
     incl_condition: list 
     incl_task: list
-    orig_meta_table: any # pd.DataFrame from MainClass, will be modified in each class 
+    orig_meta_table: any # pd.DataFrame read with pd.read_excel(), will stay original and won´t be changed
     
 
-    # def __post_init__(self,): 
-
-    #     # print("MetadataClass has been loaded")
 
 
 

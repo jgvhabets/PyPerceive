@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import copy
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.Task_Class as taskclass
+import PerceiveImport.classes.task_class as taskclass
 
 @dataclass (init=True, repr=True)
 class conditionClass:
@@ -15,12 +15,15 @@ class conditionClass:
     condition Class 
     
     parameters:
-        (input from main dataclass PerceiveData)
-        - sub:
-        - condition: "M0S0", "M1S0", "M0S1", "M1S1"
+        - sub: e.g. "021"
+        - modality: "survey", "streaming", "timeline", "indefiniteStreaming" set in session_class
+        - session: "postop", "fu3m", "fu12m", "fu18m", "fu24m" set in session_class
+        - condition: "m0s0", "m1s0", "m0s1", "m1s1" set in session_class
+        - metaClass: all original attributes set in Main_Class
+        - meta_table: selected meta_table set in session_class
 
     Returns:
-        - 
+        - sel_meta_table: session selected meta_table 
     
     """
     

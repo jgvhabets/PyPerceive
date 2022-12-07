@@ -9,9 +9,8 @@ import copy
 
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.Metadata_Class as metadata
-import PerceiveImport.classes.Modality_Class as modalityClass
-#import PerceiveImport.methods.load_mne as loadmne
+import PerceiveImport.classes.metadata_class as metadata
+import PerceiveImport.classes.modality_class as modalityClass
 
 
 import warnings
@@ -31,42 +30,30 @@ class PerceiveData:
     Main class to store Percept data
     
     parameters:
-        - sub: subject name called sub-xxx, input e.g. "021" (make sure to use exactly the same str as your subject folder is called)
-        - incl_modalities: a list of recording modalities to include ["Streaming", "Survey", "Timeline", "IndefiniteStreaming"] 
-        - incl_timing: a list of timing sessions to include ["Postop", "FU3M", "FU12M", "FU18M", "FU24M"]
-        - incl_cond: a list of conditions to include  ["M0S0", "M1S0", "M0S1", "M1S1"]
-        - incl_task: a list of tasks to include ["Rest", "DirectionalStimulation", "FatigueTest"]
+        - sub: number of subject e.g. "021" (make sure to use exactly three digits)
+        - incl_modalities: a list of recording modalities to include ["survey", "streaming", "timeline", "indefiniteStreaming"] 
+        - incl_timing: a list of timing sessions to include ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
+        - incl_cond: a list of conditions to include  ["m0s0", "m1s0", "m0s1", "m1s1"]
+        - incl_task: a list of tasks to include ["rest", "tapping", "updrs"]
 
     post-initialized parameters:
-        - data_path: path to your "Data" folder with all subject files 
-        - subject_path: path to your "sub-0XX" folder
-        - PerceiveMetadata: reads the Excel file 'Perceive_Metadata_sub-0XX'.xlsx
-        - matpath_list: a list of all paths to the .mat files of the column 'Perceive_filename' in PerceiveMetadata
-        - Streaming: a paths_list of all Streaming.mat files of the given subject
-        - Survey: a paths_list of all Survey.mat files of the given subject
-        - Timeline: a paths_list of all Timeline.mat files of the given subject
-        #- IndefiniteStreaming: a paths_list of all IndefiniteStreaming.mat files of the given subject
-
+    
     Returns:
         - 
     """
     
     # these fields will be initialized 
     sub: str             # note that : is used, not =  
-    incl_modalities: list = field(default_factory=lambda: ["Survey", "Streaming", "Timeline", "IndefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
-    incl_session: list = field(default_factory=lambda: ["PostOp", "FU3M", "FU12M", "FU18M", "FU24M"])
-    incl_condition: list = field(default_factory=lambda: ["M0S0", "M1S0", "M0S1", "M1S1"])
-    incl_task: list = field(default_factory=lambda: ["Rest", "FT", "UPDRS"])
+    incl_modalities: list = field(default_factory=lambda: ["survey", "streaming", "timeline", "indefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
+    incl_session: list = field(default_factory=lambda: ["postop", "fu3m", "fu12m", "fu18m", "fu24m"])
+    incl_condition: list = field(default_factory=lambda: ["m0s0", "m1s0", "m0s1", "m1s1"])
+    incl_task: list = field(default_factory=lambda: ["rest", "tapping", "updrs"])
 
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
         
-        allowed_modalities = [
-            "Survey",
-            "Streaming", 
-            "Timeline",
-            "IndefiniteStreaming"] # this shows allowed values for incl_modalities
+        allowed_modalities = ["survey", "streaming", "timeline", "indefiniteStreaming"] # this shows allowed values for incl_modalities
 
         self.perceivedata = find_folder.get_onedrive_path("perceivedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
@@ -93,10 +80,10 @@ class PerceiveData:
             )
 
             modality_abbreviations_dict = {
-                "Survey": "LMTD",
-                "Streaming": "BrainSense", 
-                "Timeline": "CHRONIC",
-                "IndefiniteStreaming": "IS"
+                "survey": "LMTD",
+                "streaming": "BrainSense", 
+                "timeline": "CHRONIC",
+                "indefiniteStreaming": "IS"
             }
 
             # select all rows with modality abbreviations in filename
