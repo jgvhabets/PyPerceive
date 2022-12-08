@@ -1,0 +1,6 @@
+Python sys 3.10.6 | packaged by conda-forge | (main, Oct 24 2022, 16:02:16) [MSC v.1916 64 bit (AMD64)]
+pandas 1.4.4
+numpy 1.23.3
+mne_bids 0.11.1
+mne 1.2.1
+sci-py 1.9.3
