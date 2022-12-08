@@ -16,7 +16,7 @@ class taskClass:
         - modality: "survey", "streaming", "timeline", "indefiniteStreaming" set in condition_class
         - session: "postop", "fu3m", "fu12m", "fu18m", "fu24m" set in condition_class
         - condition: "m0s0", "m1s0", "m0s1", "m1s1" set in condition_class
-        - task: "rest", "tapping", "updrs", "monopolar" set in condition_class
+        - task: "rest", "tapping", "rota", "updrs", "monopolar" set in condition_class
         - metaClass: all original attributes set in Main_Class
         - meta_table: selected meta_table set in condition_class
 
