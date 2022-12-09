@@ -21,7 +21,7 @@ class taskClass:
         - meta_table: selected meta_table set in condition_class
 
     Returns:
-        - sel_meta_table: session selected meta_table 
+        - self.data: dictionary,  keys will be named after task, values will be the raw data of one perceived .mat file loaded with mne.io.read_raw_fieldtrip
     
     """
     
@@ -36,11 +36,11 @@ class taskClass:
 
     def __post_init__(self,):
 
-        self.data = {}
+        self.data = {} # dictionary,  keys will be named after task, values will be the raw data of one perceived .mat file loaded with mne.io.read_raw_fieldtrip
         for row, fname in enumerate(self.meta_table['perceiveFilename']):
 
-            dict_name = self.meta_table.iloc[row]['task']
-            self.data[dict_name] = load_matfile.load_matfile(self.sub, fname)
+            dict_name = self.meta_table.iloc[row]['task'] # .iloc[index][columnname] will give you one cell value (Python index starting from 0)
+            self.data[dict_name] = load_matfile.load_matfile(self.sub, fname) 
 
             print('LOADED', fname)
     
