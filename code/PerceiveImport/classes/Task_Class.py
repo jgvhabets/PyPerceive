@@ -42,6 +42,15 @@ class taskClass:
             dict_name = self.meta_table.iloc[row]['task'] # .iloc[index][columnname] will give you one cell value (Python index starting from 0)
             self.data[dict_name] = load_matfile.load_matfile(self.sub, fname) 
 
+            # KeyError exception:
+            # try: 
+            #     self.task in self.data.keys()
+            
+            # except KeyError:
+            #     coninue
+
+
+
             print('LOADED', fname)
     
 
