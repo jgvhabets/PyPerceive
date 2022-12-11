@@ -5,6 +5,9 @@ import pandas as pd
 
 import PerceiveImport.methods.find_folders as find_folder
 
+import warnings
+import shutil
+
 
 
 def perceiveFilename_path_toExcel(sub):
@@ -20,10 +23,10 @@ def perceiveFilename_path_toExcel(sub):
     subject_path = os.path.join(perceivedata, f'sub-{sub}')
 
     modality_abbreviations = {
-            "Survey": "LMTD",
-            "Streaming": "BrainSense", 
-            "Timeline": "CHRONIC",
-            "IndefiniteStreaming": "IS"
+            "survey": "LMTD",
+            "streaming": "BrainSense", 
+            "timeline": "CHRONIC",
+            "indefiniteStreaming": "IS"
         }
 
     filename_path_tuple = []
@@ -31,7 +34,7 @@ def perceiveFilename_path_toExcel(sub):
     # append to matfile_list all .mat files with correct modality of subject
     for root, dirs, files in os.walk(subject_path): # walking through every root, directory and file of the given path
         for file in files: # looping through every file 
-            for mod in modality_dict:
+            for mod in modality_abbreviations:
                 if file.endswith(".mat") and modality_abbreviations[mod] in file: # filter matfiles only for relevant modalities
                     filename_path_tuple.append([file, os.path.join(root, file)])
 
@@ -44,6 +47,43 @@ def perceiveFilename_path_toExcel(sub):
        
     # bei LMTD filenames
     # if LMTD in filename and _ses- to _run- identical to other LMTD filenames -> append _1, _2 etc to file and run os.walk again
+
+
+def read_excel_wOut_warning(path: str, sheet_name: None):
+    """
+    Load data from an Excel file, and surpress warning
+    bceause of Excel-Dropdown menus
+    """
+    warnings.simplefilter(action='ignore', category=UserWarning)
+    return pd.read_excel(path, sheet_name=sheet_name)
+
+
+
+def perceive_files_to_raw_perceive(sub):
+    """ select all perceived .mat files from all sub-XX folders within the Data directory
+    
+    copy and paste all selected files with the correct modality_abbreviations into a raw_perceive folder
+
+    """
+
+    # get directory to Excel file with perceive filenames and paths
+    perceivedata = find_folder.get_onedrive_path("perceivedata")
+    subject_path = os.path.join(perceivedata, f'sub-{sub}')
+    meta_table = pd.read_excel(os.path.join(subject_path, f'metadata_{sub}_perceiveFilename_path.xlsx'))
+
+    # define directory to folder raw_perceive, where files will be "paste"
+    raw_perceive = os.path.join(subject_path, "raw_perceive")
+        
+    # get paths to perceived files from meta_table 
+    perceive_path = meta_table["path_to_perceive"]
+
+    # copy paths and paste perceived files into new folder: raw_perceive
+    
+    for file in perceive_path:
+        shutil.copy(file, raw_perceive)
+  
+
+
 
 
 
