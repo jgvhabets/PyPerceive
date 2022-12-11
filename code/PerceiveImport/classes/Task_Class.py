@@ -6,6 +6,18 @@ from dataclasses import dataclass
 
 import PerceiveImport.methods.load_matfile as load_matfile
 
+import warnings
+
+def load_matfile_wOut_warning(sub: str, fname):
+    """
+    Load matfile with mne, and surpress RunTime warning
+    
+    """
+    warnings.simplefilter(action='ignore', category=RuntimeWarning)
+    load_matfile.load_matfile(sub, fname) 
+
+
+
 @dataclass (init=True, repr=True)
 class taskClass:
     """
