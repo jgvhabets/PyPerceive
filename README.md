@@ -16,6 +16,13 @@ pip install openpyxl
 pip install xlrd
 
 pip install pymatreader
+
+# For BIDS conformation (Jonathan Van Hoecke script)
+# For ipyfilechooser and ipywidgets
+conda install -c conda-forge ipywidgets
+conda install -c conda-forge ipyfilechooser
+conda install -c conda-forge mne-qt-browser
+conda install ipympl
 ```
 
 ### Requirements

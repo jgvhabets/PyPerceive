@@ -3,7 +3,7 @@
 import pandas as pd
 from dataclasses import dataclass
 
-
+import warnings
 import PerceiveImport.methods.load_matfile as load_matfile
 
 @dataclass (init=True, repr=True)
@@ -40,6 +40,10 @@ class taskClass:
         for row, fname in enumerate(self.meta_table['perceiveFilename']):
 
             dict_name = self.meta_table.iloc[row]['task']
+
+            # suppress RuntimeWarning
+            warnings.simplefilter(action='ignore', category=RuntimeWarning)
+
             self.data[dict_name] = load_matfile.load_matfile(self.sub, fname)
 
             print('LOADED', fname)

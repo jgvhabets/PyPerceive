@@ -1,0 +1,7 @@
+name: dcm2bids
+channels: 
+  - conda-forge
+
+dependencies:
+  - dcm2niix
+  - pip

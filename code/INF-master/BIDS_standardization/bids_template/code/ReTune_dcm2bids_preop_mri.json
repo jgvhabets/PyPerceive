@@ -1,0 +1,53 @@
+{
+    "searchMethod": "fnmatch",
+    "descriptions": [
+        {
+            "dataType": "anat",
+            "modalityLabel": "T1w",
+            "customLabels": "mprage",
+            "criteria": {
+                "ProtocolName": "t1_mprage_sag_p2_iso"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "T2w",
+            "customLabels": "2mm",
+            "criteria": {
+                "SeriesDescription": "*t2_tse_fs*"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "T2star",
+            "customLabels": "slab",
+            "criteria": {
+                "SeriesDescription": "*t2_fl2d_tra_hemo*"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "FGATIR",
+            "customLabels": "",
+            "criteria": {
+                "SeriesDescription": "*fgatir*"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "SWI",
+            "customLabels": "",
+            "criteria": {
+                "SeriesDescription": "*SWI*"
+            }
+        },
+        {
+            "dataType": "dwi",
+            "modalityLabel": "diff",
+            "customLabels": "",
+            "criteria": {
+                "SeriesDescription": "*dti*"
+            }
+        } 
+    ]
+}
