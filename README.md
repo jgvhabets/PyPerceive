@@ -23,6 +23,9 @@ conda install -c conda-forge ipywidgets
 conda install -c conda-forge ipyfilechooser
 conda install -c conda-forge mne-qt-browser
 conda install ipympl
+
+# Installation mne bids pipeline
+conda install -c conda-forge mne-bids-pipeline
 ```
 
 ### Requirements

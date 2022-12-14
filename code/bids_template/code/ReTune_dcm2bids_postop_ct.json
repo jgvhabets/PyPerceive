@@ -1,0 +1,21 @@
+{
+    "searchMethod": "fnmatch",
+    "descriptions": [
+        {
+            "dataType": "ct",
+            "modalityLabel": "ct",
+            "customLabels": "",
+            "criteria": {
+                "SeriesDescription": "*Gap_Corrected_Head_Axial_Brain_AIDR_3D_STD_1*"
+            }
+        },
+        {
+            "dataType": "ct",
+            "modalityLabel": "ct",
+            "customLabels": "",
+            "criteria": {
+                "SeriesDescription": "*Gap_Corrected_Head_Axial_Brain_AIDR_3D_STD_0.5*"
+            }
+        }
+    ]
+}
