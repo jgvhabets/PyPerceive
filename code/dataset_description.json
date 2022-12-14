@@ -1,0 +1,10 @@
+{
+    "Name": "perceive2BIDS",
+    "BIDSVersion": "1.7.0",
+    "DatasetType": "raw",
+    "Authors": [
+        "Jeroen Habets",
+        "Jennifer Behnke",
+        "etc"
+    ]
+}

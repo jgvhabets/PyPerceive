@@ -1,16 +1,18 @@
 # """Default settings for data processing and analysis.
 # """
 
-from typing import List, Dict
+#from typing import List, Dict
 #     Optional, Union, Iterable, List, Tuple, Dict, Callable, Literal)
 
-from numpy.typing import ArrayLike
+# from numpy.typing import ArrayLike
 
 import mne
+import mne_bids
 from mne_bids import BIDSPath
 import numpy as np
 
-from mne_bids_pipeline.typing import PathLike, ArbitraryContrast
+# from mne_bids_pipeline.typing import PathLike, ArbitraryContrast
+
 
 
 ###############################################################################

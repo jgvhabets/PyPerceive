@@ -11,7 +11,7 @@ def find_project_folder():
 
     # from the cwd get path to PyPerceive_Project (=Git Repository)
     project_path = os.getcwd()
-    while project_path[-10:] != 'pyPerceive':
+    if project_path[-10:] != 'pyPerceive':
         project_path = os.path.dirname(project_path)
     
     data_path = os.path.join(project_path, 'data')
