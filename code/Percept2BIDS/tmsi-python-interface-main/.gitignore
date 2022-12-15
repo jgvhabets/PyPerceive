@@ -1,0 +1,5 @@
+# ignore pycache-folders
+__pycache__/
+.venv*
+.vscode
+
