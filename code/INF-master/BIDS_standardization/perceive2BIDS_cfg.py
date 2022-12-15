@@ -576,6 +576,8 @@ def plot_channels(*args):
     bids_status_description_widgets = []
     bids_status_description_list = []
     bids_stimulation_contact = []
+
+    # .mat load resulting in data-samples, fs, channel-names
     data = Poly5Reader(bids_filechooser[-1].selected_path + os.sep + bids_filechooser[-1].selected_filename)
 
     
