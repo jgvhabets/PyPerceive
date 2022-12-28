@@ -67,3 +67,41 @@ def get_onedrive_path(
     
     elif folder == "raw_perceive": # containing all relevant perceive .mat files
         return os.path.join(datapath, "perceivedata", f"sub-{sub}", "raw_perceive")
+
+
+def get_local_path(folder: str = 'Research', sub: str = None):
+    """
+    find_project_folder is a function to find the folder "Longterm_beta_project" on your local computer
+
+    """
+
+    folder_options = [
+        'Research', 'Longterm_beta_project', 'results'
+        ]
+
+    # Error checking, if folder input is in folder options
+    if folder.lower() not in folder_options:
+        raise ValueError(
+            f'given folder: {folder} is incorrect, '
+            f'should be {folder_options}')
+
+    # from your cwd get the path and stop at 'Users'
+    path = os.getcwd()
+
+    while os.path.dirname(path)[-5:] != 'Users':
+        path = os.path.dirname(path) # path is now leading to Users/username
+
+    # get the Research folder and add it to the path
+
+    path = os.path.join(path, 'jebe12', 'Research') # path is now leading to Research folder
+
+
+    # add the folder to the path and from there open the folders depending on input folder
+    if folder == 'Research':
+        return path
+
+    elif folder == 'Longterm_beta_project': 
+        return os.path.join(path, "Longterm_beta_project")
+
+    elif folder == 'results':
+        return os.path.join(path, "Longterm_beta_project", "results", f"sub-{sub}")
