@@ -38,7 +38,7 @@ def calculate_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_cond
         incl_task = incl_task
         )
 
-    results_path = findfolders.get_local_path(folder="results", sub=incl_sub)
+    # results_path = findfolders.get_local_path(folder="results", sub=incl_sub)
 
     time_points = incl_session
     # add error correction for sub and task
@@ -114,7 +114,90 @@ def calculate_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_cond
     plt.show()
     
     # write DataFrame of frequencies and psd values of each channel per timepoint
-    df_frequencies = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
-    df_psdValues = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
+    frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
+    absolutePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
 
-    return df_frequencies, df_psdValues
+    return frequenciesDataFrame, absolutePsdDataFrame
+
+
+
+
+def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
+
+    """
+    subject = str e.g. 024 
+    df_frequencies = Dataframe of all frequencies of a subject (1st of tuple from calculate_psd_survey_m0s0)
+    df_absolutePsd = Dataframe of all frequencies of a subject (2nd of tuple from calculate_psd_survey_m0s0)
+    
+
+    before using this function first run the method calculate_psd_survey_m0s0() to get the tuple with frequencies and psd of the certain subject 
+
+    this function will normalize the psd values of each power spectrum by dividing each psd by its total sum
+    it will also plot the relative psd values of every channel in seperate plots for each session (postop, fu3m, fu12m, fu18m) 
+    """
+
+    time_points = ['postop', 'fu3m', 'fu12m', 'fu18m']
+    f_1to100Hz_dict = {} # dict with keys('postop_f_1to100Hz', 'fu3m_f_1to100Hz', 'fu12m_f_1to100Hz', 'fu18m_f_1to100Hz')
+    psd_dict = {} # dict will be filled: keys('postop_relative_psd', 'fu3m_relative_psd', 'fu12_relative_psd', 'fu18m_relative_psd')
+
+    # just get Frequencies 1-100 Hz
+    f_1to100Hz = frequenciesDataFrame[1:104]
+
+    # set layout for figures: using the object-oriented interface
+    fig, axes = plt.subplots(len(time_points), 1, figsize=(15, 15)) # subplot(rows, columns, panel number)
+    fig.tight_layout(pad=5.0) # space in between each plot
+
+    for t, tp in enumerate(time_points):
+
+        # the title of each plot is set to the timepoint e.g. "postop"
+        axes[t].set_title(tp) 
+
+        # select the right frequency and psd columns per timepoint and add them to the empty dictionaries
+        f_1to100Hz_dict[f'{tp}_f_1to100Hz'] = f_1to100Hz.filter(like=tp) # filter DF by each session
+        psd_dict[f'{tp}_psd'] = absolutePsdDataFrame[1:104].filter(like=tp) # filter DF by each session across 1-100Hz
+
+        # get channel names by getting the column names from the DataFrame stored as values in the rel_psd_dict
+        ch_names = psd_dict[f'{tp}_psd'].columns
+
+        for i, ch in enumerate(ch_names):
+
+            # get psd values from each channel column 
+            absolute_psd = psd_dict[f'{tp}_psd'][ch] 
+            f_1to100Hz = f_1to100Hz_dict[f'{tp}_f_1to100Hz'][ch]
+
+            # normalize psd values to total sum of the same power spectrum
+            totalSum_psd = absolute_psd.sum()
+            rel_psd = absolute_psd.div(totalSum_psd)
+
+            # get y-axis label and limits
+            axes[t].get_ylabel()
+            axes[t].get_ylim()
+
+            # add errorbars
+            # axes[t].errorbar(f, px, yerr=0.8, fmt='.k', color='lightgrey', ecolor='lightgrey')
+
+
+            # find peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
+            peaks = signal.find_peaks(rel_psd, height=0.1) # height: peaks only above 0.1 will be recognized
+            peaks_height = peaks[1]["peak_heights"] # arraw of y-value of peaks = power
+            peaks_pos = f_1to100Hz[peaks[0]] # array of indeces on x-axis of peaks = frequency
+
+            # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
+            axes[t].plot(f_1to100Hz, rel_psd, label=ch)  # or np.log10(px)
+            #axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
+                
+
+    for ax in axes: 
+        ax.legend() # shows legend for each axes[t]
+        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum", ylim=(-0.01, 0.08)) # set y axis to -0.01 until 0.08(=8%)
+        ax.axvline(x=13, color='r', linestyle='--')
+        ax.axvline(x=35, color='r', linestyle='--')
+        # ax.set(xlim=(10, 40), ylim=(-10, 4), xlabel="Frequency", ylabel="log10 Power")
+
+    plt.show() 
+
+    # write DataFrame of frequencies and psd values of each channel per timepoint
+    # frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
+    # relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
+
+    # return frequenciesDataFrame, relativePsdDataFrame
