@@ -126,8 +126,8 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
 
     """
     subject = str e.g. 024 
-    df_frequencies = Dataframe of all frequencies of a subject (1st of tuple from calculate_psd_survey_m0s0)
-    df_absolutePsd = Dataframe of all frequencies of a subject (2nd of tuple from calculate_psd_survey_m0s0)
+    frequenciesDataFrame = Dataframe of all frequencies of a subject (1st of tuple from calculate_psd_survey_m0s0)
+    absolutePsdDataFrame = Dataframe of all frequencies of a subject (2nd of tuple from calculate_psd_survey_m0s0)
     
 
     before using this function first run the method calculate_psd_survey_m0s0() to get the tuple with frequencies and psd of the certain subject 
@@ -139,9 +139,10 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
     time_points = ['postop', 'fu3m', 'fu12m', 'fu18m']
     f_1to100Hz_dict = {} # dict with keys('postop_f_1to100Hz', 'fu3m_f_1to100Hz', 'fu12m_f_1to100Hz', 'fu18m_f_1to100Hz')
     psd_dict = {} # dict will be filled: keys('postop_relative_psd', 'fu3m_relative_psd', 'fu12_relative_psd', 'fu18m_relative_psd')
+    f_relPsd_dict = {} # 
 
     # just get Frequencies 1-100 Hz
-    f_1to100Hz = frequenciesDataFrame[1:104]
+    f_1to100Hz = frequenciesDataFrame[1:104] #.iloc[:,0] #only take first column
 
     # set layout for figures: using the object-oriented interface
     fig, axes = plt.subplots(len(time_points), 1, figsize=(15, 15)) # subplot(rows, columns, panel number)
@@ -156,18 +157,21 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
         f_1to100Hz_dict[f'{tp}_f_1to100Hz'] = f_1to100Hz.filter(like=tp) # filter DF by each session
         psd_dict[f'{tp}_psd'] = absolutePsdDataFrame[1:104].filter(like=tp) # filter DF by each session across 1-100Hz
 
-        # get channel names by getting the column names from the DataFrame stored as values in the rel_psd_dict
+        # get channel names by getting the column names from the DataFrame stored as values in the psd_dict
         ch_names = psd_dict[f'{tp}_psd'].columns
 
         for i, ch in enumerate(ch_names):
 
             # get psd values from each channel column 
             absolute_psd = psd_dict[f'{tp}_psd'][ch] 
-            f_1to100Hz = f_1to100Hz_dict[f'{tp}_f_1to100Hz'][ch]
+            f = f_1to100Hz_dict[f'{tp}_f_1to100Hz'][ch]
 
             # normalize psd values to total sum of the same power spectrum
             totalSum_psd = absolute_psd.sum()
             rel_psd = absolute_psd.div(totalSum_psd)
+
+            # 
+            f_relPsd_dict[f'{tp}_{ch}'] = [f, rel_psd]
 
             # get y-axis label and limits
             axes[t].get_ylabel()
@@ -178,12 +182,12 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
 
 
             # find peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
-            peaks = signal.find_peaks(rel_psd, height=0.1) # height: peaks only above 0.1 will be recognized
-            peaks_height = peaks[1]["peak_heights"] # arraw of y-value of peaks = power
-            peaks_pos = f_1to100Hz[peaks[0]] # array of indeces on x-axis of peaks = frequency
+            # peaks = scipy.signal.find_peaks(rel_psd, height=0.1) # height: peaks only above 0.1 will be recognized
+            # peaks_height = peaks[1]["peak_heights"] # arraw of y-value of peaks = power
+            # peaks_pos = f_1to100Hz[peaks[0]] # array of indeces on x-axis of peaks = frequency
 
             # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
-            axes[t].plot(f_1to100Hz, rel_psd, label=ch)  # or np.log10(px)
+            axes[t].plot(f, rel_psd, label=ch)  # or np.log10(px)
             #axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
                 
 
@@ -192,12 +196,12 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
         ax.set(xlabel="Frequency", ylabel="relative PSD to total sum", ylim=(-0.01, 0.08)) # set y axis to -0.01 until 0.08(=8%)
         ax.axvline(x=13, color='r', linestyle='--')
         ax.axvline(x=35, color='r', linestyle='--')
-        # ax.set(xlim=(10, 40), ylim=(-10, 4), xlabel="Frequency", ylabel="log10 Power")
+
 
     plt.show() 
 
     # write DataFrame of frequencies and psd values of each channel per timepoint
-    # frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
-    # relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
+    frequenciesrelDataFrame = pd.DataFrame({k: v[0] for k, v in f_relPsd_dict.items()}) # Dataframe of frequencies
+    relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_relPsd_dict.items()}) # Dataframe of psd
 
-    # return frequenciesDataFrame, relativePsdDataFrame
+    return frequenciesrelDataFrame, relativePsdDataFrame
