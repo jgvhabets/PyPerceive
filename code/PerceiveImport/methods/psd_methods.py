@@ -17,7 +17,7 @@ import PerceiveImport.methods.find_folders as findfolders
 
 
 
-def calculate_psd_surveym0s0(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks):
+def calculate_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks):
     """
     subject = str e.g. 024 
     tasks = list e.g. ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
@@ -114,10 +114,7 @@ def calculate_psd_surveym0s0(incl_sub, incl_modalities, incl_session, incl_condi
     plt.show()
     
     # write DataFrame of frequencies and psd values of each channel per timepoint
-    df_frequencies = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()})
-    df_psdValues = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()})
-
-    # write DF to json file
-    df_frequencies.to_json(os.path.join(results_path, f'{incl_sub}_frequencies.json'), orient='columns', path_or_buf=f'{incl_sub}_frequencies.json')
+    df_frequencies = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
+    df_psdValues = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
 
     return df_frequencies, df_psdValues
