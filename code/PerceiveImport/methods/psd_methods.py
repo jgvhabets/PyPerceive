@@ -17,7 +17,7 @@ import PerceiveImport.methods.find_folders as findfolders
 
 
 
-def calculate_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks):
+def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks):
     """
     subject = str e.g. 024 
     tasks = list e.g. ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
@@ -126,8 +126,8 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
 
     """
     subject = str e.g. 024 
-    frequenciesDataFrame = Dataframe of all frequencies of a subject (1st of tuple from calculate_psd_survey_m0s0)
-    absolutePsdDataFrame = Dataframe of all frequencies of a subject (2nd of tuple from calculate_psd_survey_m0s0)
+    frequenciesDataFrame = Dataframe of all frequencies of a subject (1st of tuple from welch_psd_survey_m0s0)
+    absolutePsdDataFrame = Dataframe of all frequencies of a subject (2nd of tuple from welch_psd_survey_m0s0)
     
 
     before using this function first run the method calculate_psd_survey_m0s0() to get the tuple with frequencies and psd of the certain subject 
