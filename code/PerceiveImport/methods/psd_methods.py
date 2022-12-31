@@ -79,7 +79,7 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
                 # create the filtered signal
                 filtered = scipy.signal.filtfilt(b, a, temp_data.get_data()[i, :])
 
-                # transform the filtered time series data into power spectral density using Welch
+                # transform the filtered time series data into power spectral density using Welch's method
                 f, px = scipy.signal.welch(filtered, fs)  # Returns: f=array of sample frequencies, px= psd or power spectrum of x (amplitude)
                 # density unit: V**2/Hz
 
@@ -107,9 +107,11 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
     for ax in axes: 
         ax.legend() # shows legend for each axes[t]
         ax.set(xlabel="Frequency")
-        ax.axvline(x=13, color='r', linestyle='--')
-        ax.axvline(x=35, color='r', linestyle='--')
-        # ax.set(xlim=(10, 40), ylim=(-10, 4), xlabel="Frequency", ylabel="log10 Power")
+        ax.axvline(x=8, color='darkgrey', linestyle='--')
+        ax.axvline(x=13, color='darkgrey', linestyle='--')
+        ax.axvline(x=20, color='darkgrey', linestyle='--')
+        ax.axvline(x=35, color='darkgrey', linestyle='--')
+    
 
     plt.show()
     
@@ -169,9 +171,10 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
             # normalize psd values to total sum of the same power spectrum
             totalSum_psd = absolute_psd.sum()
             rel_psd = absolute_psd.div(totalSum_psd)
+            percentage_psd = rel_psd * 100 
 
             # 
-            f_relPsd_dict[f'{tp}_{ch}'] = [f, rel_psd]
+            f_relPsd_dict[f'{tp}_{ch}'] = [f, percentage_psd]
 
             # get y-axis label and limits
             axes[t].get_ylabel()
@@ -187,15 +190,17 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
             # peaks_pos = f_1to100Hz[peaks[0]] # array of indeces on x-axis of peaks = frequency
 
             # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
-            axes[t].plot(f, rel_psd, label=ch)  # or np.log10(px)
+            axes[t].plot(f, percentage_psd, label=ch)  # or np.log10(px)
             #axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
                 
 
     for ax in axes: 
-        ax.legend() # shows legend for each axes[t]
-        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum", ylim=(-0.01, 0.08)) # set y axis to -0.01 until 0.08(=8%)
-        ax.axvline(x=13, color='r', linestyle='--')
-        ax.axvline(x=35, color='r', linestyle='--')
+        ax.legend(loc= 'upper right') # shows legend for each axes[t], loc sets the position of the spectrum
+        ax.set(xlabel="Frequency", ylabel="relative PSD (% of total sum)", ylim=(-1, 8)) # set y axis to -0.01 until 0.08(=8%)
+        ax.axvline(x=8, color='darkgrey', linestyle='--')
+        ax.axvline(x=13, color='darkgrey', linestyle='--')
+        ax.axvline(x=20, color='darkgrey', linestyle='--')
+        ax.axvline(x=35, color='darkgrey', linestyle='--')
 
 
     plt.show() 
