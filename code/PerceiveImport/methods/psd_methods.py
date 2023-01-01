@@ -3,6 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 import scipy
 from scipy.signal import butter, filtfilt, freqz
@@ -86,13 +87,17 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
                 # store frequency and psd values in new dictionary
                 f_psd_dict[f'{tp}_{ch}'] = [f, px]
 
+                # calculate the SEM of psd values
+                sem = np.std(px)/np.sqrt(len(px))
+                print("SEM=", sem)
 
                 # get y-axis label and limits
                 axes[t].get_ylabel()
                 axes[t].get_ylim()
 
+
                 # add errorbars
-                # axes[t].errorbar(f, px, yerr=0.8, fmt='.k', color='lightgrey', ecolor='lightgrey')
+                #axes[t].errorbar(f, px, yerr=sem, fmt='.k', color='lightgrey', ecolor='lightgrey')
 
 
                 # find peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
@@ -102,11 +107,13 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
 
                 # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
                 axes[t].plot(f, px, label=ch)  # or np.log10(px)
+                # make a shadowed line of the sem
+                axes[t].fill_between(f, px-sem, px+sem, color='b', alpha=0.2)
                 axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
     
     for ax in axes: 
         ax.legend() # shows legend for each axes[t]
-        ax.set(xlabel="Frequency")
+        ax.set(xlabel="Frequency", ylabel="V*2/Hz +- SEM")
         ax.axvline(x=8, color='darkgrey', linestyle='--')
         ax.axvline(x=13, color='darkgrey', linestyle='--')
         ax.axvline(x=20, color='darkgrey', linestyle='--')
@@ -176,6 +183,9 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
             # 
             f_relPsd_dict[f'{tp}_{ch}'] = [f, percentage_psd]
 
+            # calculate the SEM of psd values
+            sem = np.std(percentage_psd)/np.sqrt(len(percentage_psd))
+
             # get y-axis label and limits
             axes[t].get_ylabel()
             axes[t].get_ylim()
@@ -191,12 +201,14 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
 
             # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
             axes[t].plot(f, percentage_psd, label=ch)  # or np.log10(px)
+            # make a shadowed line of the sem
+            axes[t].fill_between(f, percentage_psd-sem, percentage_psd+sem, color='b', alpha=0.2)
             #axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
                 
 
     for ax in axes: 
         ax.legend(loc= 'upper right') # shows legend for each axes[t], loc sets the position of the spectrum
-        ax.set(xlabel="Frequency", ylabel="relative PSD (% of total sum)", ylim=(-1, 8)) # set y axis to -0.01 until 0.08(=8%)
+        ax.set(xlabel="Frequency", ylabel="relative PSD (% of total sum) +- SEM", ylim=(-1, 8)) # set y axis to -0.01 until 0.08(=8%)
         ax.axvline(x=8, color='darkgrey', linestyle='--')
         ax.axvline(x=13, color='darkgrey', linestyle='--')
         ax.axvline(x=20, color='darkgrey', linestyle='--')
