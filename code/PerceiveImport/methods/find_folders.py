@@ -69,7 +69,7 @@ def get_onedrive_path(
         return os.path.join(datapath, "perceivedata", f"sub-{sub}", "raw_perceive")
 
 
-def get_local_path(folder: str = 'Research', sub: str = None):
+def get_local_path(folder: str, sub: str = None):
     """
     find_project_folder is a function to find the folder "Longterm_beta_project" on your local computer
 
@@ -80,10 +80,10 @@ def get_local_path(folder: str = 'Research', sub: str = None):
         ]
 
     # Error checking, if folder input is in folder options
-    if folder.lower() not in folder_options:
-        raise ValueError(
-            f'given folder: {folder} is incorrect, '
-            f'should be {folder_options}')
+    #if folder.lower() not in folder_options:
+        # raise ValueError(
+        #     f'given folder: {folder} is incorrect, '
+        #     f'should be {folder_options}')
 
     # from your cwd get the path and stop at 'Users'
     path = os.getcwd()
@@ -93,7 +93,7 @@ def get_local_path(folder: str = 'Research', sub: str = None):
 
     # get the Research folder and add it to the path
 
-    path = os.path.join(path, 'jebe12', 'Research') # path is now leading to Research folder
+    path = os.path.join(path, 'Research') # path is now leading to Research folder
 
 
     # add the folder to the path and from there open the folders depending on input folder
