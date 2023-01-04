@@ -16,6 +16,7 @@ pip install openpyxl
 pip install xlrd
 
 pip install pymatreader
+pip install pybv  # for bids-conversion
 
 # For BIDS conformation (Jonathan Van Hoecke script)
 # For ipyfilechooser and ipywidgets
