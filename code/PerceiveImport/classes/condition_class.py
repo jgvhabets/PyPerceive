@@ -4,8 +4,6 @@
 import pandas as pd
 from dataclasses import dataclass
 
-import copy
-
 # import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.task_class as taskclass
 

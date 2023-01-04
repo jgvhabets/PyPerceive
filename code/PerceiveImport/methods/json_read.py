@@ -1,12 +1,13 @@
 """ load and read a json file """
 
 import json
+from os import join
 
+def read_json(path, filename):
+    # open file, 'r' stands for read
+    with open(join(path, filename), 'r') as f:
+        json_object = json.loads(f.read())
 
-# open file, 'r' stands for read
-with open('matpart.json', 'r') as f:
-    json_object = json.loads(f.read())
-
-print(json_object)
-# output will be the dictionary stored in the json file
+    return json_object
+    # output will be the dictionary stored in the json file
 
