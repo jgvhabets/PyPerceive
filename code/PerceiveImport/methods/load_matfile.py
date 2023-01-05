@@ -37,7 +37,8 @@ def load_matfile(sub: str, filename: str):
         info={}, # add info here
         data_name='data',  # name of heading dict/ variable of original MATLAB object
     )
-    # use mne get_data() to actually load data
+    
+    
     
     return data
         

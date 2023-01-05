@@ -3,11 +3,8 @@
 import pandas as pd
 from dataclasses import dataclass
 
-import copy
-
-# import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.condition_class as condclass
-#import PerceiveImport.classes.Task_Class as taskclass
+
 
 @dataclass (init=True, repr=True)
 class sessionClass:

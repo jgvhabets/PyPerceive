@@ -18,7 +18,7 @@ import PerceiveImport.methods.find_folders as findfolders
 
 
 
-def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks):
+def welch_psd_survey_m0s0(incl_sub, incl_session, tasks):
     """
     subject = str e.g. 024 
     tasks = list e.g. ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
@@ -32,19 +32,21 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
 
     mainclass_sub = mainclass.PerceiveData(
         sub = incl_sub, 
-        incl_modalities=incl_modalities,
+        incl_modalities= ["survey"],
         incl_session = incl_session,
-        incl_condition = incl_condition,
-        incl_task = incl_task
+        incl_condition = ["m0s0"],
+        incl_task = ["rest"]
         )
 
     # results_path = findfolders.get_local_path(folder="results", sub=incl_sub)
 
+    # tasks = ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
     time_points = incl_session
     # add error correction for sub and task
     # tasks = ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
     f_psd_dict = {} # dictionary with tuples of frequency and psd for each channel and timepoint of a subject
-
+    sem_dict = {}
+    highest_peak_dict = {}
 
     # set layout for figures: using the object-oriented interface
     fig, axes = plt.subplots(len(time_points), 1, figsize=(15, 15)) # subplot(rows, columns, panel number)
@@ -60,6 +62,7 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
             temp_data = getattr(mainclass_sub.survey, tp) # gets attribute e.g. of tp "postop" from modality_class with modality set to survey
             temp_data = temp_data.m0s0.rest.data[tasks[tk]] # gets the mne loaded data from the perceive .mat BSSu, m0s0 file with task "RestBSSuRingR"
 
+
             # sample frequency: 250 Hz
             fs = temp_data.info['sfreq'] 
 
@@ -73,42 +76,87 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
             # the title of each plot is set to the timepoint e.g. "postop"
             axes[t].set_title(tp)  
 
+            # channels of Interest
+            # only plot Right or Left
+            # if hemisphere == "Right":
+
+            # only plot channel of Interest
+            # if ch_name in channelsOfInterest:
+
+
             # create signal per channel with Welch´s method and plot
             for i, ch in enumerate(temp_data.info.ch_names):
                 
-                # create the filtered signal
-                filtered = scipy.signal.filtfilt(b, a, temp_data.get_data()[i, :])
+                # filter the signal by using the above defined butterworth filter
+                filtered = scipy.signal.filtfilt(b, a, temp_data.get_data()[i, :]) # .get_data()
 
                 # transform the filtered time series data into power spectral density using Welch's method
                 f, px = scipy.signal.welch(filtered, fs)  # Returns: f=array of sample frequencies, px= psd or power spectrum of x (amplitude)
                 # density unit: V**2/Hz
 
-                # store frequency and psd values in new dictionary
+                # store frequency and psd values in a dictionary
                 f_psd_dict[f'{tp}_{ch}'] = [f, px]
 
-                # calculate the SEM of psd values
+                # calculate the SEM of psd values and store sem of each channel in dictionary
                 sem = np.std(px)/np.sqrt(len(px))
-                print("SEM=", sem)
+                sem_dict[f'sem_{tp}_{ch}'] = sem
+                
 
                 # get y-axis label and limits
                 axes[t].get_ylabel()
                 axes[t].get_ylim()
 
-
-                # add errorbars
-                #axes[t].errorbar(f, px, yerr=sem, fmt='.k', color='lightgrey', ecolor='lightgrey')
-
-
-                # find peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
+                ######## PEAK DETECTION ########
+                # find all peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
                 peaks = scipy.signal.find_peaks(px, height=0.1) # height: peaks only above 0.1 will be recognized
-                peaks_height = peaks[1]["peak_heights"] # arraw of y-value of peaks = power
-                peaks_pos = f[peaks[0]] # array of indeces on x-axis of peaks = frequency
+                peaks_height = peaks[1]["peak_heights"] # np.arraw of y-value of peaks = power
+                peaks_pos = f[peaks[0]] # np.array of indeces on x-axis of peaks = frequency
+
+                # set the x-range for alpha, low beta and high beta
+                alpha_range = (peaks_pos >= 8) & (peaks_pos <= 12) # alpha_range will output a boolean of True values within the alpha range
+                lowBeta_range = (peaks_pos >= 13) & (peaks_pos <= 20)
+                highBeta_range = (peaks_pos >= 21) & (peaks_pos <= 35)
+                frequency_ranges = [alpha_range, lowBeta_range, highBeta_range]
+
+                # loop through frequency ranges and get the highest peak of each frequency band
+                for count, boolean in enumerate(frequency_ranges):
+
+                    frequency = []
+                    if count == 0:
+                        frequency = "alpha"
+                    elif count == 1:
+                        frequency = "lowBeta"
+                    elif count == 2:
+                        frequency = "highBeta"
+                    
+                    # get all peak positions and heights within each frequency range
+                    peaksinfreq_pos = peaks_pos[frequency_ranges[count]]
+                    peaksinfreq_height = peaks_height[frequency_ranges[count]]
+
+                    # Error checking: check first, if there is a peak in the frequency range
+                    if len(peaksinfreq_height) == 0:
+                        continue
+
+                    # select only the highest peak within the alpha range
+                    highest_peak_height = peaksinfreq_height.max()
+
+                    # get the index of the highest peak y value to get the corresponding peak position x
+                    ix = np.where(peaksinfreq_height == highest_peak_height)
+                    highest_peak_pos = peaksinfreq_pos[ix]
+
+                    # plot only the highest peak within each frequency band
+                    axes[t].scatter(highest_peak_pos, highest_peak_height, color='r', s=15, marker='D')
+
+                    # store highest peak values of each frequency band in a dictionary
+                    highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [highest_peak_pos, highest_peak_height]
+
 
                 # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
                 axes[t].plot(f, px, label=ch)  # or np.log10(px)
+
                 # make a shadowed line of the sem
                 axes[t].fill_between(f, px-sem, px+sem, color='b', alpha=0.2)
-                axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
+
     
     for ax in axes: 
         ax.legend() # shows legend for each axes[t]
@@ -121,14 +169,24 @@ def welch_psd_survey_m0s0(incl_sub, incl_modalities, incl_session, incl_conditio
 
     plt.show()
     
-    # write DataFrame of frequencies and psd values of each channel per timepoint
+    # write DataFrame of all frequencies and psd values of each channel per timepoint
     frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
     absolutePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
 
-    return frequenciesDataFrame, absolutePsdDataFrame
+    # write DataFrame of frequency and psd values of the highest peak in each frequency band
+    highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 2 rows and columns each for one single power spectrum
+    highestPEAKDF.rename(index={0: "PEAK_frequency", 1:"PEAK_absolutePSD"}, inplace=True) # rename the rows
+
+    return {
+        "frequenciesDataFrame":frequenciesDataFrame,
+        "absolutePsdDataFrame":absolutePsdDataFrame,
+        "SEM":sem_dict,
+        "highestPEAK": highestPEAKDF,
+        }
 
 
 
+#### watch out!! in this function you work with Dataframes!! so there are differences to the function above where you mostly work woth numpy arrays! ####
 
 def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
 
@@ -148,6 +206,7 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
     f_1to100Hz_dict = {} # dict with keys('postop_f_1to100Hz', 'fu3m_f_1to100Hz', 'fu12m_f_1to100Hz', 'fu18m_f_1to100Hz')
     psd_dict = {} # dict will be filled: keys('postop_relative_psd', 'fu3m_relative_psd', 'fu12_relative_psd', 'fu18m_relative_psd')
     f_relPsd_dict = {} # 
+    highest_peak_dict = {}
 
     # just get Frequencies 1-100 Hz
     f_1to100Hz = frequenciesDataFrame[1:104] #.iloc[:,0] #only take first column
@@ -174,12 +233,13 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
             absolute_psd = psd_dict[f'{tp}_psd'][ch] 
             f = f_1to100Hz_dict[f'{tp}_f_1to100Hz'][ch]
 
+            ####### NORMALIZE PSD TO TOTAL SUM #######
             # normalize psd values to total sum of the same power spectrum
             totalSum_psd = absolute_psd.sum()
             rel_psd = absolute_psd.div(totalSum_psd)
             percentage_psd = rel_psd * 100 
 
-            # 
+            # save frequencies and relative psd values in a dictionary
             f_relPsd_dict[f'{tp}_{ch}'] = [f, percentage_psd]
 
             # calculate the SEM of psd values
@@ -189,20 +249,56 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
             axes[t].get_ylabel()
             axes[t].get_ylim()
 
-            # add errorbars
-            # axes[t].errorbar(f, px, yerr=0.8, fmt='.k', color='lightgrey', ecolor='lightgrey')
+            ######## PEAK DETECTION ########
+            # find all peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
+            peaks = scipy.signal.find_peaks(percentage_psd, height=0.1) # height: peaks only above 0.1 will be recognized
+            peaks_height = peaks[1]["peak_heights"] # np.array of y-value of peaks = power
+            peaks_pos = f[peaks[0]] # this is a pandas Series!! of indeces on x-axis of peaks = frequency
 
+            # set the x-range for alpha, low beta and high beta
+            alpha_range = (peaks_pos >= 8) & (peaks_pos <= 12) # alpha_range will output a boolean of True values within the alpha range
+            lowBeta_range = (peaks_pos >= 13) & (peaks_pos <= 20)
+            highBeta_range = (peaks_pos >= 21) & (peaks_pos <= 35)
+            frequency_ranges = [alpha_range, lowBeta_range, highBeta_range]
 
-            # find peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
-            # peaks = scipy.signal.find_peaks(rel_psd, height=0.1) # height: peaks only above 0.1 will be recognized
-            # peaks_height = peaks[1]["peak_heights"] # arraw of y-value of peaks = power
-            # peaks_pos = f_1to100Hz[peaks[0]] # array of indeces on x-axis of peaks = frequency
+            # loop through frequency ranges and get the highest peak of each frequency band
+            for count, boolean in enumerate(frequency_ranges):
+
+                # give each count of the loop a name, so I can use alpha, lowbeta and highbeta later in the dictionary
+                frequency = []
+                if count == 0:
+                    frequency = "alpha"
+                elif count == 1:
+                    frequency = "lowBeta"
+                elif count == 2:
+                    frequency = "highBeta"
+                
+                # get all peak positions and heights within each frequency range
+                peaksinfreq_pos = peaks_pos[frequency_ranges[count]] # select only the peak positions within the frequency range
+                peaksinfreq_height = peaks_height[frequency_ranges[count]]
+
+                # Error checking: check first, if there is a peak in the frequency range
+                if len(peaksinfreq_height) == 0:
+                    continue
+
+                # select only the highest peak within the alpha range
+                highest_peak_height = peaksinfreq_height.max()
+
+                # get the index of the highest peak y value to get the corresponding peak position x
+                ix = np.where(peaksinfreq_height == highest_peak_height)
+                highest_peak_pos = peaksinfreq_pos.iloc[ix] # use .iloc here because peaksinfreq_pos is pandas Series
+
+                # plot only the highest peak within each frequency band
+                axes[t].scatter(highest_peak_pos, highest_peak_height, color='r', s=15, marker='D')
+
+                # store highest peak values of each frequency band in a dictionary
+                highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [highest_peak_pos, highest_peak_height]
+
 
             # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
             axes[t].plot(f, percentage_psd, label=ch)  # or np.log10(px)
             # make a shadowed line of the sem
             axes[t].fill_between(f, percentage_psd-sem, percentage_psd+sem, color='b', alpha=0.2)
-            #axes[t].scatter(peaks_pos, peaks_height, color='r', s=15, marker='D')
                 
 
     for ax in axes: 
@@ -220,33 +316,39 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
     frequenciesrelDataFrame = pd.DataFrame({k: v[0] for k, v in f_relPsd_dict.items()}) # Dataframe of frequencies
     relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_relPsd_dict.items()}) # Dataframe of psd
 
-    return frequenciesrelDataFrame, relativePsdDataFrame
+    # write DataFrame of frequency and psd values of the highest peak in each frequency band
+    highestrelPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 2 rows and columns each for one single power spectrum
+    highestrelPEAKDF.rename(index={0: "PEAK_frequency", 1:"PEAK_absolutePSD"}, inplace=True) # rename the rows
+
+    return {
+        "frequenciesDataFrame":frequenciesrelDataFrame,
+        "absolutePsdDataFrame": relativePsdDataFrame,
+        "highestrelativePEAK": highestrelPEAKDF
+        }
 
 
-def perChannel_psd(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks):
+def perChannel_psd(incl_sub, incl_session, tasks):
 
     """
     incl_sub = str e.g. 024 
-    incl_modalities = 
     incl_session = 
-    incl_condition =
-    incl_task = 
     tasks = list e.g. ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
 
     This function will first load the data from mainclass.PerceiveData using the input values.
     After loading the data it will calculate and plot the psd of each channel seperately in every timepoint.
     The frequencies and absolute psd values will be returned in a Dataframe as a tuple: frequenciesDataFrame, absolutePsdDataFrame
     
+    Tasks: only one task is being plotted, a loop over tasks is missing because
     """
 
     sns.set()
 
     mainclass_sub = mainclass.PerceiveData(
         sub = incl_sub, 
-        incl_modalities=incl_modalities,
+        incl_modalities=["survey"],
         incl_session = incl_session,
-        incl_condition = incl_condition,
-        incl_task = incl_task
+        incl_condition = ["m0s0"],
+        incl_task = ["rest"]
         )
 
     # results_path = findfolders.get_local_path(folder="results", sub=incl_sub)
@@ -254,6 +356,8 @@ def perChannel_psd(incl_sub, incl_modalities, incl_session, incl_condition, incl
     # add error correction for sub and task
     # tasks = ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
     f_psd_dict = {} # dictionary with tuples of frequency and psd for each channel and timepoint of a subject
+    sem_dict = {}
+
 
     # get the channelnames of the first timepoint and the first task (e.g. postop, RestBSSuRingR -> 6 channels)
     task_ch_names = getattr(mainclass_sub.survey, incl_session[0])
@@ -300,7 +404,7 @@ def perChannel_psd(incl_sub, incl_modalities, incl_session, incl_condition, incl
 
             # calculate the SEM of psd values
             sem = np.std(px)/np.sqrt(len(px))
-            print("SEM=", sem)
+            sem_dict[f'sem_{tp}_{ch}'] = sem
 
             # find peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
             peaks = scipy.signal.find_peaks(px, height=0.1) # height: peaks only above 0.1 will be recognized
@@ -337,13 +441,17 @@ def perChannel_psd(incl_sub, incl_modalities, incl_session, incl_condition, incl
     frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
     absolutePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
 
-    return frequenciesDataFrame, absolutePsdDataFrame
+    return {
+        "frequenciesDataFrame":frequenciesDataFrame,
+        "absolutePsdDataFrame":absolutePsdDataFrame,
+        "SEM":sem_dict
+        }
 
 
     # for adding subplots use Figure.add_subplot()
 
 
-def normalize_totalSum_perChannelPSD(incl_sub, incl_modalities, incl_session, incl_condition, incl_task, tasks, frequenciesDataFrame, absolutePsdDataFrame):
+def normalize_totalSum_perChannelPSD(incl_sub, incl_session, tasks, frequenciesDataFrame, absolutePsdDataFrame):
     """
     subject = str e.g. 024 
     frequenciesDataFrame = Dataframe of all frequencies of a subject (1st of tuple from perChannel_psd)
@@ -361,15 +469,16 @@ def normalize_totalSum_perChannelPSD(incl_sub, incl_modalities, incl_session, in
 
     mainclass_sub = mainclass.PerceiveData(
         sub = incl_sub, 
-        incl_modalities=incl_modalities,
+        incl_modalities=["survey"],
         incl_session = incl_session,
-        incl_condition = incl_condition,
-        incl_task = incl_task
+        incl_condition = ["m0s0"],
+        incl_task = ["rest"]
         )
 
     f_1to100Hz_dict = {} # dict with keys('postop_f_1to100Hz', 'fu3m_f_1to100Hz', 'fu12m_f_1to100Hz', 'fu18m_f_1to100Hz')
     psd_dict = {} # dict will be filled: keys('postop_relative_psd', 'fu3m_relative_psd', 'fu12_relative_psd', 'fu18m_relative_psd')
     f_relPsd_dict = {} # 
+    sem_dict = {}
 
     # just get Frequencies 1-100 Hz
     f_1to100Hz = frequenciesDataFrame[1:104] #.iloc[:,0] #only take first column
@@ -396,7 +505,7 @@ def normalize_totalSum_perChannelPSD(incl_sub, incl_modalities, incl_session, in
 
         for i, ch in enumerate(ch_names):
 
-            # split the string of ch -> after LFP
+            # split the string of ch -> after LFP to get rid of the session in the channel name
             substring_beforeAndAfter_LFP = ch.split('LFP_')
 
 
@@ -412,11 +521,12 @@ def normalize_totalSum_perChannelPSD(incl_sub, incl_modalities, incl_session, in
             rel_psd = absolute_psd.div(totalSum_psd)
             percentage_psd = rel_psd * 100 
 
-            # 
+            # store the frequencies and percentage psd values in a dictionary 
             f_relPsd_dict[f'{tp}_{ch}'] = [f, percentage_psd]
 
-            # calculate the SEM of psd values
+            # calculate the SEM of psd values and store the sem values in a dictionary
             sem = np.std(percentage_psd)/np.sqrt(len(percentage_psd))
+            sem_dict[f'sem_{tp}_{ch}'] = sem
 
             # get y-axis label and limits
             axes[i].get_ylabel()
@@ -453,4 +563,8 @@ def normalize_totalSum_perChannelPSD(incl_sub, incl_modalities, incl_session, in
     frequenciesrelDataFrame = pd.DataFrame({k: v[0] for k, v in f_relPsd_dict.items()}) # Dataframe of frequencies
     relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_relPsd_dict.items()}) # Dataframe of psd
 
-    return frequenciesrelDataFrame, relativePsdDataFrame
+    return {
+        "frequenciesDataFrame":frequenciesrelDataFrame,
+        "absolutePsdDataFrame":relativePsdDataFrame,
+        "SEM":sem_dict
+        }
