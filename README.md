@@ -16,6 +16,9 @@ pip install openpyxl
 pip install xlrd
 
 pip install pymatreader
+
+pip install -U scikit-learn
+
 ```
 
 ### Requirements
