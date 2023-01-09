@@ -442,10 +442,8 @@ def perChannel_welch_normalizedPsd(incl_sub, incl_session, tasks, pickChannels):
             # pick channels of interest: mne.pick_channels() will output the indices of included channels in an array
             ch_names_indices = mne.pick_channels(ch_names_renamed, include=include_channelList)
 
-            ch_names = [ch_names_renamed[idx] for idx in ch_names_indices] # new list of picked channel names based on the indeces 
+            # ch_names = [ch_names_renamed[idx] for idx in ch_names_indices] # new list of picked channel names based on the indeces 
            
-
-
             # loop through each channel of the loaded file (one session, one task)
             for i, ch in enumerate(ch_names_renamed):
 
