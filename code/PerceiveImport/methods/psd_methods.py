@@ -109,7 +109,7 @@ def welch_psd_survey_m0s0(incl_sub, incl_session, tasks):
                 # filter the signal by using the above defined butterworth filter
                 filtered = scipy.signal.filtfilt(b, a, temp_data.get_data()[i, :]) # .get_data()
 
-                #################### GET PSD VALUES BY USING wELCH'S METHOD ####################
+                #################### GET PSD VALUES BY USING WELCH'S METHOD ####################
 
                 # transform the filtered time series data into power spectral density using Welch's method
                 f, px = scipy.signal.welch(filtered, fs)  # Returns: f=array of sample frequencies, px= psd or power spectrum of x (amplitude)
@@ -276,6 +276,7 @@ def welch_normalizedPsdToTotalSum_survey_m0s0(incl_sub, incl_session, tasks):
             # set filter parameters for high-pass filter
             filter_order = 5 # in MATLAB spm_eeg_filter default=5 Butterworth
             frequency_cutoff = 5 # 5Hz high-pass filter
+        
 
             # create the filter
             b, a = scipy.signal.butter(filter_order, frequency_cutoff, btype='high', output='ba', fs=fs)
@@ -416,7 +417,7 @@ def welch_normalizedPsdToTotalSum_survey_m0s0(incl_sub, incl_session, tasks):
     
     # write DataFrame of all frequencies and psd values of each channel per timepoint
     frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
-    absolutePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
+    relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
 
     # write DataFrame of frequency and psd values of the highest peak in each frequency band
     highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 2 rows and columns each for one single power spectrum
@@ -424,7 +425,7 @@ def welch_normalizedPsdToTotalSum_survey_m0s0(incl_sub, incl_session, tasks):
 
     return {
         "frequenciesDataFrame":frequenciesDataFrame,
-        "absolutePsdDataFrame":absolutePsdDataFrame,
+        "relativePsdDataFrame":relativePsdDataFrame,
         "SEM":sem_dict,
         "highestPEAK": highestPEAKDF,
         }
