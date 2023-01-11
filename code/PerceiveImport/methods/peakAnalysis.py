@@ -94,7 +94,7 @@ def welch_normalizedPsdToTotalSum_survey_m0s0(incl_sub, incl_session, tasks, pic
     incl_sub = str e.g. "024"
     incl_session = list ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
     tasks = list ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
-    pickChannels = list  ['13', '02', '12', '01', '23', 
+    pickChannels = list  ['03', '13', '02', '12', '01', '23', 
     '1A1B', '1B1C', '1A1C', '2A2B', '2B2C', '2A2C', 
     '1A2A', '1B2B', '1C2C']
 
@@ -306,8 +306,8 @@ def welch_normalizedPsdToTotalSum_survey_m0s0(incl_sub, incl_session, tasks, pic
 
     
     for ax in axes: 
-        ax.legend() # shows legend for each axes[t]
-        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum in %")
+        ax.legend(loc='upper right') # shows legend for each axes[t]
+        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum in %", xlim=[-5, 100])
         ax.axvline(x=8, color='darkgrey', linestyle='--')
         ax.axvline(x=13, color='darkgrey', linestyle='--')
         ax.axvline(x=20, color='darkgrey', linestyle='--')
@@ -553,8 +553,8 @@ def perChannel_welch_normalizedPsd(incl_sub, incl_session, tasks, pickChannels):
                 
     
     for ax in axes: 
-        ax.legend() # shows legend for each axes[t]
-        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum in % +- SEM")
+        ax.legend(loc='upper right') # shows legend for each axes[t]
+        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum in % +- SEM", xlim=[-5, 100])
         # mark vertical lines seperating alpha, low beta and high beta frequency bands
         ax.axvline(x=8, color='darkgrey', linestyle='--')
         ax.axvline(x=13, color='darkgrey', linestyle='--')
