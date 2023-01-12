@@ -216,7 +216,7 @@ def welch_absolutePsd_survey_m0s0(incl_sub, incl_session, tasks, pickChannels):
 
                 # transform the filtered time series data into power spectral density using Welch's method
                 f, px = scipy.signal.welch(filtered, fs)  # Returns: f=array of sample frequencies, px= psd or power spectrum of x (amplitude)
-                # density unit: V**2/Hz
+                # density unit: mV**2/Hz
 
                 # store frequency and psd values in a dictionary
                 f_psd_dict[f'{tp}_{ch}'] = [f, px]
