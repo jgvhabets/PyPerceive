@@ -115,6 +115,8 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
     """
 
     sns.set()
+    # Matplotlib: set the style
+    plt.style.use('seaborn-whitegrid')  
 
     mainclass_sub = mainclass.PerceiveData(
         sub = incl_sub, 
@@ -169,8 +171,6 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
                 # create the filter
                 b, a = scipy.signal.butter(filter_order, (frequency_cutoff_low, frequency_cutoff_high), btype='bandpass', output='ba', fs=fs)
 
-                # the title of each plot is set to the timepoint e.g. "postop"
-                axes[t].set_title(tp)  
 
                 #################### RENAME CHANNELS ####################
                 # all channel names of one loaded file (one session, one task)
@@ -251,9 +251,9 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
                     # store frequencies 1-100Hz and relative psd values in a dictionary
                     f_psd_dict[f'{tp}_{ch}'] = [f, rel_psd]
                     
-                    # get y-axis label and limits
-                    axes[t].get_ylabel()
-                    axes[t].get_ylim()
+                    # # get y-axis label and limits
+                    # axes[t].get_ylabel()
+                    # axes[t].get_ylim()
 
                     #################### PEAK DETECTION ####################
 
@@ -304,11 +304,21 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
                         highest_peak_pos = peaksinfreq_pos[ix].item() # this will get the x-value of the highest peak from the array as an integer by indexing and using .item()
 
                         # plot only the highest peak within each frequency band
-                        axes[t].scatter(highest_peak_pos, highest_peak_height, color='r', s=15, marker='D')
+                        axes[t].scatter(highest_peak_pos, highest_peak_height, color="k", s=15, marker="D")
 
                         # store highest peak values of each frequency band in a dictionary
-                        highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [highest_peak_pos, highest_peak_height]
+                        # highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [highest_peak_pos, highest_peak_height]
 
+                        highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [tp, ch, frequency, highest_peak_pos, highest_peak_height]
+
+
+
+                    # the title of each plot is set to the timepoint e.g. "postop"
+                    axes[t].set_title(tp, fontsize=20)
+
+                    # # get y-axis label and limits
+                    # axes[t].get_ylabel()
+                    # axes[t].get_ylim()
 
                     # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
                     axes[t].plot(f, rel_psd, label=f"{ch}_{cond}")  # or np.log10(px)
@@ -316,14 +326,17 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
                     # make a shadowed line of the sem
                     axes[t].fill_between(f, rel_psd-sem, rel_psd+sem, color='b', alpha=0.2)
 
+    font = { "size": 16}
     
     for ax in axes: 
         ax.legend(loc='upper right') # shows legend for each axes[t]
-        ax.set(xlabel="Frequency", ylabel="relative PSD to total sum in %", xlim=[-5, 100])
-        ax.axvline(x=8, color='darkgrey', linestyle='--')
-        ax.axvline(x=13, color='darkgrey', linestyle='--')
-        ax.axvline(x=20, color='darkgrey', linestyle='--')
-        ax.axvline(x=35, color='darkgrey', linestyle='--')
+        ax.set(xlim=[-5, 60], ylim=[0, 11])
+        ax.set_xlabel("Frequency", fontdict=font)
+        ax.set_ylabel("relative PSD to total sum in %", fontdict=font)
+        ax.axvline(x=8, color='k', linestyle='--')
+        ax.axvline(x=13, color='k', linestyle='--')
+        ax.axvline(x=20, color='k', linestyle='--')
+        ax.axvline(x=35, color='k', linestyle='--')
     
 
     plt.show()
@@ -333,8 +346,13 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
     relativePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
 
     # write DataFrame of frequency and psd values of the highest peak in each frequency band
-    highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 2 rows and columns each for one single power spectrum
-    highestPEAKDF.rename(index={0: "PEAK_frequency", 1:"PEAK_relativePSD"}, inplace=True) # rename the rows
+    # highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 2 rows and columns each for one single power spectrum
+    # highestPEAKDF.rename(index={0: "PEAK_frequency", 1:"PEAK_relativePSD"}, inplace=True) # rename the rows
+
+    highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 5 rows and columns for each single power spectrum
+    highestPEAKDF.rename(index={0: "session", 1: "bipolarChannel", 2: "frequencyBand", 3: "PEAK_frequency", 4:"PEAK_relativePSD"}, inplace=True) # rename the rows
+    highestPEAKDF = highestPEAKDF.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+
 
     return {
         "frequenciesDataFrame":frequenciesDataFrame,
