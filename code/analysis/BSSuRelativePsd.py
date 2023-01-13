@@ -340,6 +340,8 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
     
 
     plt.show()
+
+    
     
     # write DataFrame of all frequencies and psd values of each channel per timepoint
     frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies

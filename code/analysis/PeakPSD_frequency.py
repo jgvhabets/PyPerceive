@@ -14,12 +14,14 @@ import PerceiveImport.methods.find_folders as findfolders
 # Matplotlib: set the style
 plt.style.use('seaborn-whitegrid')
 
-def highestPeakValues(frequencyBands: list, pickChannels: list, highestPeakDataframe: any, PeakAttribute: str ):
+def highestPeakValues(incl_sub: str, hemisphere: str, frequencyBands: list, pickChannels: list, highestPeakDataframe: any, PeakAttribute: str ):
 
     """
     Restructuring Dataframe into different frequency bands and plotting Peak Frequencies or PSD 
 
     Input: 
+        - sub: str e.g. ["024"]
+        - hemisphere: str e.g. "Right"
         - frequencyBands = list e.g. ["alpha", "lowBeta", "highBeta"]
         - pickChannels = e.g. ['13', '02', '12', '01', '23', 
             '1A1B', '1B1C', '1A1C', '2A2B', '2B2C', '2A2C', 
@@ -32,6 +34,7 @@ def highestPeakValues(frequencyBands: list, pickChannels: list, highestPeakDataf
     
 
     chan_freq_dict = {}
+    local_path = findfolders.get_local_path(folder="figures", sub=incl_sub)
 
     # Layout: subplot for every frequency band, 1 column
     fig, axes = plt.subplots(len(frequencyBands), 1, figsize=(15, 15))
@@ -75,12 +78,15 @@ def highestPeakValues(frequencyBands: list, pickChannels: list, highestPeakDataf
         ax.set_xlabel("Follow-up timepoints", fontdict=font)
 
         if PeakAttribute == "PeakFrequency":
-            ax.set_ylabel("Peak Frequency[Hz]", fontdict=font)
+            ax.set_ylabel("Frequency [Hz] of the Peak", fontdict=font)
 
         elif PeakAttribute == "PeakPsd":
-            ax.set_ylabel("Peak relative PSD [%]", fontdict=font)
+            ax.set_ylabel("relative PSD [%] of the Peak", fontdict=font)
         
 
     #fig.write_image("PeakFrequencyOverTime.png",format="png", width=1000, height=600, scale=3)
 
+    print(local_path)
+    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_highestPeakValues_{PeakAttribute}.png")
+    
     plt.show()
