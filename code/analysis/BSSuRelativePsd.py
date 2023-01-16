@@ -89,7 +89,7 @@ mapping = {
 
 
 
-def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, tasks: list, pickChannels: list):
+def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, tasks: list, pickChannels: list, hemisphere: str):
     """
     incl_sub = str e.g. "024"
     incl_session = list ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
@@ -98,6 +98,7 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
     pickChannels = list  ['03', '13', '02', '12', '01', '23', 
     '1A1B', '1B1C', '1A1C', '2A2B', '2B2C', '2A2C', 
     '1A2A', '1B2B', '1C2C']
+    - hemisphere: str e.g. "Right"
 
     This function will first load the data from mainclass.PerceiveData using the input values.
     After loading the data the signal will be high-pass filtered by a Butterworth Filter of fifth order.
@@ -126,7 +127,7 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
         incl_task = ["rest"]
         )
 
-    # results_path = findfolders.get_local_path(folder="results", sub=incl_sub)
+    local_path = findfolders.get_local_path(folder="figures", sub=incl_sub)
 
     # add error correction for sub and task
     # tasks = ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
@@ -330,7 +331,7 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
     
     for ax in axes: 
         ax.legend(loc='upper right') # shows legend for each axes[t]
-        ax.set(xlim=[-5, 60], ylim=[0, 11])
+        ax.set(xlim=[-5, 60], ylim=[0, 7])
         ax.set_xlabel("Frequency", fontdict=font)
         ax.set_ylabel("relative PSD to total sum in %", fontdict=font)
         ax.axvline(x=8, color='k', linestyle='--')
@@ -338,10 +339,10 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
         ax.axvline(x=20, color='k', linestyle='--')
         ax.axvline(x=35, color='k', linestyle='--')
     
-
+    #plt.figlegend(loc="upper right")
     plt.show()
 
-    
+    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_normalizedPsdToTotalSum_seperateTimepoints_{pickChannels}.png")
     
     # write DataFrame of all frequencies and psd values of each channel per timepoint
     frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies

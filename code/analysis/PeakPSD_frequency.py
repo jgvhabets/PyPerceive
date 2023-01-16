@@ -87,6 +87,6 @@ def highestPeakValues(incl_sub: str, hemisphere: str, frequencyBands: list, pick
     #fig.write_image("PeakFrequencyOverTime.png",format="png", width=1000, height=600, scale=3)
 
     print(local_path)
-    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_highestPeakValues_{PeakAttribute}.png")
+    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_highestPeakValues_{PeakAttribute}_{pickChannels}.png")
     
     plt.show()
