@@ -33,6 +33,7 @@ class sessionClass:
     def __post_init__(self,):        
         
         allowed_condition = ["m0s0", "m1s0", "m0s1", "m1s1"]
+
         # continue to next class: Condition_Class and set the attribute of the new selection of metaClass
         for cond in self.metaClass.incl_condition:
 
@@ -41,8 +42,10 @@ class sessionClass:
                 f' be in {allowed_condition}'
             )
 
+            # only get the rows of the meta_table that include the correct conditions in column "condition"
             sel = [cond.lower() == c.lower() for c in self.meta_table["condition"]]
-            sel_meta_table = self.meta_table[sel].reset_index(drop=True)
+            # sel = [cond.lower() == c for c in self.meta_table["condition"]]  
+            sel_meta_table = self.meta_table[sel].reset_index(drop=True) # reset index of the new meta_table 
             
             # if no files are left after selecting, dont make new class
             if len(sel_meta_table) == 0:

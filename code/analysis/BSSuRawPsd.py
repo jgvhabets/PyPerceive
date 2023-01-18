@@ -137,7 +137,6 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
 
     
     local_path = findfolders.get_local_path(folder="figures", sub=incl_sub)
-    print("LOCAL PATH", local_path)
 
     # add error correction for sub and task??
     
@@ -283,9 +282,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                     rel_psd_1Darray = px_rel_2Darray.reshape(-1,) 
 
                     # *100 to get the values in percentage
-                    normToTotalSum_psd = rel_psd_1Darray * 100
-
-                    print("normToTotalSum_psd", normToTotalSum_psd)                    
+                    normToTotalSum_psd = rel_psd_1Darray * 100                  
 
                     # calculate the SEM of psd values 
                     semNormToTotalSum_psd = np.std(normToTotalSum_psd)/np.sqrt(len(normToTotalSum_psd))
@@ -297,16 +294,13 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                     #################### NORMALIZE PSD TO SUM OF PSD BETWEEN 1-100 Hz  ####################
                    
                     # get raw psd values from 1 to 100 Hz by indexing the numpy arrays f and px
-
-                    print("PX[1:104]", px[1:104])
-
                     rawPsd_1to100Hz = px[1:104]
 
                     # sum of rawPSD between 1 and 100 Hz
                     psdSum1to100Hz = rawPsd_1to100Hz.sum()
 
                     # raw psd divided by sum of psd between 1 and 100 Hz
-                    normPsdToSum1to100Hz = px.div(psdSum1to100Hz)
+                    normPsdToSum1to100Hz = px/psdSum1to100Hz
                     percentageNormPsdToSum1to100Hz = normPsdToSum1to100Hz * 100 
 
                     # calculate the SEM of psd values 
@@ -325,7 +319,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                     psdSum40to90Hz = rawPsd_40to90Hz.sum()
 
                     # raw psd divided by sum of psd between 40 and 90 Hz
-                    normPsdToSum40to90Hz = px.div(psdSum40to90Hz)
+                    normPsdToSum40to90Hz = px/psdSum40to90Hz
                     percentageNormPsdToSum40to90Hz = normPsdToSum40to90Hz * 100 
 
                     # calculate the SEM of psd values 
@@ -467,9 +461,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         "normPsdToTotalSumDataFrame":normPsdToTotalSumDataFrame,
         "normPsdToSum1to100HzDataFrame":normPsdToSum1to100HzDataFrame,
         "normPsdToSum40to90HzDataFrame":normPsdToSum40to90DataFrame,
-        "highestPEAK": highestPEAKDF,
-        "DICT":f_rawPsd_dict
-
+        "highestPEAK": highestPEAKDF
     }
 
 
