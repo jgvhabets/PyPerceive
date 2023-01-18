@@ -100,19 +100,29 @@ def welch_normalizedPsdToTotalSum_seperateTimepoints(incl_sub: str, incl_session
     '1A2A', '1B2B', '1C2C']
     - hemisphere: str e.g. "Right"
 
-    This function will first load the data from mainclass.PerceiveData using the input values.
-    After loading the data the signal will be high-pass filtered by a Butterworth Filter of fifth order.
+    1) load data from mainclass.PerceiveData using the input values.
     
-    From the filtered signal the psd values of every channel for each timepoint will be calculated by using Welch's method.
+    2) band-pass filter by a Butterworth Filter of fifth order (5-95 Hz).
+    
+    3) Calculate the psd values of every channel for each timepoint by using Welch's method.
 
-    For each frequency band alpha (), low beta () and high beta (), the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
+    4) Normalize psd to total sum of each Power Spectrum using sklearn.preprocessing.normalize
 
-    All frequencies and relative psd values, as well as the values for the highest PEAK in each frequency band will be returned as a Dataframe in a dictionary: 
+    5) For each frequency band alpha (), low beta () and high beta (), the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
+
+    6) Save figure: f"\sub{incl_sub}_{hemisphere}_normalizedPsdToTotalSum_seperateTimepoints_{pickChannels}.png"
+    
+    7) Store Dataframes in dictionary: 
+        - All frequencies and relative psd values of each channel
+        - for the highest PEAK in each frequency band: 
+    
     {"frequenciesDataFrame":frequenciesDataFrame,
     "absolutePsdDataFrame":absolutePsdDataFrame,
     "SEM":sem_dict,
     "highestPEAK": highestPEAKDF,
     }
+
+
     """
 
     sns.set()

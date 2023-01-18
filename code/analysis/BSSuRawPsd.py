@@ -87,26 +87,42 @@ mapping = {
 
 
 
-def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, incl_session: list, tasks: list, pickChannels: list):
+def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, tasks: list, pickChannels: list, hemisphere: str):
     """
-    incl_sub = str e.g. "024"
-    incl_session = list ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
-    incl_condition = list e.g. ["m0s0", "m1s0"]
-    tasks = list ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
 
-    This function will first load the data from mainclass.PerceiveData using the input values.
-    After loading the data the signal will be band-pass filtered (5-95 Hz) by a Butterworth Filter of fifth order.
+    Input: 
+        - incl_sub = str e.g. "024"
+        - incl_session = list ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
+        - incl_condition = list e.g. ["m0s0", "m1s0"]
+        - tasks = list ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
+        - hemisphere: str e.g. "Right"
+
     
-    From the filtered signal the psd values of every channel for each timepoint will be calculated by using Welch's method.
+    1) load data from mainclass.PerceiveData using the input values.
+    
+    2) band-pass filter by a Butterworth Filter of fifth order (5-95 Hz).
+    
+    3) Calculate the psd values of every channel for each timepoint by using Welch's method.
 
-    For each frequency band alpha (), low beta () and high beta (), the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
+    4) Normalization variants: calculate different normalized PSD values 
+        - normalized to total sum of PSD from each power spectrum
+        - normalized to sum of PSD from 1-100 Hz
+        - normalized to sum of PSD from 40-90 Hz
 
-    All frequencies and relative psd values, as well as the values for the highest PEAK in each frequency band will be returned as a Dataframe in a dictionary: 
-    {"frequenciesDataFrame":frequenciesDataFrame,
-    "absolutePsdDataFrame":absolutePsdDataFrame,
-    "SEM":sem_dict,
-    "highestPEAK": highestPEAKDF,
+    4) For each frequency band alpha (), low beta () and high beta (), the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
+
+    5) Save figure: f"\sub{incl_sub}_{hemisphere}_normalizedPsdToTotalSum_seperateTimepoints_{pickChannels}.png"
+    
+    6) All frequencies and relative psd values, as well as the values for the highest PEAK in each frequency band will be returned as a Dataframe in a dictionary: 
+    
+    return {
+        "rawPsdDataFrame":rawPSDDataFrame,
+        "normPsdToTotalSumDataFrame":normToTotalSumPsdDataFrame,
+        "normPsdToSum1_100Hz": normToSum1_100Hz,
+        "normPsdToSum40_90Hz":normToSum40_90Hz
+        "highestPEAK": highestPEAKDF,
     }
+
     """
 
     # sns.set()
@@ -119,13 +135,16 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
         incl_task = ["rest"]
         )
 
-    # results_path = findfolders.get_local_path(folder="results", sub=incl_sub)
-
+    
+    local_path = findfolders.get_local_path(folder="figures", sub=incl_sub)
+    print("LOCAL PATH", local_path)
 
     # add error correction for sub and task??
     
-    f_psd_dict = {} # dictionary with tuples of frequency and psd for each channel and timepoint of a subject
-    sem_dict = {}
+    f_rawPsd_dict = {} # dictionary with tuples of frequency and psd for each channel and timepoint of a subject
+    f_normPsdToTotalSum_dict = {}
+    f_normPsdToSum1to100Hz_dict = {}
+    f_normPsdToSum40to90Hz_dict = {}
     highest_peak_dict = {}
 
     # set layout for figures: using the object-oriented interface
@@ -144,6 +163,7 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                 if getattr(mainclass_sub.survey, tp) is None:
                     continue
 
+            
                 # apply loop over channels
                 temp_data = getattr(mainclass_sub.survey, tp) # gets attribute e.g. of tp "postop" from modality_class with modality set to survey
                 
@@ -151,9 +171,18 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                 if getattr(temp_data, cond) is None:
                     continue
             
+                # try:
+                #     temp_data = getattr(temp_data, cond)
+                #     temp_data = temp_data.rest.data[tasks[tk]]
+                
+                # except AttributeError:
+                #     continue
+
                 temp_data = getattr(temp_data, cond) # gets attribute e.g. "m0s0"
                 temp_data = temp_data.rest.data[tasks[tk]] # gets the mne loaded data from the perceive .mat BSSu, m0s0 file with task "RestBSSuRingR"
     
+                print("DATA", temp_data)
+
                 #################### CREATE A BUTTERWORTH FILTER ####################
 
                 # sample frequency: 250 Hz
@@ -230,12 +259,81 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                     f, px = scipy.signal.welch(filtered, fs)  # Returns: f=array of sample frequencies, px= psd or power spectrum of x (amplitude)
                     # density unit: mV**2/Hz
 
-                    # store frequency and psd values in a dictionary
-                    f_psd_dict[f'{tp}_{ch}'] = [f, px]
-
                     # calculate the SEM of psd values and store sem of each channel in dictionary
-                    sem = np.std(px)/np.sqrt(len(px))
-                    sem_dict[f'sem_{tp}_{ch}'] = sem
+                    semRawPsd = np.std(px)/np.sqrt(len(px))
+                    # semRawPsd_dict[f'sem_{tp}_{ch}'] = semRawPsd
+
+                    # store frequency, raw psd and sem values in a dictionary, together with session timepoint and channel
+                    f_rawPsd_dict[f'{tp}_{ch}'] = [tp, ch, f, px, semRawPsd]
+
+                
+
+                    #################### NORMALIZE PSD IN MULTIPLE WAYS ####################
+                    
+                    #################### NORMALIZE PSD TO TOTAL SUM OF THE POWER SPECTRUM (ALL FREQUENCIES) ####################
+
+                    # reshape the array to a single-row 2D array, so it can be used in sklearn.preprocessing.normalize()
+                    # normalize() does not work with px as input, eventhough it is a numpy array, reshaping px to a 2D array .reshape(1,-1) is necessary
+                    px_2Darray = px.reshape(1, -1) # reshape into a single-row 2D Array: -1 is a placeholder, so as many features as in px
+
+                    # sklearn.preprocessing.normalize() norm="l1" will normalize so that sum of absolute values is 1
+                    px_rel_2Darray = normalize(px_2Darray, norm='l1') 
+                    
+                    # reshape back to 1D Array, because of other functions that input 1D arrays: like scipy.signal.find_peaks
+                    rel_psd_1Darray = px_rel_2Darray.reshape(-1,) 
+
+                    # *100 to get the values in percentage
+                    normToTotalSum_psd = rel_psd_1Darray * 100
+
+                    print("normToTotalSum_psd", normToTotalSum_psd)                    
+
+                    # calculate the SEM of psd values 
+                    semNormToTotalSum_psd = np.std(normToTotalSum_psd)/np.sqrt(len(normToTotalSum_psd))
+
+                    # store frequencies and normalized psd values and sem of normalized psd in a dictionary
+                    f_normPsdToTotalSum_dict[f'{tp}_{ch}'] = [tp, ch, f, normToTotalSum_psd, semNormToTotalSum_psd]
+
+
+                    #################### NORMALIZE PSD TO SUM OF PSD BETWEEN 1-100 Hz  ####################
+                   
+                    # get raw psd values from 1 to 100 Hz by indexing the numpy arrays f and px
+
+                    print("PX[1:104]", px[1:104])
+
+                    rawPsd_1to100Hz = px[1:104]
+
+                    # sum of rawPSD between 1 and 100 Hz
+                    psdSum1to100Hz = rawPsd_1to100Hz.sum()
+
+                    # raw psd divided by sum of psd between 1 and 100 Hz
+                    normPsdToSum1to100Hz = px.div(psdSum1to100Hz)
+                    percentageNormPsdToSum1to100Hz = normPsdToSum1to100Hz * 100 
+
+                    # calculate the SEM of psd values 
+                    semNormPsdToSum1to100Hz = np.std(percentageNormPsdToSum1to100Hz)/np.sqrt(len(percentageNormPsdToSum1to100Hz))
+
+                    # store frequencies and normalized psd values and sem of normalized psd in a dictionary
+                    f_normPsdToSum1to100Hz_dict[f'{tp}_{ch}'] = [tp, ch, f, percentageNormPsdToSum1to100Hz, semNormPsdToSum1to100Hz]
+
+
+                    #################### NORMALIZE PSD TO SUM OF PSD BETWEEN 40-90 Hz  ####################
+                   
+                    # get raw psd values from 40 to 90 Hz (gerundet) by indexing the numpy arrays f and px
+                    rawPsd_40to90Hz = px[41:93] 
+
+                    # sum of rawPSD between 40 and 90 Hz
+                    psdSum40to90Hz = rawPsd_40to90Hz.sum()
+
+                    # raw psd divided by sum of psd between 40 and 90 Hz
+                    normPsdToSum40to90Hz = px.div(psdSum40to90Hz)
+                    percentageNormPsdToSum40to90Hz = normPsdToSum40to90Hz * 100 
+
+                    # calculate the SEM of psd values 
+                    semNormPsdToSum40to90Hz = np.std(percentageNormPsdToSum40to90Hz)/np.sqrt(len(percentageNormPsdToSum40to90Hz))
+
+                    # store frequencies and normalized psd values and sem of normalized psd in a dictionary
+                    f_normPsdToSum40to90Hz_dict[f'{tp}_{ch}'] = [tp, ch, f, percentageNormPsdToSum40to90Hz, semNormPsdToSum40to90Hz]
+
                     
 
                     # get y-axis label and limits
@@ -243,6 +341,8 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                     axes[t].get_ylim()
 
                     #################### PEAK DETECTION ####################
+
+                    #################### PEAK DETECTION RAW PSD ####################
                     # find all peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
                     peaks = scipy.signal.find_peaks(px, height=0.1) # height: peaks only above 0.1 will be recognized
 
@@ -257,9 +357,12 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                     alpha_range = (peaks_pos >= 8) & (peaks_pos <= 12) # alpha_range will output a boolean of True values within the alpha range
                     lowBeta_range = (peaks_pos >= 13) & (peaks_pos <= 20)
                     highBeta_range = (peaks_pos >= 21) & (peaks_pos <= 35)
+                    beta_range = (peaks_pos >= 13) & (peaks_pos <= 35)
+                    narrowGamma_range = (peaks_pos >= 40) & (peaks_pos <= 90)
+
 
                     # make a list with all boolean masks of each frequency, so I can loop through
-                    frequency_ranges = [alpha_range, lowBeta_range, highBeta_range]
+                    frequency_ranges = [alpha_range, lowBeta_range, highBeta_range, beta_range, narrowGamma_range]
 
                     # loop through frequency ranges and get the highest peak of each frequency band
                     for count, boolean in enumerate(frequency_ranges):
@@ -271,6 +374,10 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                             frequency = "lowBeta"
                         elif count == 2:
                             frequency = "highBeta"
+                        elif count == 3:
+                            frequency = "beta"
+                        elif count == 4:
+                            frequency = "narrowGamma"
                         
                         # get all peak positions and heights within each frequency range
                         peaksinfreq_pos = peaks_pos[frequency_ranges[count]]
@@ -290,17 +397,23 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
                         # plot only the highest peak within each frequency band
                         axes[t].scatter(highest_peak_pos, highest_peak_height, color='r', s=15, marker='D')
 
+
                         # store highest peak values of each frequency band in a dictionary
-                        highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [highest_peak_pos, highest_peak_height]
+                        highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [tp, ch, frequency, highest_peak_pos, highest_peak_height]
 
 
+
+
+                    #################### PLOT THE RAW PSD ####################
                     # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
                     axes[t].plot(f, px, label=f"{ch}_{cond}")  # or np.log10(px)
 
                     # make a shadowed line of the sem
-                    axes[t].fill_between(f, px-sem, px+sem, color='b', alpha=0.2)
+                    axes[t].fill_between(f, px-semRawPsd, px+semRawPsd, color='b', alpha=0.2)
 
-    
+
+
+    #################### PLOT SETTINGS ####################
     for ax in axes: 
         ax.legend(loc= 'upper right') # Legend will be in upper right corner
         ax.set(xlabel="Frequency", ylabel="mV^2/Hz +- SEM", xlim=[-5, 100])
@@ -311,29 +424,60 @@ def welch_absolutePsd_seperateTimepoints(incl_sub: str, incl_condition: list, in
     
 
     plt.show()
+    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_rawPsd_seperateTimepoints_{pickChannels}.png")
     
     # write DataFrame of all frequencies and psd values of each channel per timepoint
-    frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_psd_dict.items()}) # Dataframe of frequencies
-    absolutePsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_psd_dict.items()}) # Dataframe of psd
+    # frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_rawPsd_dict.items()}) # Dataframe of frequencies: columns=single bipolar channel of one session
+    # rawPsdDataFrame = pd.DataFrame({k: v[1] for k, v in f_rawPsd_dict.items()}) # Dataframe of raw psd: columns=single bipolar channel of one session
+    # semRawPsdDataFrame = pd.DataFrame({k: v[2] for k, v in f_rawPsd_dict.items()}) # Dataframe of sem of rawPsd: columns=single bipolar channel of one session
+
+
+    #################### WRITE DATAFRAMES TO STORE VALUES ####################
+    # write raw PSD Dataframe
+    rawPSDDataFrame = pd.DataFrame(f_rawPsd_dict)
+    rawPSDDataFrame.rename(index={0: "session", 1: "bipolarChannel", 2: "frequency", 3: "rawPSD", 4: "SEM_rawPSD"}, inplace=True) # rename the rows
+    rawPSDDataFrame = rawPSDDataFrame.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+
+    # write DataFrame of normalized PSD to total Sum
+    normPsdToTotalSumDataFrame = pd.DataFrame(f_normPsdToTotalSum_dict) # Dataframe of normalised to total sum psd: columns=single bipolar channel of one session
+    normPsdToTotalSumDataFrame.rename(index={0: "session", 1: "bipolarChannel", 2: "frequency", 3: "normPsdToTotalSum", 4: "SEM_normPsdToTotalSum"}, inplace=True) # rename the rows
+    normPsdToTotalSumDataFrame = normPsdToTotalSumDataFrame.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+
+    # write DataFrame of normalized PSD to Sum of PSD between 1 and 100 Hz
+    normPsdToSum1to100HzDataFrame = pd.DataFrame(f_normPsdToSum1to100Hz_dict) # Dataframe of normalised to total sum psd: columns=single bipolar channel of one session
+    normPsdToSum1to100HzDataFrame.rename(index={0: "session", 1: "bipolarChannel", 2: "frequency", 3: "normPsdToSumPsd1to100Hz", 4: "SEM_normPsdToSumPsd1to100Hz"}, inplace=True) # rename the rows
+    normPsdToSum1to100HzDataFrame = normPsdToSum1to100HzDataFrame.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+
+    # write DataFrame of normalized PSD to Sum of PSD between 1 and 100 Hz
+    normPsdToSum40to90DataFrame = pd.DataFrame(f_normPsdToSum40to90Hz_dict) # Dataframe of normalised to total sum psd: columns=single bipolar channel of one session
+    normPsdToSum40to90DataFrame.rename(index={0: "session", 1: "bipolarChannel", 2: "frequency", 3: "normPsdToSum40to90Hz", 4: "SEM_normPsdToSum40to90Hz"}, inplace=True) # rename the rows
+    normPsdToSum40to90DataFrame = normPsdToSum40to90DataFrame.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+
+
 
     # write DataFrame of frequency and psd values of the highest peak in each frequency band
-    highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 2 rows and columns each for one single power spectrum
-    highestPEAKDF.rename(index={0: "PEAK_frequency", 1:"PEAK_absolutePSD"}, inplace=True) # rename the rows
+    highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 5 rows and columns for each single power spectrum
+    highestPEAKDF.rename(index={0: "session", 1: "bipolarChannel", 2: "frequencyBand", 3: "PEAK_frequency", 4:"PEAK_rawPSD"}, inplace=True) # rename the rows
+    highestPEAKDF = highestPEAKDF.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+
+
 
     return {
-        "frequenciesDataFrame":frequenciesDataFrame,
-        "absolutePsdDataFrame":absolutePsdDataFrame,
-        "SEM":sem_dict,
+        "rawPsdDataFrame":rawPSDDataFrame,
+        "normPsdToTotalSumDataFrame":normPsdToTotalSumDataFrame,
+        "normPsdToSum1to100HzDataFrame":normPsdToSum1to100HzDataFrame,
+        "normPsdToSum40to90HzDataFrame":normPsdToSum40to90DataFrame,
         "highestPEAK": highestPEAKDF,
-        }
+        "DICT":f_rawPsd_dict
 
+    }
 
 
 #### watch out!! in this function you work with Dataframes!! so there are differences to the function above where you mostly work woth numpy arrays! ####
 #### next task: not reuse Dataframes for Normalization but create another version of plotting normalized psd similar to the above function
 
 
-def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
+def normalize_psd_toTotalSum(frequenciesDataFrame, rawPsdDataFrame):
 
     """
     subject = str e.g. 024 
@@ -367,7 +511,7 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, absolutePsdDataFrame):
 
         # select the right frequency and psd columns per timepoint and add them to the empty dictionaries
         f_1to100Hz_dict[f'{tp}_f_1to100Hz'] = f_1to100Hz.filter(like=tp) # filter DF by each session
-        psd_dict[f'{tp}_psd'] = absolutePsdDataFrame[1:104].filter(like=tp) # filter DF by each session across 1-100Hz
+        psd_dict[f'{tp}_psd'] = rawPsdDataFrame[1:104].filter(like=tp) # filter DF by each session across 1-100Hz
 
         # get channel names by getting the column names from the DataFrame stored as values in the psd_dict
         ch_names = psd_dict[f'{tp}_psd'].columns
