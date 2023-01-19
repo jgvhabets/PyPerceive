@@ -87,7 +87,7 @@ mapping = {
 
 
 
-def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, tasks: list, pickChannels: list, hemisphere: str):
+def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, tasks: list, pickChannels: list, hemisphere: str, normalization: str):
     """
 
     Input: 
@@ -96,6 +96,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         - incl_condition = list e.g. ["m0s0", "m1s0"]
         - tasks = list ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
         - hemisphere: str e.g. "Right"
+        - normalization: str "rawPSD", "normPsdToTotalSum", "normPsdToSum1_100Hz", "normPsdToSum40_90Hz"
 
     
     1) load data from mainclass.PerceiveData using the input values.
@@ -109,9 +110,13 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         - normalized to sum of PSD from 1-100 Hz
         - normalized to sum of PSD from 40-90 Hz
 
-    4) For each frequency band alpha (), low beta () and high beta (), the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
 
-    5) Save figure: f"\sub{incl_sub}_{hemisphere}_normalizedPsdToTotalSum_seperateTimepoints_{pickChannels}.png"
+    Depending on normalization variation: 
+    
+    5) For each frequency band alpha (), low beta (), high beta (), beta(), gamma() the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
+
+    6) The raw or noramlized PSD values will be plotted and the figure will be saved as:
+        f"\sub{incl_sub}_{hemisphere}_normalizedPsdToTotalSum_seperateTimepoints_{pickChannels}.png"
     
     6) All frequencies and relative psd values, as well as the values for the highest PEAK in each frequency band will be returned as a Dataframe in a dictionary: 
     
@@ -120,7 +125,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         "normPsdToTotalSumDataFrame":normToTotalSumPsdDataFrame,
         "normPsdToSum1_100Hz": normToSum1_100Hz,
         "normPsdToSum40_90Hz":normToSum40_90Hz
-        "highestPEAK": highestPEAKDF,
+        "highestPeakRawPSD": highestPeakRawPsdDF,
     }
 
     """
@@ -262,6 +267,9 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                     semRawPsd = np.std(px)/np.sqrt(len(px))
                     # semRawPsd_dict[f'sem_{tp}_{ch}'] = semRawPsd
 
+                    # average of PSD in each frequency band
+                    
+
                     # store frequency, raw psd and sem values in a dictionary, together with session timepoint and channel
                     f_rawPsd_dict[f'{tp}_{ch}'] = [tp, ch, f, px, semRawPsd]
 
@@ -336,9 +344,31 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
 
                     #################### PEAK DETECTION ####################
 
+                    # depending on what normalization or raw was chosen: define variables for psd accordingly
+                    if normalization == "rawPsd":
+                        chosenPsd = px
+                        chosenSem = semRawPsd
+                        chosen_ylabel = "uV^2/Hz +- SEM"
+                    
+                    elif normalization == "normPsdToTotalSum":
+                        chosenPsd = normToTotalSum_psd
+                        chosenSem = semNormToTotalSum_psd
+                        chosen_ylabel = "relative PSD to total sum in % +- SEM"
+
+                    elif normalization == "normPsdToSum1_100Hz":
+                        chosenPsd = percentageNormPsdToSum1to100Hz
+                        chosenSem = semNormPsdToSum1to100Hz
+                        chosen_ylabel = "relative PSD to sum between 1-100 Hz in % +- SEM"
+
+                    elif normalization == "normPsdToSum40_90Hz":
+                        chosenPsd = percentageNormPsdToSum40to90Hz
+                        chosenSem = semNormPsdToSum40to90Hz
+                        chosen_ylabel = "relative PSD to sum between 40-90 Hz in % +- SEM"
+
+
                     #################### PEAK DETECTION RAW PSD ####################
                     # find all peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
-                    peaks = scipy.signal.find_peaks(px, height=0.1) # height: peaks only above 0.1 will be recognized
+                    peaks = scipy.signal.find_peaks(chosenPsd, height=0.1) # height: peaks only above 0.1 will be recognized
 
                     # Error checking: if no peaks found, continue
                     if len(peaks) == 0:
@@ -398,19 +428,20 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
 
 
 
-                    #################### PLOT THE RAW PSD ####################
+                    #################### PLOT THE CHOSEN PSD DEPENDING ON NORMALIZATION INPUT ####################
+
                     # .plot() method for creating the plot, axes[0] refers to the first plot, the plot is set on the appropriate object axes[t]
-                    axes[t].plot(f, px, label=f"{ch}_{cond}")  # or np.log10(px)
+                    axes[t].plot(f, chosenPsd, label=f"{ch}_{cond}")  # or np.log10(px)
 
                     # make a shadowed line of the sem
-                    axes[t].fill_between(f, px-semRawPsd, px+semRawPsd, color='b', alpha=0.2)
+                    axes[t].fill_between(f, chosenPsd-chosenSem, chosenPsd+chosenSem, color='b', alpha=0.2)
 
 
 
     #################### PLOT SETTINGS ####################
     for ax in axes: 
         ax.legend(loc= 'upper right') # Legend will be in upper right corner
-        ax.set(xlabel="Frequency", ylabel="mV^2/Hz +- SEM", xlim=[-5, 100])
+        ax.set(xlabel="Frequency", ylabel= chosen_ylabel, xlim=[-5, 60])
         ax.axvline(x=8, color='darkgrey', linestyle='--')
         ax.axvline(x=13, color='darkgrey', linestyle='--')
         ax.axvline(x=20, color='darkgrey', linestyle='--')
@@ -418,7 +449,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
     
 
     plt.show()
-    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_rawPsd_seperateTimepoints_{pickChannels}.png")
+    fig.savefig(local_path + f"\sub{incl_sub}_{hemisphere}_{normalization}_{pickChannels}.png")
     
     # write DataFrame of all frequencies and psd values of each channel per timepoint
     # frequenciesDataFrame = pd.DataFrame({k: v[0] for k, v in f_rawPsd_dict.items()}) # Dataframe of frequencies: columns=single bipolar channel of one session
@@ -461,8 +492,17 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         "normPsdToTotalSumDataFrame":normPsdToTotalSumDataFrame,
         "normPsdToSum1to100HzDataFrame":normPsdToSum1to100HzDataFrame,
         "normPsdToSum40to90HzDataFrame":normPsdToSum40to90DataFrame,
-        "highestPEAK": highestPEAKDF
+        f"highestPEAK{normalization}": highestPEAKDF
     }
+
+
+
+
+
+
+
+
+
 
 
 #### watch out!! in this function you work with Dataframes!! so there are differences to the function above where you mostly work woth numpy arrays! ####
@@ -607,6 +647,10 @@ def normalize_psd_toTotalSum(frequenciesDataFrame, rawPsdDataFrame):
         "absolutePsdDataFrame": relativePsdDataFrame,
         "highestrelativePEAK": highestrelPEAKDF
         }
+
+
+
+
 
 
 def perChannel_absolutePsd_noPickChannels(incl_sub, incl_session, tasks):
