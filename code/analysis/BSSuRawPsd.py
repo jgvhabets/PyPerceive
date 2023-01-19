@@ -103,7 +103,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
     
     2) band-pass filter by a Butterworth Filter of fifth order (5-95 Hz).
     
-    3) Calculate the psd values of every channel for each timepoint by using Welch's method.
+    3) Calculate the raw psd values of every channel for each timepoint by using Welch's method.
 
     4) Normalization variants: calculate different normalized PSD values 
         - normalized to total sum of PSD from each power spectrum
@@ -113,7 +113,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
 
     Depending on normalization variation: 
     
-    5) For each frequency band alpha (), low beta (), high beta (), beta(), gamma() the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
+    5) For each frequency band alpha (8-12 Hz), low beta (13-20 Hz), high beta (21-35 Hz), beta (13-35 Hz), gamma (40-90 Hz) the highest Peak values (frequency and psd) will be seleted and saved in a DataFrame.
 
     6) The raw or noramlized PSD values will be plotted and the figure will be saved as:
         f"\sub{incl_sub}_{hemisphere}_normalizedPsdToTotalSum_seperateTimepoints_{pickChannels}.png"
@@ -124,7 +124,8 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         "rawPsdDataFrame":rawPSDDataFrame,
         "normPsdToTotalSumDataFrame":normToTotalSumPsdDataFrame,
         "normPsdToSum1_100Hz": normToSum1_100Hz,
-        "normPsdToSum40_90Hz":normToSum40_90Hz
+        "normPsdToSum40_90Hz":normToSum40_90Hz,
+        "psdAverage_dict": psdAverage_dict,
         "highestPeakRawPSD": highestPeakRawPsdDF,
     }
 
@@ -149,6 +150,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
     f_normPsdToTotalSum_dict = {}
     f_normPsdToSum1to100Hz_dict = {}
     f_normPsdToSum40to90Hz_dict = {}
+    psdAverage_dict = {}
     highest_peak_dict = {}
 
     # set layout for figures: using the object-oriented interface
@@ -344,7 +346,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
 
                     #################### PEAK DETECTION ####################
 
-                    # depending on what normalization or raw was chosen: define variables for psd accordingly
+                    # depending on what normalization or raw was chosen: define variables for psd, sem and ylabel accordingly
                     if normalization == "rawPsd":
                         chosenPsd = px
                         chosenSem = semRawPsd
@@ -366,7 +368,46 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                         chosen_ylabel = "relative PSD to sum between 40-90 Hz in % +- SEM"
 
 
-                    #################### PEAK DETECTION RAW PSD ####################
+                    #################### PSD AVERAGE OF EACH FREQUENCY BAND DEPENDING ON CHOSEN PSD NORMALIZATION ####################
+                    
+                    # create booleans for each frequency-range for alpha, low beta, high beta, beta and gamma
+                    alpha_frequency = (f >= 8) & (f <= 12) # alpha_range will output a boolean of True values within the alpha range
+                    lowBeta_frequency = (f >= 13) & (f <= 20)
+                    highBeta_frequency = (f >= 21) & (f <= 35)
+                    beta_frequency = (f >= 13) & (f <= 35)
+                    narrowGamma_frequency = (f >= 40) & (f <= 90)
+
+                    # make a list with all boolean masks of each frequency, so I can loop through
+                    range_allFrequencies = [alpha_frequency, lowBeta_frequency, highBeta_frequency, beta_frequency, narrowGamma_frequency]
+
+                    # loop through frequency ranges and get all psd values of each frequency band
+                    for count, boolean in enumerate(range_allFrequencies):
+
+                        frequency = []
+                        if count == 0:
+                            frequency = "alpha"
+                        elif count == 1:
+                            frequency = "lowBeta"
+                        elif count == 2:
+                            frequency = "highBeta"
+                        elif count == 3:
+                            frequency = "beta"
+                        elif count == 4:
+                            frequency = "narrowGamma"
+
+
+                        # get all frequencies and chosen psd values within each frequency range
+                        frequencyInFreqBand = f[range_allFrequencies[count]] # all frequencies within a frequency band
+                        psdInFreqBand = chosenPsd[range_allFrequencies[count]] # all psd values within a frequency band
+
+                        psdAverage = np.mean(psdInFreqBand)
+
+                        # store averaged psd values of each frequency band in a dictionary
+                        psdAverage_dict[f'{tp}_{ch}_psdAverage_{frequency}'] = [tp, ch, frequency, psdAverage]
+
+
+
+                    #################### PEAK DETECTION PSD DEPENDING ON CHOSEN PSD NORMALIZATION ####################
                     # find all peaks: peaks is a tuple -> peaks[0] = index of frequency?, peaks[1] = dictionary with keys("peaks_height") 
                     peaks = scipy.signal.find_peaks(chosenPsd, height=0.1) # height: peaks only above 0.1 will be recognized
 
@@ -374,16 +415,15 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                     if len(peaks) == 0:
                         continue
 
-                    peaks_height = peaks[1]["peak_heights"] # np.arraw of y-value of peaks = power
+                    peaks_height = peaks[1]["peak_heights"] # np.array of y-value of peaks = power
                     peaks_pos = f[peaks[0]] # np.array of indeces on x-axis of peaks = frequency
 
-                    # set the x-range for alpha, low beta and high beta
+                    # set the x-range for each frequency band
                     alpha_range = (peaks_pos >= 8) & (peaks_pos <= 12) # alpha_range will output a boolean of True values within the alpha range
                     lowBeta_range = (peaks_pos >= 13) & (peaks_pos <= 20)
                     highBeta_range = (peaks_pos >= 21) & (peaks_pos <= 35)
                     beta_range = (peaks_pos >= 13) & (peaks_pos <= 35)
                     narrowGamma_range = (peaks_pos >= 40) & (peaks_pos <= 90)
-
 
                     # make a list with all boolean masks of each frequency, so I can loop through
                     frequency_ranges = [alpha_range, lowBeta_range, highBeta_range, beta_range, narrowGamma_range]
@@ -414,16 +454,32 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                         # select only the highest peak within the alpha range
                         highest_peak_height = peaksinfreq_height.max()
 
+                        ######## calculate psd average of +- 2 Hz from highest Peak ########
+                        # 1) find psd values from -2Hz until + 2Hz from highest Peak by slicing and indexing the numpy array of all chosen psd values
+                        peakIndex = np.where(chosenPsd == highest_peak_height) # np.where output is a tuple: index, dtype
+                        peakIndexValue = peakIndex[0].item() # only take the index value of the highest Peak psd value in all chosen psd
+
+                        # 2) go -2 and +3 indeces 
+                        indexlowCutt = peakIndexValue-2
+                        indexhighCutt = peakIndexValue+3   # +3 because the ending index is left out when slicing a numpy array
+
+                        # 3) slice the numpy array of all chosen psd values, only get values from -2 until +2 Hz from highest Peak
+                        psdArray5HzRangeAroundPeak = chosenPsd[indexlowCutt:indexhighCutt] # array only of psd values -2 until +2Hz around Peak = 5 values
+
+                        # 4) Average of 5Hz Array
+                        highest_peak_height_5Hzaverage = np.mean(psdArray5HzRangeAroundPeak)                       
+
+
+
                         # get the index of the highest peak y value to get the corresponding peak position x
                         ix = np.where(peaksinfreq_height == highest_peak_height)
                         highest_peak_pos = peaksinfreq_pos[ix].item()
 
                         # plot only the highest peak within each frequency band
-                        axes[t].scatter(highest_peak_pos, highest_peak_height, color='r', s=15, marker='D')
-
+                        axes[t].scatter(highest_peak_pos, highest_peak_height, s=15, marker='D')
 
                         # store highest peak values of each frequency band in a dictionary
-                        highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [tp, ch, frequency, highest_peak_pos, highest_peak_height]
+                        highest_peak_dict[f'{tp}_{ch}_highestPEAK_{frequency}'] = [tp, ch, frequency, highest_peak_pos, highest_peak_height, highest_peak_height_5Hzaverage]
 
 
 
@@ -478,12 +534,16 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
     normPsdToSum40to90DataFrame.rename(index={0: "session", 1: "bipolarChannel", 2: "frequency", 3: "normPsdToSum40to90Hz", 4: "SEM_normPsdToSum40to90Hz"}, inplace=True) # rename the rows
     normPsdToSum40to90DataFrame = normPsdToSum40to90DataFrame.transpose() # Dataframe with 5 columns and rows for each single power spectrum
 
+    # write DataFrame of averaged psd values in each frequency band depending on the chosen normalization
+    psdAverageDF = pd.DataFrame(psdAverage_dict) # Dataframe with 5 rows and columns for each single power spectrum
+    psdAverageDF.rename(index={0: "session", 1: "bipolarChannel", 2: "frequencyBand", 3: f"averaged{normalization}"}, inplace=True) # rename the rows
+    psdAverageDF = psdAverageDF.transpose() # Dataframe with 4 columns and rows for each single power spectrum
 
 
     # write DataFrame of frequency and psd values of the highest peak in each frequency band
     highestPEAKDF = pd.DataFrame(highest_peak_dict) # Dataframe with 5 rows and columns for each single power spectrum
-    highestPEAKDF.rename(index={0: "session", 1: "bipolarChannel", 2: "frequencyBand", 3: "PEAK_frequency", 4:"PEAK_rawPSD"}, inplace=True) # rename the rows
-    highestPEAKDF = highestPEAKDF.transpose() # Dataframe with 5 columns and rows for each single power spectrum
+    highestPEAKDF.rename(index={0: "session", 1: "bipolarChannel", 2: "frequencyBand", 3: "PEAK_frequency", 4:f"PEAK_{normalization}", 5: "highest_peak_height_5HzAverage"}, inplace=True) # rename the rows
+    highestPEAKDF = highestPEAKDF.transpose() # Dataframe with 6 columns and rows for each single power spectrum
 
 
 
@@ -492,7 +552,8 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         "normPsdToTotalSumDataFrame":normPsdToTotalSumDataFrame,
         "normPsdToSum1to100HzDataFrame":normPsdToSum1to100HzDataFrame,
         "normPsdToSum40to90HzDataFrame":normPsdToSum40to90DataFrame,
-        f"highestPEAK{normalization}": highestPEAKDF
+        f"averaged{normalization}": psdAverageDF,
+        f"highestPEAK{normalization}": highestPEAKDF,
     }
 
 
