@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 
 import PerceiveImport.methods.load_rawfile as load_rawfile
+import PerceiveImport.classes.contact_class as contactclass
 
 import warnings
 
@@ -21,6 +22,7 @@ class taskClass:
         - session: "postop", "fu3m", "fu12m", "fu18m", "fu24m" set in condition_class
         - condition: "m0s0", "m1s0", "m0s1", "m1s1" set in condition_class
         - task: "rest", "tapping", "rota", "updrs", "monopolar" set in condition_class
+        - contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
         - metaClass: all original attributes set in Main_Class
         - meta_table: selected meta_table set in condition_class
 
@@ -39,6 +41,54 @@ class taskClass:
 
 
     def __post_init__(self,):
+
+
+        allowed_contacts = ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
+
+        # continue to next class: Task_Class and set the attribute of the new selection of metaClass
+        for cont in self.metaClass.incl_contact:
+
+            # Error checking: if stim is not in allowed_stimulation -> Error message
+            assert cont.lower() in [c.lower() for c in allowed_contacts], (
+                f'inserted contact ({cont}) should'
+                f' be in {allowed_contacts}'
+            )
+
+            # select out only meta_table for current session
+            sel = [cont.lower() in s.lower() for s in self.meta_table["contacts"]]
+            sel_meta_table = self.meta_table[sel].reset_index(drop=True)
+
+            if len(sel_meta_table) == 0:
+                continue
+
+            # set the task value for each task
+            setattr(
+                self,
+                cont,
+                contactclass.contactClass(
+                    sub=self.sub,
+                    modality=self.modality,
+                    session=self.session,
+                    condition=self.condition,
+                    task=self.task,
+                    contact=cont,
+                    metaClass=self.metaClass,
+                    meta_table=sel_meta_table,
+                )
+            )  
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
         ############ LOAD MATLAB FILES ############
         self.data = {} # keys named after task, values will be the raw data of one perceived .mat file loaded with mne.io.read_raw_fieldtrip

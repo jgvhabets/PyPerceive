@@ -14,6 +14,7 @@ class MetadataClass:
         - incl_timing: a list of timing sessions to include ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
         - incl_cond: a list of conditions to include  ["m0s0", "m1s0", "m0s1", "m1s1"]
         - incl_task: a list of tasks to include ["rest", "tapping", "updrs"]
+        - incl_contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
         - orig_meta_table: original metadata table read with pd.read_excel()
 
     post-initialized parameters:
@@ -28,6 +29,7 @@ class MetadataClass:
     incl_session: list 
     incl_condition: list 
     incl_task: list
+    incl_contact: list
     orig_meta_table: any # pd.DataFrame read with pd.read_excel(), will stay original and won´t be changed
     
 

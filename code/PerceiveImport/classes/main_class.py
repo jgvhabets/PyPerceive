@@ -35,6 +35,7 @@ class PerceiveData:
         - incl_timing: a list of timing sessions to include ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
         - incl_cond: a list of conditions to include  ["m0s0", "m1s0", "m0s1", "m1s1"]
         - incl_task: a list of tasks to include ["rest", "tapping", "rota", "updrs", "monopolar"]
+        - incl_contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
 
     post-initialized parameters:
     
@@ -48,6 +49,7 @@ class PerceiveData:
     incl_session: list = field(default_factory=lambda: ["postop", "fu3m", "fu12m", "fu18m", "fu24m"])
     incl_condition: list = field(default_factory=lambda: ["m0s0", "m1s0", "m0s1", "m1s1"])
     incl_task: list = field(default_factory=lambda: ["rest", "tapping", "rota", "updrs", "monopolar"])
+    incl_contact: list = field(default_factory=lambda: ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"])
 
 
     # note that every defined method contains (self,) don´t forget the comma after self!
@@ -57,7 +59,7 @@ class PerceiveData:
 
         self.perceivedata = find_folder.get_onedrive_path("perceivedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
-        self.meta_table = read_excel_wOut_warning(os.path.join(self.subject_path, f'metadata_{self.sub}.xlsx'), sheet_name="recordingInfo")
+        self.meta_table = read_excel_wOut_warning(os.path.join(self.subject_path, f'metadata_{self.sub}_perceiveFiles.xlsx'), sheet_name="recordingInfo")
         
         
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
@@ -67,6 +69,7 @@ class PerceiveData:
             incl_session = self.incl_session,
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
+            incl_contact = self.incl_contact,
             orig_meta_table = self.meta_table
         )
 
