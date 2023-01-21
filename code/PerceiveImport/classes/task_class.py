@@ -27,6 +27,7 @@ class taskClass:
         - meta_table: selected meta_table set in condition_class
 
     Returns:
+        - sel_meta_table: session selected meta_table 
         - self.data: dictionary,  keys will be named after task, values will be the raw data of one perceived .mat file loaded with mne.io.read_raw_fieldtrip
     
     """
