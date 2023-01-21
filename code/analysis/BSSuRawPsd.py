@@ -87,14 +87,14 @@ mapping = {
 
 
 
-def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, tasks: list, pickChannels: list, hemisphere: str, normalization: str):
+def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_condition: list, incl_contact: list, pickChannels: list, hemisphere: str, normalization: str):
     """
 
     Input: 
         - incl_sub = str e.g. "024"
         - incl_session = list ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
         - incl_condition = list e.g. ["m0s0", "m1s0"]
-        - tasks = list ['RestBSSuRingR', 'RestBSSuSegmInterR', 'RestBSSuSegmIntraR','RestBSSuRingL', 'RestBSSuSegmInterL', 'RestBSSuSegmIntraL']
+        - incl_contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
         - hemisphere: str e.g. "Right"
         - normalization: str "rawPSD", "normPsdToTotalSum", "normPsdToSum1_100Hz", "normPsdToSum40_90Hz"
 
@@ -138,7 +138,8 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
         incl_modalities= ["survey"],
         incl_session = incl_session,
         incl_condition = incl_condition,
-        incl_task = ["rest"]
+        incl_task = ["rest"],
+        incl_contact=incl_contact
         )
 
     
@@ -162,7 +163,7 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
 
         for c, cond in enumerate(incl_condition):
 
-            for tk, task in enumerate(tasks): 
+            for cont, contact in enumerate(incl_contact): 
                 # tk is indexing task, task is the input task
 
                 # avoid Attribute Error, continue if attribute doesn´t exist
@@ -185,7 +186,8 @@ def welch_rawPsd_seperateTimepoints(incl_sub: str, incl_session: list, incl_cond
                 #     continue
 
                 temp_data = getattr(temp_data, cond) # gets attribute e.g. "m0s0"
-                temp_data = temp_data.rest.data[tasks[tk]] # gets the mne loaded data from the perceive .mat BSSu, m0s0 file with task "RestBSSuRingR"
+                temp_data = getattr(temp_data.rest, contact)
+                temp_data = temp_data.data[incl_contact[cont]] # gets the mne loaded data from the perceive .mat BSSu, m0s0 file with task "RestBSSuRingR"
     
                 print("DATA", temp_data)
 
