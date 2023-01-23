@@ -25,7 +25,7 @@ def get_onedrive_path(
     """
     Device and OS independent function to find
     the synced-OneDrive folder where data is stored
-    Folder has to be in ['onedrive', 'Percept_Data_PyPerceive', 'perceivedata', 'results']
+    Folder has to be in ['onedrive', 'Percept_Data_structured', 'perceivedata', 'results']
     """
 
     folder_options = [
@@ -55,7 +55,7 @@ def get_onedrive_path(
 
 
     # add the folder DATA-Test to the path and from there open the folders depending on input folder
-    datapath = os.path.join(path, 'Percept_Data_PyPerceive')
+    datapath = os.path.join(path, 'Percept_Data_structured')
     if folder == 'onedrive': 
         return datapath
 
