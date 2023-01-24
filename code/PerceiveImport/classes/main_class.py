@@ -57,7 +57,7 @@ class PerceiveData:
         
         allowed_modalities = ["survey", "streaming", "timeline", "indefiniteStreaming"] # this shows allowed values for incl_modalities
 
-        self.perceivedata = find_folder.get_onedrive_path("perceivedata")
+        self.perceivedata = find_folder.get_onedrive_path("sourcedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
         self.meta_table = read_excel_wOut_warning(os.path.join(self.subject_path, f'metadata_{self.sub}_perceiveFiles.xlsx'), sheet_name="recordingInfo")
         

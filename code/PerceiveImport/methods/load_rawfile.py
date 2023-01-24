@@ -34,8 +34,8 @@ def load_matfile(sub: str, filename: str):
     )
 
     # find the path to the raw_perceive folder of a subject
-    datapath = find_folder.get_onedrive_path("perceivedata")
-    datapath = join(datapath, f'sub-{sub}', 'raw_perceive')
+    datapath = find_folder.get_onedrive_path("sourcedata")
+    datapath = join(datapath, f'sub-{sub}')
     
     data = read_raw_fieldtrip(
         join(datapath, filename),
@@ -72,8 +72,8 @@ def load_sourceJSON(sub: str, filename: str):
 
 
     # find the path to the raw_perceive folder of a subject
-    datapath = find_folder.get_onedrive_path("perceivedata")
-    json_path = join(datapath, f'sub-{sub}', 'raw_jsons') # path to raw_jsons folder
+    datapath = find_folder.get_onedrive_path("sourcedata")
+    json_path = join(datapath, f'sub-{sub}') # same path as to perceive files, all in sourcedata folder
 
     # fname = os.listdir(json_path)[0] # first filename of all JSON files in that folder
 

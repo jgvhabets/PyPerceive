@@ -25,11 +25,11 @@ def get_onedrive_path(
     """
     Device and OS independent function to find
     the synced-OneDrive folder where data is stored
-    Folder has to be in ['onedrive', 'Percept_Data_structured', 'perceivedata', 'results']
+    Folder has to be in ['onedrive', 'Percept_Data_structured', 'sourcedata']
     """
 
     folder_options = [
-        'onedrive', 'perceivedata', 'results', 'raw_perceive'
+        'onedrive', 'sourcedata'
         ]
 
     # Error checking, if folder input is in folder options
@@ -59,14 +59,14 @@ def get_onedrive_path(
     if folder == 'onedrive': 
         return datapath
 
-    elif folder == 'perceivedata':
-        return os.path.join(datapath, 'perceivedata')
+    elif folder == 'sourcedata':
+        return os.path.join(datapath, 'sourcedata')
 
-    elif folder == 'results': # must be data or figures
-        return os.path.join(datapath, 'results')
+    # elif folder == 'results': # must be data or figures
+    #     return os.path.join(datapath, 'results')
     
-    elif folder == "raw_perceive": # containing all relevant perceive .mat files
-        return os.path.join(datapath, "perceivedata", f"sub-{sub}", "raw_perceive")
+    # elif folder == "raw_perceive": # containing all relevant perceive .mat files
+    #     return os.path.join(datapath, "sourcedata", f"sub-{sub}", "raw_perceive")
 
 
 def get_local_path(folder: str, sub: str = None):
