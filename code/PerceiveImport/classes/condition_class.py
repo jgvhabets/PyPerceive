@@ -33,6 +33,7 @@ class conditionClass:
     condition: str
     metaClass: any
     meta_table: pd.DataFrame
+    import_json: bool = False
 
 
     def __post_init__(self,):
@@ -67,5 +68,6 @@ class conditionClass:
                     task=task,
                     metaClass=self.metaClass,
                     meta_table=sel_meta_table,
+                    import_json = self.import_json
                 )
             )  

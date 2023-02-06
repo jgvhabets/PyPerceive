@@ -29,8 +29,13 @@ class Modality:
     modality: str   # input from MainClass: copy from the metaclass from Mainclass
     metaClass: any
     meta_table: pd.DataFrame
-    
+    import_json: bool = False
+
     def __post_init__(self,):
+
+        # remove contact column for streaming recordings, to prevent NaN-row-removal
+        if self.modality == 'streaming':
+            self.meta_table = self.meta_table.drop(['contacts'], axis=1)
 
         allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
 
@@ -51,7 +56,7 @@ class Modality:
             if ses.lower() not in [s.lower() for s in session_list]:
                 
                 print(
-                    f'inserted session ({ses}) can not be found in the metadata table'
+                    f'inserted session ({ses}, {self.modality}) can not be found in the metadata table'
                 )
             
             else:
@@ -73,10 +78,7 @@ class Modality:
                         session=ses,
                         metaClass=self.metaClass,
                         meta_table=sel_meta_table,
+                        import_json = self.import_json
                     )
                 )  
-
-
-    def __str__(self,):
-        return f'The recModality Class will select all .mat files of the subject {self.sub} and the BrainSense recording modality {self.modality}.'
     

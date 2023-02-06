@@ -43,7 +43,6 @@ def load_matfile(sub: str, filename: str):
         data_name='data',  # name of heading dict/ variable of original MATLAB object
     )
     
-    
     return data
 
 

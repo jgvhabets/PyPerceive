@@ -50,7 +50,8 @@ class PerceiveData:
     incl_condition: list = field(default_factory=lambda: ["m0s0", "m1s0", "m0s1", "m1s1"])
     incl_task: list = field(default_factory=lambda: ["rest", "tapping", "rota", "updrs", "monopolar"])
     incl_contact: list = field(default_factory=lambda: ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"])
-
+    import_json: bool = False
+    warn_for_metaNaNs: bool = True
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
@@ -68,8 +69,8 @@ class PerceiveData:
         )
         # clean rows with NaNs in MetaData Table
         self.meta_table = metaHelp.clean_metadata_nanRows(
-            table=self.meta_table, warn=True, sub=self.sub
-        ) 
+            table=self.meta_table, warn=self.warn_for_metaNaNs, sub=self.sub
+        )
         
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
@@ -79,7 +80,7 @@ class PerceiveData:
             incl_condition = self.incl_condition,
             incl_task = self.incl_task,
             incl_contact = self.incl_contact,
-            orig_meta_table = self.meta_table
+            orig_meta_table = self.meta_table,
         )
 
         # loop through every modality input in the incl_modalities list 
@@ -114,7 +115,8 @@ class PerceiveData:
                     sub=self.sub,
                     modality=mod,
                     metaClass=self.metaClass,
-                    meta_table=sel_meta_table)
+                    meta_table=sel_meta_table,
+                    import_json=self.import_json)
             )
             
 

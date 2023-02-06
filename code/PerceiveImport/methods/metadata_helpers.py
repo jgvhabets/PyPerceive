@@ -22,8 +22,14 @@ def read_excel_wOut_warning(path: str, sheet_name: None):
 
 
 def clean_metadata_nanRows(
-    table: pd.DataFrame, warn = False, sub = None):
+    table: pd.DataFrame, warn = False, sub = None
+):
 
+    # first delete incorrect empty columns
+    empty_cols = [col for col in table.keys() if 'Unnamed' in col]
+    table = table.drop(empty_cols, axis=1)
+
+    # then delete rows containing NaNs
     nan_rows = [
         pd.isna(table.iloc[row]).any()
         for row in range(table.shape[0])
