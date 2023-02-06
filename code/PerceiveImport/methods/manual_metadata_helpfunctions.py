@@ -1,5 +1,7 @@
-""" main function to upload and filter a metadata Dataframe and output a selection of paths to .mat files"""
-
+"""
+Helpers functions for manual tracking and
+adjusting .mat files and metadata
+"""
 # import packages
 import os 
 
@@ -20,7 +22,6 @@ def perceiveFilename_path_toExcel(sub):
     """ perceiveFilename_path_Excel() method:
     This method saves all matfiles with corresponding paths from a chosen subject (e.g. "021) to a new Excel sheet.
     Choose the recording modality ("rec_modality" = "Streaming", "Survey", "Timeline").
-
     The matfilenames and corresponding paths will be inserted in the same row.
     The 'metadata_{sub}_perceiveFilename_path.xlsx' file be saved.
     
@@ -155,4 +156,3 @@ def load_mne_path(matpath_selection):
             )
     
     return data
-
