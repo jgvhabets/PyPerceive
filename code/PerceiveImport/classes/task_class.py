@@ -43,21 +43,41 @@ class taskClass:
 
     def __post_init__(self,):
 
-
         allowed_contacts = ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
 
         # continue to next class: Task_Class and set the attribute of the new selection of metaClass
         for cont in self.metaClass.incl_contact:
+            
+            if pd.isna(cont):
+                print(f'SKIP NAN {cont}')
+                continue
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
             assert cont.lower() in [c.lower() for c in allowed_contacts], (
                 f'inserted contact ({cont}) should'
                 f' be in {allowed_contacts}'
             )
+            # # check, warn, and correct for missing data in metadata table
+            # if pd.isna(self.meta_table["contacts"]).any():
+            #     print(
+            #         '\n\n\t##### WARNING #####\n\t'
+            #         'missing contact-values in metadata-table: '
+            #         f'{self.sub}, {self.modality}, {self.session},'
+            #         f' {self.condition}, {self.task}'
+            #         '\n\t###################\n\n'
+            #     )
+            #     nan_sel = pd.isna(self.meta_table["contacts"])
+            #     self.meta_table = self.meta_table[~nan_sel]
+
 
             # select out only meta_table for current session
             sel = [cont.lower() in s.lower() for s in self.meta_table["contacts"]]
             sel_meta_table = self.meta_table[sel].reset_index(drop=True)
+            
+            # print(self.metaClass.incl_contact)
+            # print(vars(self.metaClass).keys())
+            # print(self.sub, self.modality, self.session, self.condition, self.task)
+
 
             if len(sel_meta_table) == 0:
                 continue

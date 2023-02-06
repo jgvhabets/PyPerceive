@@ -55,13 +55,6 @@ class contactClass:
             # .data[dict_name] loading only one file based on the row is selected 'task'
             self.data[dict_name] = load_rawfile.load_matfile(self.sub, fname) # load with mne.read_raw_fieldtrip()
 
-            # KeyError exception:
-            # try: 
-            #     self.task in self.data.keys()
-            
-            # except KeyError:
-            #     coninue
-
             print('LOADED', fname)
 
         

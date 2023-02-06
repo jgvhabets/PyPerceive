@@ -51,8 +51,7 @@ class Modality:
             if ses.lower() not in [s.lower() for s in session_list]:
                 
                 print(
-                    f'inserted session ({ses}) has not been recorded'
-                    f' and can not be found in the metadata'
+                    f'inserted session ({ses}) can not be found in the metadata table'
                 )
             
             else:

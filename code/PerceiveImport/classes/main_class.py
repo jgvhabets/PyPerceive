@@ -3,12 +3,12 @@
 # import packages
 import os 
 from dataclasses import dataclass, field
-
 import pandas as pd
-import copy
+from numpy import array
 
 # import self-created packages
 import PerceiveImport.methods.find_folders as find_folder
+import PerceiveImport.methods.metadata_helpers as metaHelp
 import PerceiveImport.classes.metadata_class as metadata
 import PerceiveImport.classes.modality_class as modalityClass
 
@@ -59,8 +59,17 @@ class PerceiveData:
 
         self.perceivedata = find_folder.get_onedrive_path("sourcedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
-        self.meta_table = read_excel_wOut_warning(os.path.join(self.subject_path, f'metadata_{self.sub}_perceiveFiles.xlsx'), sheet_name="recordingInfo")
-        
+        self.meta_table = metaHelp.read_excel_wOut_warning(
+            os.path.join(
+                self.subject_path,
+                f'metadata_{self.sub}_perceiveFiles.xlsx'
+            ),
+            sheet_name="recordingInfo"
+        )
+        # clean rows with NaNs in MetaData Table
+        self.meta_table = metaHelp.clean_metadata_nanRows(
+            table=self.meta_table, warn=True, sub=self.sub
+        ) 
         
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
