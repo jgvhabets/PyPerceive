@@ -38,7 +38,7 @@ class conditionClass:
 
     def __post_init__(self,):
 
-        allowed_tasks = ["rest", "tapping", "rota", "updrs", "monopolar"]
+        allowed_tasks = ["rest", "fingerTap", "fingerTapLeftHand", "fingerTapRightHand", "rota", "updrs", "WalkingMoveArt", "ChangingPositionMoveArt", "HeadMovementsMoveArt", "ArmMovementsMoveArt"]
 
         # continue to next class: Task_Class and set the attribute of the new selection of metaClass
         for task in self.metaClass.incl_task:

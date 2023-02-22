@@ -36,6 +36,10 @@ class Modality:
         # remove contact column for streaming recordings, to prevent NaN-row-removal
         if self.modality == 'streaming':
             self.meta_table = self.meta_table.drop(['contacts'], axis=1)
+        
+        # remove contact column for streaming recordings, to prevent NaN-row-removal
+        elif self.modality == 'indefinitestreaming':
+            self.meta_table = self.meta_table.drop(['contacts'], axis=1)
 
         allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
 

@@ -34,7 +34,7 @@ class PerceiveData:
         - incl_modalities: a list of recording modalities to include ["survey", "streaming", "timeline", "indefiniteStreaming"] 
         - incl_timing: a list of timing sessions to include ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
         - incl_cond: a list of conditions to include  ["m0s0", "m1s0", "m0s1", "m1s1"]
-        - incl_task: a list of tasks to include ["rest", "tapping", "rota", "updrs", "monopolar"]
+        - incl_task: a list of tasks to include ["rest", "fingerTap", "fingerTapLeftHand", "fingerTapRightHand", "rota", "updrs", "WalkingMoveArt", "ChangingPositionMoveArt", "HeadMovementsMoveArt", "ArmMovementsMoveArt"]
         - incl_contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
 
     post-initialized parameters:
@@ -48,7 +48,7 @@ class PerceiveData:
     incl_modalities: list = field(default_factory=lambda: ["survey", "streaming", "timeline", "indefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
     incl_session: list = field(default_factory=lambda: ["postop", "fu3m", "fu12m", "fu18m", "fu24m"])
     incl_condition: list = field(default_factory=lambda: ["m0s0", "m1s0", "m0s1", "m1s1"])
-    incl_task: list = field(default_factory=lambda: ["rest", "tapping", "rota", "updrs", "monopolar"])
+    incl_task: list = field(default_factory=lambda: ["rest", "fingerTap", "fingerTapLeftHand", "fingerTapRightHand", "rota", "updrs", "WalkingMoveArt", "ChangingPositionMoveArt", "HeadMovementsMoveArt", "ArmMovementsMoveArt"])
     incl_contact: list = field(default_factory=lambda: ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"])
     import_json: bool = False
     warn_for_metaNaNs: bool = True
