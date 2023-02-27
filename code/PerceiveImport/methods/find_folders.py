@@ -55,18 +55,22 @@ def get_onedrive_path(
 
 
     # add the folder DATA-Test to the path and from there open the folders depending on input folder
-    datapath = os.path.join(path, 'Percept_Data_structured')
-    if folder == 'onedrive': 
-        return datapath
+    path = os.path.join(path, 'Percept_Data_structured')
+    if folder == 'onedrive':
+
+        assert os.path.exists(path), f'wanted path ({path}) not found'
+        
+        return path
 
     elif folder == 'sourcedata':
-        return os.path.join(datapath, 'sourcedata')
 
-    # elif folder == 'results': # must be data or figures
-    #     return os.path.join(datapath, 'results')
-    
-    # elif folder == "raw_perceive": # containing all relevant perceive .mat files
-    #     return os.path.join(datapath, "sourcedata", f"sub-{sub}", "raw_perceive")
+        path = os.path.join(path, 'sourcedata')
+        if sub: path = os.path.join(path, f'sub-{sub}')
+
+        assert os.path.exists(path), f'wanted path ({path}) not found'
+            
+        return path
+
 
 
 def get_local_path(folder: str, sub: str = None):

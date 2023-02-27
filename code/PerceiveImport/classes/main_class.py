@@ -11,6 +11,7 @@ import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.methods.metadata_helpers as metaHelp
 import PerceiveImport.classes.metadata_class as metadata
 import PerceiveImport.classes.modality_class as modalityClass
+import PerceiveImport.classes.chronic_class as chronic_class
 
 
 import warnings
@@ -56,7 +57,7 @@ class PerceiveData:
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
         
-        allowed_modalities = ["survey", "streaming", "timeline", "indefiniteStreaming"] # this shows allowed values for incl_modalities
+        allowed_modalities = ["survey", "streaming", "chronic", "indefiniteStreaming"] # this shows allowed values for incl_modalities
 
         self.perceivedata = find_folder.get_onedrive_path("sourcedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
@@ -95,7 +96,7 @@ class PerceiveData:
             modality_abbreviations_dict = {
                 "survey": "LMTD",
                 "streaming": "BrainSense", 
-                "timeline": "CHRONIC",
+                "chronic": "CHRONIC",
                 "indefiniteStreaming": "IS"
             }
 
@@ -108,15 +109,26 @@ class PerceiveData:
             if len(sel_meta_table) == 0:
                 continue
 
-            setattr(
-                self, 
-                mod, 
-                modalityClass.Modality(
-                    sub=self.sub,
-                    modality=mod,
-                    metaClass=self.metaClass,
-                    meta_table=sel_meta_table,
-                    import_json=self.import_json)
-            )
-            
+            if mod != 'chronic':
+                setattr(
+                    self, 
+                    mod, 
+                    modalityClass.Modality(
+                        sub=self.sub,
+                        modality=mod,
+                        metaClass=self.metaClass,
+                        meta_table=sel_meta_table,
+                        import_json=self.import_json)
+                )
 
+            if mod == 'chronic':
+                
+                setattr(
+                    self, 
+                    mod, 
+                    chronic_class.Chronic(
+                        sub=self.sub,
+                        metaClass=self.metaClass,
+                        meta_table=sel_meta_table,
+                        import_json=self.import_json)
+                )

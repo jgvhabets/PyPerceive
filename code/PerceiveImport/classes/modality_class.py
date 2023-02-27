@@ -49,7 +49,7 @@ class Modality:
         # loop through every session input in the incl_session list 
         # and set the session value for each session
         # only used in assertion to check if defined sessions are in meta_table
-        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
+
         session_list = self.meta_table['session'].unique().tolist() # list of the existing sessions in metadata column "session"
 
         for ses in self.metaClass.incl_session:
