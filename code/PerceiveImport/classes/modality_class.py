@@ -37,10 +37,12 @@ class Modality:
         # , to prevent incorrect NaN-row-removal
         if self.modality == 'streaming':
             self.meta_table = self.meta_table.drop(['contacts'], axis=1)
+        
+        # remove contact column for streaming recordings, to prevent NaN-row-removal
+        elif self.modality == 'indefinitestreaming':
+            self.meta_table = self.meta_table.drop(['contacts'], axis=1)
 
-        # CONSIDER DIFFERENT FLOW FOR CHRONIC/TIMELINE DATA FROM HERE;
-        # since chronic not will always (?) be a cumulation of all collected chronic samples
-        # create dataframe directly to run? 
+        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu20m", "fu22m", "fu23m", "fu24m"]
 
 
         # for STREAMING OR SURVEY

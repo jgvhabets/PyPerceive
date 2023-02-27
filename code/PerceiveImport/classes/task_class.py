@@ -19,7 +19,7 @@ class taskClass:
         - modality: "survey", "streaming", "timeline", "indefiniteStreaming" set in condition_class
         - session: "postop", "fu3m", "fu12m", "fu18m", "fu24m" set in condition_class
         - condition: "m0s0", "m1s0", "m0s1", "m1s1" set in condition_class
-        - task: "rest", "tapping", "rota", "updrs", "monopolar" set in condition_class
+        - task: "rest", "fingerTap", "rota", "updrs", "monopolar" set in condition_class
         - contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
         - metaClass: all original attributes set in Main_Class
         - meta_table: selected meta_table set in condition_class
@@ -49,7 +49,7 @@ class taskClass:
                 "RingL", "SegmIntraL", "SegmInterL", 
             ]
 
-            # continue to next class: Task_Class and set the attribute of the new selection of metaClass
+            # continue to next class: Contact_Class and set the attribute of the new selection of metaClass
             for cont in self.metaClass.incl_contact:
 
                 # Error checking: if stim is not in allowed_stimulation -> Error message
@@ -81,7 +81,40 @@ class taskClass:
                     )
                 )  
 
+        # for "streaming" modality skip Contact class and go directly to Run_Class
         elif self.modality.lower() == 'streaming':
+            
+            # loop over available runs
+            runs = unique(self.meta_table['run'])
+
+            for run_n in runs:
+                
+                # select out only meta_table for current session
+                sel = [run_n == s for s in self.meta_table["run"]]
+                sel_meta_table = self.meta_table[sel].reset_index(drop=True)
+
+                if len(sel_meta_table) == 0:
+                    continue
+
+                setattr(
+                    self,
+                    f'run{run_n}',
+                    runClass(
+                        sub=self.sub,
+                        modality=self.modality,
+                        session=self.session,
+                        condition=self.condition,
+                        task=self.task,
+                        run=run_n,
+                        metaClass=self.metaClass,
+                        meta_table=sel_meta_table,
+                        import_json = self.import_json
+                    )
+                )
+
+
+        # for "indefiniteStreaming" modality skip Contact class and go directly to Run_Class
+        elif self.modality.lower() == 'indefinitestreaming':
             
             # loop over available runs
             runs = unique(self.meta_table['run'])
