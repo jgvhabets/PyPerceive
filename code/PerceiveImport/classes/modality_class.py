@@ -33,16 +33,21 @@ class Modality:
 
     def __post_init__(self,):
 
-        # remove contact column for streaming recordings, to prevent NaN-row-removal
+        # remove contact column from metadata (not relevant for streaming recordings)
+        # , to prevent incorrect NaN-row-removal
         if self.modality == 'streaming':
             self.meta_table = self.meta_table.drop(['contacts'], axis=1)
 
-        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
+        # CONSIDER DIFFERENT FLOW FOR CHRONIC/TIMELINE DATA FROM HERE;
+        # since chronic not will always (?) be a cumulation of all collected chronic samples
+        # create dataframe directly to run? 
 
-        
+
+        # for STREAMING OR SURVEY
         # loop through every session input in the incl_session list 
         # and set the session value for each session
         # only used in assertion to check if defined sessions are in meta_table
+        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
         session_list = self.meta_table['session'].unique().tolist() # list of the existing sessions in metadata column "session"
 
         for ses in self.metaClass.incl_session:
@@ -54,13 +59,12 @@ class Modality:
 
             #Error checking: is sessionInput in session_list of Metadata?
             if ses.lower() not in [s.lower() for s in session_list]:
-                
+
                 print(
                     f'inserted session ({ses}, {self.modality}) can not be found in the metadata table'
                 )
             
             else:
-
                 # select out only meta_table for current session
                 sel = [ses.lower() == s.lower() for s in self.meta_table["session"]]
                 sel_meta_table = self.meta_table[sel].reset_index(drop=True)
