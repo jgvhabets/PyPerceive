@@ -41,7 +41,7 @@ class Modality:
         elif self.modality == 'indefinitestreaming':
             self.meta_table = self.meta_table.drop(['contacts'], axis=1)
 
-        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu24m"]
+        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu20m", "fu22m", "fu24m"]
 
         
         # loop through every session input in the incl_session list 
