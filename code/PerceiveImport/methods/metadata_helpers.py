@@ -18,7 +18,7 @@ def read_excel_wOut_warning(path: str, sheet_name: None):
     bceause of Excel-Dropdown menus
     """
     warnings.simplefilter(action='ignore', category=UserWarning)
-    return pd.read_excel(path, sheet_name=sheet_name)
+    return pd.read_excel(path, sheet_name=sheet_name, converters={"run": str}) # column run integers should be converted to strings
 
 
 def clean_metadata_nanRows(
