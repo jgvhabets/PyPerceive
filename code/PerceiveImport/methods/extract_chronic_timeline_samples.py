@@ -8,8 +8,105 @@ from chronic BrainSense Timeline recordings
 
 # import functions
 import json
+from numpy import array
+from pandas import DataFrame, concat
 
 from PerceiveImport.methods.load_rawfile import load_sourceJSON
+from PerceiveImport.methods import timezone_handling
+
+
+def extract_chronic_from_JSON_list(
+    sub, json_files,
+    # chron_df=None
+):
+    """
+    create one dataframe with chronic Percept data
+    from one subject based on a list of json file (data needs
+    to be stored structurally for load_source_JSON() within
+    extract_chronic_from_json())
+
+    Input:
+        - sub (str)
+        - json_files (list)
+        # - chron_df: optionally dataframe to add to
+    
+    Returns:
+        - chron_df: DataFrame with all data, index is utc_time,
+            columns are local_time, PSD, freq, contact, group_name,
+            and stim_amp for all available sensed samples per side
+    """
+    # if not isinstance(chron_df, pd.DataFrame):
+    chronic_df_columns = ['local_time', 'PSD', 'freq',
+                            'contact', 'group_name', 'stim_amp']
+    # create columns names for dataframes
+    chron_cols = {}
+    chron_cols['Left'] = chronic_df_columns[:1]+ [f'{c}_Left' for c in chronic_df_columns[1:]]
+    chron_cols['Right'] = chronic_df_columns[:1]+ [f'{c}_Right' for c in chronic_df_columns[1:]]
+    chron_cols['All'] = chronic_df_columns[:1] + chron_cols['Left'][1:] + chron_cols['Right'][1:]
+
+    # create empty base chronic dataframe
+    chron_df = create_empty_chronic_df(chronic_df_columns)
+
+    for file in json_files:
+        # get dicts (Left/right) with values extracted from every json-file
+        try:
+            (sense_settings,
+             peak_times,
+             peak_values,
+             peak_stimAmps
+            ) = extract_chronic_from_json(sub, file)
+        except:
+            print(f'{file} FAILED')
+        
+        # convert values into temp-DataFrame
+        for side in ['Left', 'Right']:
+            values = []
+            if len(peak_times[side]) == 0: continue  # skip sides without recordings
+            for i, t in enumerate(peak_times[side]):
+                # loop over every row with values and per row to list
+                values.append([
+                    t,  # TODO: convert to local timezone from utc 
+                    peak_values[side][i],
+                    sense_settings[side]['freq'],
+                    sense_settings[side]['contacts'],
+                    sense_settings[side]['group_name'],
+                    peak_stimAmps[side][i]
+                ])
+            values = array(values)  # convert all rows into array for DataFrame creation
+            file_df = DataFrame(data=values,
+                            columns=chron_cols[side],
+                            index=peak_times[side])
+            file_df.index.name='utc_time'  # set index name
+            # APPEND DATAFRAME FROM FILE TO OVERALL CHRONIC DATAFRAME
+            idx_present = [new_i in chron_df.index for new_i in file_df.index]
+            # add values with present index to existing rows with same indices
+            chron_df.loc[file_df.index[idx_present],
+                         chron_cols[side]] = file_df.values[idx_present]
+            # add values with new indices (if present)
+            if sum(~array(idx_present)) > 0:
+                chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
+            
+            print(chron_df.shape)
+    
+    # correct timezone timestamps at end
+    local_times = timezone_handling.convert_times_to_local(chron_df.index)
+    chron_df['local_time'] = local_times
+
+    return chron_df
+
+
+
+def create_empty_chronic_df(chronic_df_columns):
+    chron_cols = {}
+    chron_cols['Left'] = chronic_df_columns[:1]+ [f'{c}_Left' for c in chronic_df_columns[1:]]
+    chron_cols['Right'] = chronic_df_columns[:1]+ [f'{c}_Right' for c in chronic_df_columns[1:]]
+    chron_cols['All'] = chronic_df_columns[:1] + chron_cols['Left'][1:] + chron_cols['Right'][1:]
+
+    chron = DataFrame(columns=chron_cols['All'],)
+    chron.index.name='utc_time'
+
+    return chron
+
 
 def extract_chronic_from_json(
     sub, json_filename
@@ -25,8 +122,14 @@ def extract_chronic_from_json(
             to extract from
     
     Returns:
-        - df: pd dataframe containing times, LFP_left,
-            freq_left, lfp_right, freq_right
+        - sense_settings: dict with ['Left', 'Right'], if available,
+            Left is dict with ['freq', 'contacts', 'group_name'];
+        - peak_times: dict with ['Left', 'Right'], if available,
+            Left is list with string-timestamps;
+        - peak_values: dict with ['Left', 'Right'], if available,
+            Left is list with power values;
+        - peak_stimAmps: dict with ['Left', 'Right'], if available,
+            Left is list with stim amplitude in mA
     """
     # load json-data
     dat = load_sourceJSON(sub, json_filename)
@@ -36,9 +139,10 @@ def extract_chronic_from_json(
 
     # get frequency, contact, groupname
     sense_settings = get_sensing_freq_and_contacts(dat)
-    print(sense_settings)
+    print(json_filename)
+    print(peak_times)
 
-    return peak_times, peak_values, peak_stimAmps
+    return sense_settings, peak_times, peak_values, peak_stimAmps
 
 def get_chronic_LFPs_and_Times(
     dat
@@ -80,7 +184,7 @@ def get_chronic_LFPs_and_Times(
         
         # loop over present sessions
         for k in hemi.keys():
-            print(f'Add session {k} from {side} hemisphere')
+            print(f'\nAdd session {k} from {side} hemisphere')
         
             # loop over present samples
             for sample in hemi[k]:
@@ -140,7 +244,8 @@ def get_sensing_freq_and_contacts(dat):
                                           'group_name': act_group_name}
         
     else:
-        print('\n\tNo SensingChannel in active group')
+        print('\n\t### WARNING ###\n\tNo SensingChannel in active group'
+              ', sensing info from NON-ACTIVE group is taken')
 
         # search for sensing channel in other groups
         # here the user should know that the Medtronic-

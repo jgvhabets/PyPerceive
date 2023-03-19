@@ -4,13 +4,13 @@ from dataclasses import dataclass
 import os
 
 import pandas as pd
+from numpy import array
 import warnings
 
 # import own functions
 import PerceiveImport.methods.load_rawfile as load_rawfile
-from PerceiveImport.methods.ch_renaming import custom_mne_renaming
-import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.session_class as sesClass
+from PerceiveImport.methods.extract_chronic_timeline_samples import extract_chronic_from_JSON_list
+
 
 
 @dataclass (init=True, repr=True)
@@ -35,31 +35,34 @@ class Chronic:
     sub: str
     metaClass: any
     meta_table: pd.DataFrame
-    import_json: bool = False
+    use_json_file: bool = True
+    use_mat_file: bool = False
 
     def __post_init__(self,):
         
         # suppress RuntimeWarning
         warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
-        matfiles = self.meta_table['perceiveFilename']
-        jsonfiles = self.meta_table['report']
+        mat_files = self.meta_table['perceiveFilename']
+        json_files = self.meta_table['report']
+        setattr(self, 'json_files_list', json_files)
 
-        for matfile, jsonfile in zip(matfiles, jsonfiles):
-
-            # print(mfile)
-
-            try:
-                # load with mne.read_raw_fieldtrip()
-                mne_raw = load_rawfile.load_matfile(self.sub, matfile)
-                print(mne_raw)
-
-            except:
-                print(f'{matfile} FAILED')
+        # import json (direct Percept output) if defined
+        if self.use_json_file:
+            # add content of all jsons
+            chronic_df = extract_chronic_from_JSON_list(self.sub, json_files)
             
-            try:
-                json_raw = load_rawfile.load_sourceJSON(self.sub, jsonfile)
-                print(jsonfile)
-            except:
-                print(f'{jsonfile} FAILED')
-            
+            setattr(self, 'data', chronic_df)  
+
+        # import mat-file (result of Perceive) if defined
+        elif self.use_mat_file:
+            for matfile in mat_files:
+                try:
+                    # load with mne.read_raw_fieldtrip()
+                    mne_raw = load_rawfile.load_matfile(self.sub, matfile)
+                    print(mne_raw)
+
+                except:
+                    print(f'{matfile} FAILED')
+
+

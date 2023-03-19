@@ -4,7 +4,7 @@ loading the selection of raw files
     - .json files loaded with json.loads()
  """
 
-from os.path import join
+from os.path import join, exists
 from mne.io import read_raw_fieldtrip
 import json
 
@@ -74,11 +74,24 @@ def load_sourceJSON(sub: str, filename: str):
     datapath = find_folder.get_onedrive_path("sourcedata")
     json_path = join(datapath, f'sub-{sub}') # same path as to perceive files, all in sourcedata folder
 
-    # fname = os.listdir(json_path)[0] # first filename of all JSON files in that folder
-
-    with open(join(json_path, filename), 'r') as f:
-        json_object = json.loads(f.read())
-
+    if exists(join(json_path, filename)):
+        with open(join(json_path, filename), 'r') as f:
+            json_object = json.loads(f.read())
+    
+    elif exists(join(json_path, 'raw_jsons', filename)):
+        with open(join(json_path,'raw_jsons', filename), 'r') as f:
+            json_object = json.loads(f.read())
+    
+    else:
+        raise ValueError(f'JSON file ({filename}) not found '
+                         f'in {json_path}, and "raw_jsons" folder')
+    
 
     return json_object
-        
+    
+
+
+# #LFPMontage (sSurvey) is list with 30 sensed events -> different Survey Configs
+# # plot PSD
+# plt.plot(dat['LFPMontage'][2]['LFPFrequency'],
+#          dat['LFPMontage'][2]['LFPMagnitude'])

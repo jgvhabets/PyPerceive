@@ -53,6 +53,7 @@ class PerceiveData:
     incl_contact: list = field(default_factory=lambda: ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"])
     import_json: bool = False
     warn_for_metaNaNs: bool = True
+    use_chronic_json_file: bool = True
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
@@ -121,7 +122,7 @@ class PerceiveData:
                         import_json=self.import_json)
                 )
 
-            if mod == 'chronic':
+            elif mod == 'chronic':
                 
                 setattr(
                     self, 
@@ -130,5 +131,5 @@ class PerceiveData:
                         sub=self.sub,
                         metaClass=self.metaClass,
                         meta_table=sel_meta_table,
-                        import_json=self.import_json)
+                        use_json_file=self.use_chronic_json_file)
                 )
