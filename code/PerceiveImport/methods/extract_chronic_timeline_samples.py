@@ -8,17 +8,14 @@ from chronic BrainSense Timeline recordings
 
 # import functions
 import json
-from numpy import array
-from pandas import DataFrame, concat
+from numpy import array, nan
+from pandas import DataFrame, concat, isna
 
 from PerceiveImport.methods.load_rawfile import load_sourceJSON
 from PerceiveImport.methods import timezone_handling
 
 
-def extract_chronic_from_JSON_list(
-    sub, json_files,
-    # chron_df=None
-):
+def extract_chronic_from_JSON_list(sub, json_files,):
     """
     create one dataframe with chronic Percept data
     from one subject based on a list of json file (data needs
@@ -40,8 +37,8 @@ def extract_chronic_from_JSON_list(
                             'contact', 'group_name', 'stim_amp']
     # create columns names for dataframes
     chron_cols = {}
-    chron_cols['Left'] = chronic_df_columns[:1]+ [f'{c}_Left' for c in chronic_df_columns[1:]]
-    chron_cols['Right'] = chronic_df_columns[:1]+ [f'{c}_Right' for c in chronic_df_columns[1:]]
+    chron_cols['Left'] = chronic_df_columns[:1] + [f'{c}_Left' for c in chronic_df_columns[1:]]
+    chron_cols['Right'] = chronic_df_columns[:1] + [f'{c}_Right' for c in chronic_df_columns[1:]]
     chron_cols['All'] = chronic_df_columns[:1] + chron_cols['Left'][1:] + chron_cols['Right'][1:]
 
     # create empty base chronic dataframe
@@ -51,12 +48,14 @@ def extract_chronic_from_JSON_list(
         # get dicts (Left/right) with values extracted from every json-file
         try:
             (sense_settings,
-             peak_times,
-             peak_values,
-             peak_stimAmps
+                peak_times,
+                peak_values,
+                peak_stimAmps
             ) = extract_chronic_from_json(sub, file)
-        except:
-            print(f'{file} FAILED')
+        except KeyError:
+            print(f'No LFPTrendLogs in JSON: {file} '
+                  '(KeyError extract_chronic_from_json())')
+            continue
         
         # convert values into temp-DataFrame
         for side in ['Left', 'Right']:
@@ -64,29 +63,43 @@ def extract_chronic_from_JSON_list(
             if len(peak_times[side]) == 0: continue  # skip sides without recordings
             for i, t in enumerate(peak_times[side]):
                 # loop over every row with values and per row to list
-                values.append([
-                    t,  # TODO: convert to local timezone from utc 
-                    peak_values[side][i],
-                    sense_settings[side]['freq'],
-                    sense_settings[side]['contacts'],
-                    sense_settings[side]['group_name'],
-                    peak_stimAmps[side][i]
-                ])
+                try:
+                    values.append([
+                        t,
+                        int(peak_values[side][i]),
+                        float(sense_settings[side]['freq']),
+                        sense_settings[side]['contacts'],
+                        sense_settings[side]['group_name'],
+                        float(peak_stimAmps[side][i])
+                    ])
+                except KeyError:
+                    # happens when either freq, contacts or group_name
+                    # are not present in side dict sense setings
+                    values.append([
+                        t,
+                        peak_values[side][i], nan, nan, nan,
+                        peak_stimAmps[side][i]
+                    ])
+                    if i == 0:
+                        print('##### WARNING #####\n\t'
+                              'added NaN values for sense settings'
+                              f' for {side} side in {file}')
             values = array(values)  # convert all rows into array for DataFrame creation
             file_df = DataFrame(data=values,
                             columns=chron_cols[side],
                             index=peak_times[side])
+
             file_df.index.name='utc_time'  # set index name
             # APPEND DATAFRAME FROM FILE TO OVERALL CHRONIC DATAFRAME
             idx_present = [new_i in chron_df.index for new_i in file_df.index]
-            # add values with present index to existing rows with same indices
-            chron_df.loc[file_df.index[idx_present],
-                         chron_cols[side]] = file_df.values[idx_present]
+            # add values per present index to ensure correct insertion            
+            present_indices = file_df.index[idx_present]
+            for ind in present_indices:
+                chron_df.loc[ind,
+                             chron_cols[side]] = file_df.loc[ind].values
             # add values with new indices (if present)
             if sum(~array(idx_present)) > 0:
                 chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
-            
-            print(chron_df.shape)
     
     # correct timezone timestamps at end
     local_times = timezone_handling.convert_times_to_local(chron_df.index)
@@ -135,16 +148,14 @@ def extract_chronic_from_json(
     dat = load_sourceJSON(sub, json_filename)
 
     # get LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
-    peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_Times(dat)
+    peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)
 
     # get frequency, contact, groupname
     sense_settings = get_sensing_freq_and_contacts(dat)
-    print(json_filename)
-    print(peak_times)
 
     return sense_settings, peak_times, peak_values, peak_stimAmps
 
-def get_chronic_LFPs_and_Times(
+def get_chronic_LFPs_and_times(
     dat
 ):
     """
@@ -204,7 +215,8 @@ def get_sensing_freq_and_contacts(dat):
         'Mode', 'AdjustableParameter',
         'ProgramSettings', 'GroupSettings']
     if Sensing was activated, Group['ProgramSettings]
-    contains 'SensingChannel'
+    contains 'SensingChannel' with list per set
+    SensingChannel
 
     Input:
         - dat: imported JSON-file
@@ -229,7 +241,9 @@ def get_sensing_freq_and_contacts(dat):
     
     # first try to extract freq and contact from active group
     group_settings = groups[act_group_i]['ProgramSettings']
+    
     if 'SensingChannel' in group_settings.keys():
+
         # SensingChannel present in active group
         for i_ch in range(len(group_settings["SensingChannel"])):
             # loop over channels present (left / right)
@@ -245,20 +259,25 @@ def get_sensing_freq_and_contacts(dat):
         
     else:
         print('\n\t### WARNING ###\n\tNo SensingChannel in active group'
-              ', sensing info from NON-ACTIVE group is taken')
+              ', sensing info from NON-ACTIVE group is searched')
 
         # search for sensing channel in other groups
         # here the user should know that the Medtronic-
         # JSON-file doesnot provide 100% certainty about
         # the active program during the time of sensing
         for group_i in range(len(groups)):
+
             if group_i == act_group_i: continue  # skip active channel
 
             if not 'SensingChannel' in groups[group_i]['ProgramSettings'].keys():
+                print(f'no sensing channel in group index {group_i}')
                 continue
             # if SensingChannel is present in keys
             group_settings = groups[group_i]['ProgramSettings']
             group_name = groups[group_i]["GroupId"]
+            
+            print('\n\t### WARNING #2 ###\n\tSensingChannel from'
+              f' inactive group {group_name} is taken')
 
             for i_ch in range(len(group_settings["SensingChannel"])):
                 # loop over channels present (left / right)
@@ -271,5 +290,7 @@ def get_sensing_freq_and_contacts(dat):
                 sense_settings[sense_side] = {'freq': freq,
                                             'contacts': contacts,
                                             'group_name': group_name}
+        
+
                 
     return sense_settings

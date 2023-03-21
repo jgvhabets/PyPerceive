@@ -5,6 +5,7 @@ loading the selection of raw files
  """
 
 from os.path import join, exists
+from os import listdir
 from mne.io import read_raw_fieldtrip
 import json
 
@@ -89,6 +90,29 @@ def load_sourceJSON(sub: str, filename: str):
 
     return json_object
     
+
+
+
+def find_all_present_jsons(sub):
+    """
+    get a list of all JSONs available in
+    sourcedata
+    """
+    # search main source code subjects folder
+    datapath = find_folder.get_onedrive_path("sourcedata")
+    source_path = join(datapath, f'sub-{sub}')
+    json_files = [file for file in listdir(source_path)
+                  if file.endswith(".json")]
+    # search additoinal raw jsons folder if present
+    extra_json_path = join(source_path, 'raw_jsons')
+    if exists(extra_json_path):
+        json_files.extend([file for file in listdir(extra_json_path)
+                            if file.endswith(".json")])
+    # remove duplicates
+    json_files = list(set(json_files))
+    
+    return json_files
+
 
 
 # #LFPMontage (sSurvey) is list with 30 sensed events -> different Survey Configs

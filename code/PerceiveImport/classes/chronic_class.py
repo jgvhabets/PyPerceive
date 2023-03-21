@@ -37,14 +37,20 @@ class Chronic:
     meta_table: pd.DataFrame
     use_json_file: bool = True
     use_mat_file: bool = False
+    search_all_jsons: bool = True
 
     def __post_init__(self,):
-        
         # suppress RuntimeWarning
         warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
         mat_files = self.meta_table['perceiveFilename']
-        json_files = self.meta_table['report']
+
+        if self.search_all_jsons:
+            json_files = load_rawfile.find_all_present_jsons(self.sub)
+
+        else:
+            json_files = self.meta_table['report']
+
         setattr(self, 'json_files_list', json_files)
 
         # import json (direct Percept output) if defined

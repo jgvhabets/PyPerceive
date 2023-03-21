@@ -57,7 +57,7 @@ class PerceiveData:
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
-        
+
         allowed_modalities = ["survey", "streaming", "chronic", "indefiniteStreaming"] # this shows allowed values for incl_modalities
 
         self.perceivedata = find_folder.get_onedrive_path("sourcedata")
@@ -105,12 +105,12 @@ class PerceiveData:
             abbr = modality_abbreviations_dict[mod]  # current modality abbreviations
             sel = [abbr in fname for fname in self.metaClass.orig_meta_table["perceiveFilename"]]
             sel_meta_table = self.metaClass.orig_meta_table[sel].reset_index(drop=True)
-            
-            # if no files after selection, dont create subclasses
-            if len(sel_meta_table) == 0:
-                continue
 
             if mod != 'chronic':
+                # if no files after selection, dont create subclasses
+                if len(sel_meta_table) == 0:
+                    continue
+
                 setattr(
                     self, 
                     mod, 
@@ -123,7 +123,6 @@ class PerceiveData:
                 )
 
             elif mod == 'chronic':
-                
                 setattr(
                     self, 
                     mod, 
