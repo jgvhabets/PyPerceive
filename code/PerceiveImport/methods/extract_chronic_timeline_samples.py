@@ -8,7 +8,7 @@ from chronic BrainSense Timeline recordings
 
 # import functions
 import json
-from numpy import array, nan
+from numpy import array, nan, logical_and
 from pandas import DataFrame, concat, isna
 
 from PerceiveImport.methods.load_rawfile import load_sourceJSON
@@ -56,6 +56,13 @@ def extract_chronic_from_JSON_list(sub, json_files,):
             print(f'No LFPTrendLogs in JSON: {file} '
                   '(KeyError extract_chronic_from_json())')
             continue
+
+        if isinstance(sense_settings, str):
+            if sense_settings == 'NO_SETTINGS':
+                print(f'No Initial Group SensingChannel set in {file}')
+                continue
+
+        # continues if Sensing Channel and LFP-values were found 
         
         # convert values into temp-DataFrame
         for side in ['Left', 'Right']:
@@ -127,7 +134,14 @@ def extract_chronic_from_json(
     """
     Main function to extract bandwidth peaks from
     chronic 'Timeline' data, including timestamps,
-    LFP values, and Frequencies
+    LFP values, and Frequencies.
+
+    Include only chronic data if there is a SensingChannel
+    defined in the Initial Group Settings.
+    This will prevent the inclusion of 'chronic' data points
+    which are recorded during telemtry sessions while
+    BSStreaming was active, without BS being active
+    during the time prior to telemetry.
 
     Input:
         - sub: e.g. '001'
@@ -147,11 +161,18 @@ def extract_chronic_from_json(
     # load json-data
     dat = load_sourceJSON(sub, json_filename)
 
-    # get LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
-    peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)
-
     # get frequency, contact, groupname
     sense_settings = get_sensing_freq_and_contacts(dat)
+    # check for presence of SensingChannel
+    if logical_and(len(sense_settings['Left']) == 0,
+                   len(sense_settings['Right']) == 0):
+        # no sensing channel defined in Initial Groups of JSON
+        return 'NO_SETTINGS', None, None, None
+
+    # continues if SensingChannel was defined in Initial Groups
+
+    # get LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
+    peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)    
 
     return sense_settings, peak_times, peak_values, peak_stimAmps
 
