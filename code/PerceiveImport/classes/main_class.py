@@ -88,7 +88,7 @@ class PerceiveData:
         # loop through every modality input in the incl_modalities list 
         # and set the modality value for each modality
         for mod in self.incl_modalities:
-
+            
             assert mod in allowed_modalities, (
                 f'inserted modality ({mod}) should'
                 f' be in {allowed_modalities}'
@@ -107,6 +107,7 @@ class PerceiveData:
             sel_meta_table = self.metaClass.orig_meta_table[sel].reset_index(drop=True)
 
             if mod != 'chronic':
+                
                 # if no files after selection, dont create subclasses
                 if len(sel_meta_table) == 0:
                     continue

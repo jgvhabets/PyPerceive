@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 import os
-
+from dataclasses import field
 import pandas as pd
 from numpy import array
 import warnings
@@ -34,7 +34,7 @@ class Chronic:
     """
     sub: str
     metaClass: any
-    meta_table: pd.DataFrame
+    meta_table: pd.DataFrame = field(default_factory=lambda: pd.DataFrame())
     use_json_file: bool = True
     use_mat_file: bool = False
     search_all_jsons: bool = True
@@ -42,8 +42,6 @@ class Chronic:
     def __post_init__(self,):
         # suppress RuntimeWarning
         warnings.simplefilter(action='ignore', category=RuntimeWarning)
-
-        mat_files = self.meta_table['perceiveFilename']
 
         if self.search_all_jsons:
             json_files = load_rawfile.find_all_present_jsons(self.sub)
@@ -62,6 +60,7 @@ class Chronic:
 
         # import mat-file (result of Perceive) if defined
         elif self.use_mat_file:
+            mat_files = self.meta_table['perceiveFilename']
             for matfile in mat_files:
                 try:
                     # load with mne.read_raw_fieldtrip()
