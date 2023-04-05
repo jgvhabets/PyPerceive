@@ -8,8 +8,8 @@ from numpy import array
 import warnings
 
 # import own functions
-import PerceiveImport.methods.load_rawfile as load_rawfile
-from PerceiveImport.methods.extract_chronic_timeline_samples import extract_chronic_from_JSON_list
+import py_perceive.PerceiveImport.methods.load_rawfile as load_rawfile
+from py_perceive.PerceiveImport.methods.extract_chronic_timeline_samples import extract_chronic_from_JSON_list
 
 
 

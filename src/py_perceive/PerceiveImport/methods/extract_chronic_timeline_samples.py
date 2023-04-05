@@ -11,8 +11,8 @@ import json
 from numpy import array, nan, logical_and
 from pandas import DataFrame, concat, isna
 
-from PerceiveImport.methods.load_rawfile import load_sourceJSON
-from PerceiveImport.methods import timezone_handling
+from py_perceive.PerceiveImport.methods.load_rawfile import load_sourceJSON
+from py_perceive.PerceiveImport.methods import timezone_handling
 
 
 def extract_chronic_from_JSON_list(sub, json_files,):

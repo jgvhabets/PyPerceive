@@ -3,10 +3,10 @@
 
 # import packages
 import os 
-import PerceiveImport.methods.find_folders as find_folder
+import py_perceive.PerceiveImport.methods.find_folders as find_folder
 
 
-# import PerceiveImport.filefunctions as filefuncs -> use this line to import other .py files
+# import py_perceive.PerceiveImport.filefunctions as filefuncs -> use this line to import other .py files
 # select all .mat files in respect of the correct datatype (Survey/Streaming/Timeline) 
 
 

@@ -11,8 +11,8 @@ import xlrd
 import mne 
 import mne_bids
 
-# import PerceiveImport.FilterInput as filterinput
-import PerceiveImport.methods.find_folders as find_folder
+# import py_perceive.PerceiveImport.FilterInput as filterinput
+import py_perceive.PerceiveImport.methods.find_folders as find_folder
 
 
 ## sub = filterinput.FilterInput["sub"]

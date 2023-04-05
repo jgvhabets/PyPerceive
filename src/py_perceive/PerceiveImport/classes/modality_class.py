@@ -6,8 +6,8 @@ import os
 import pandas as pd
 import copy
 
-import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.session_class as sesClass
+import py_perceive.PerceiveImport.methods.find_folders as find_folder
+import py_perceive.PerceiveImport.classes.session_class as sesClass
 
 
 @dataclass (init=True, repr=True)

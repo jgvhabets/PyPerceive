@@ -8,7 +8,7 @@ import warnings
 import shutil
 
 # import own functions
-import PerceiveImport.methods.find_folders as find_folder
+import py_perceive.PerceiveImport.methods.find_folders as find_folder
 
 
 

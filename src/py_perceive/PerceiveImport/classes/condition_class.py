@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 import copy
 
-# import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.task_class as taskclass
+# import py_perceive.PerceiveImport.classes.Metadata_Class as metaclass
+import py_perceive.PerceiveImport.classes.task_class as taskclass
 
 @dataclass (init=True, repr=True)
 class conditionClass:

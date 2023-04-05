@@ -1,18 +1,18 @@
-"""Run Class """
+""" contact Class """
 
-# import public packages
 import pandas as pd
+from numpy import unique
 from dataclasses import dataclass
 import warnings
 
-# import own functions
-import PerceiveImport.methods.load_rawfile as load_rawfile
-from PerceiveImport.methods.ch_renaming import custom_mne_renaming
+# import py_perceive.PerceiveImport.methods.load_rawfile as load_rawfile
+from py_perceive.PerceiveImport.classes.run_class import runClass
+
 
 @dataclass (init=True, repr=True)
-class runClass:
+class contactClass:
     """
-    Run Class 
+    Contact Class 
     
     parameters:
         - sub: e.g. "021"
@@ -21,7 +21,6 @@ class runClass:
         - condition: "m0s0", "m1s0", "m0s1", "m1s1" set in condition_class
         - task: "rest", "tapping", "rota", "updrs", "monopolar" set in condition_class
         - contact: a list of contacts to include ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"]
-        - run: numerical order when recordings are performed multiple times
         - metaClass: all original attributes set in Main_Class
         - meta_table: selected meta_table set in condition_class
 
@@ -35,47 +34,42 @@ class runClass:
     session: str
     condition: str
     task: str
-    run : str
+    contact: str
     metaClass: any
     meta_table: pd.DataFrame
-    contact: str = None
     import_json: bool = False
 
 
     def __post_init__(self,):
 
-        ############ LOAD MATLAB FILES ############
-        fname = self.meta_table['perceiveFilename'][0]
+        # loop over available runs
+        runs = unique(self.meta_table['run'])
+
+        for run_n in runs:
             
-        # suppress RuntimeWarning
-        warnings.simplefilter(action='ignore', category=RuntimeWarning)
+            # select out only meta_table for current session
+            sel = [run_n == s for s in self.meta_table["run"]]
+            sel_meta_table = self.meta_table[sel].reset_index(drop=True)
 
-        # load with mne.read_raw_fieldtrip()
-        mne_raw = load_rawfile.load_matfile(self.sub, fname)
-        
-        # rename (parts of) ch names with bids Retune convention
-        mne_raw = custom_mne_renaming(mne_raw)
+            if len(sel_meta_table) == 0:
+                continue
 
-        setattr(
-            self,
-            'data',
-            mne_raw
-        )
-
-
-        if self.import_json:
-            ############ LOAD SOURCE JSON FILES ############
-            self.sourceJSON = {} # keys will be named after task, values will be the raw JSON file of the correct row of metadata
-            
-            fname = self.meta_table['report'][0]
-  
             setattr(
                 self,
-                'json',
-                load_rawfile.load_sourceJSON(self.sub, fname)
+                f'run{run_n}',
+                runClass(
+                    sub=self.sub,
+                    modality=self.modality,
+                    session=self.session,
+                    condition=self.condition,
+                    task=self.task,
+                    contact=self.contact,
+                    run=run_n,
+                    metaClass=self.metaClass,
+                    meta_table=sel_meta_table,
+                    import_json = self.import_json
+                )
             )
-
-
 
         
     

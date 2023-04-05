@@ -4,14 +4,13 @@
 import os 
 from dataclasses import dataclass, field
 import pandas as pd
-from numpy import array
 
 # import self-created packages
-import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.methods.metadata_helpers as metaHelp
-import PerceiveImport.classes.metadata_class as metadata
-import PerceiveImport.classes.modality_class as modalityClass
-import PerceiveImport.classes.chronic_class as chronic_class
+import py_perceive.PerceiveImport.methods.find_folders as find_folder
+import py_perceive.PerceiveImport.methods.metadata_helpers as metaHelp
+import py_perceive.PerceiveImport.classes.metadata_class as metadata
+import py_perceive.PerceiveImport.classes.modality_class as modalityClass
+import py_perceive.PerceiveImport.classes.chronic_class as chronic_class
 
 
 import warnings

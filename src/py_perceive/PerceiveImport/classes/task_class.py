@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from numpy import unique
 import warnings
 
-from PerceiveImport.classes.run_class import runClass
-import PerceiveImport.classes.contact_class as contactclass
+from py_perceive.PerceiveImport.classes.run_class import runClass
+import py_perceive.PerceiveImport.classes.contact_class as contactclass
 
 
 @dataclass (init=True, repr=True)

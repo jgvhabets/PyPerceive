@@ -3,7 +3,7 @@
 import pandas as pd
 from dataclasses import dataclass
 
-import PerceiveImport.classes.condition_class as condclass
+import py_perceive.PerceiveImport.classes.condition_class as condclass
 
 
 @dataclass (init=True, repr=True)

@@ -9,7 +9,7 @@ from os import listdir
 from mne.io import read_raw_fieldtrip
 import json
 
-import PerceiveImport.methods.find_folders as find_folder
+import py_perceive.PerceiveImport.methods.find_folders as find_folder
 
 
 def load_matfile(sub: str, filename: str):
