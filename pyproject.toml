@@ -11,7 +11,9 @@ requires-python = ">=3.10"
 license = "MIT"
 keywords = ["percept", "lfp"]
 authors = [
-  { name = "JKBehnke", email = "jennifer-kim.behnke@t-online.de" },
+  { name = "jgvhabets"},
+  { name = "JKBehnke", email = "jennifer-kim.behnke@charite.de" },
+  
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
