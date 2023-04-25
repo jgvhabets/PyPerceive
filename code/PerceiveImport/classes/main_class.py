@@ -54,6 +54,7 @@ class PerceiveData:
     import_json: bool = False
     warn_for_metaNaNs: bool = True
     use_chronic_json_file: bool = True
+    allow_NaNs_in_metadata: bool = False
 
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
@@ -69,10 +70,11 @@ class PerceiveData:
             ),
             sheet_name="recordingInfo"
         )
-        # clean rows with NaNs in MetaData Table
-        self.meta_table = metaHelp.clean_metadata_nanRows(
-            table=self.meta_table, warn=self.warn_for_metaNaNs, sub=self.sub
-        )
+        if not self.allow_NaNs_in_metadata:
+            # clean rows with NaNs in MetaData Table
+            self.meta_table = metaHelp.clean_metadata_nanRows(
+                table=self.meta_table, warn=self.warn_for_metaNaNs, sub=self.sub
+            )
         
         # define and store all variables in self.metaClass, from where they can continuously be called and modified from further subclasses
         self.metaClass = metadata.MetadataClass(
