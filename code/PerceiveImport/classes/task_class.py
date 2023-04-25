@@ -86,11 +86,13 @@ class taskClass:
             
             # loop over available runs
             runs = unique(self.meta_table['run'])
+            # convert all runs to integers
+            runs = [int(r) for r in runs]
 
             for run_n in runs:
-                
+                print(f'add run {run_n}')                
                 # select out only meta_table for current session
-                sel = [run_n == s for s in self.meta_table["run"]]
+                sel = [run_n == int(s) for s in self.meta_table["run"]]
                 sel_meta_table = self.meta_table[sel].reset_index(drop=True)
 
                 if len(sel_meta_table) == 0:
