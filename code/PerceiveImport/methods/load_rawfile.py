@@ -8,6 +8,7 @@ from os.path import join, exists
 from os import listdir
 from mne.io import read_raw_fieldtrip
 import json
+import numpy as np
 
 import PerceiveImport.methods.find_folders as find_folder
 
@@ -71,7 +72,7 @@ def load_sourceJSON(sub: str, filename: str):
     )
 
 
-    # find the path to the raw_perceive folder of a subject
+    # find the path to the folder with raw JSONs of a subject
     datapath = find_folder.get_onedrive_path("sourcedata")
     json_path = join(datapath, f'sub-{sub}') # same path as to perceive files, all in sourcedata folder
 
@@ -112,6 +113,87 @@ def find_all_present_jsons(sub):
     json_files = list(set(json_files))
     
     return json_files
+
+
+def check_and_correct_lfp_missingData_in_json(streaming_data: dict):
+    """"
+    Function checks missing packets based on start and endtime
+    of first and last received packets, and the time-differences
+    between consecutive packets. In case of a missing packet,
+    the missing time window is filled with NaNs.
+    """
+    Fs = streaming_data['SampleRateInHz']
+    ticksMsec = convert_list_string_floats(dat['TicksInMses'])
+    ticksDiffs = np.diff(np.array(ticksMsec))
+    data_is_missing = (ticksDiffs != 250).any()
+    packetSizes = convert_list_string_floats(dat['GlobalPacketSizes'])
+    lfp_data = dat['TimeDomainData']
+
+    if data_is_missing:
+        print('LFP Data is missing!! perform function to fill NaNs in')
+    else:
+        print('No LFP data missing based on timestamp '
+            'differences between data-packets')
+
+    data_length_ms = ticksMsec[-1] + 250 - ticksMsec[0]  # length of a pakcet in milliseconds is always 250
+    data_length_samples = int(data_length_ms / 1000 * Fs) + 1  # add one to calculate for 63 packet at end
+    new_lfp_arr = np.array([np.nan] * data_length_samples)
+
+    # fill nan array with real LFP values, use tickDiffs to decide start-points (and where to leave NaN)
+
+    # Add first packet (data always starts with present packet)
+    current_packetSize = int(packetSizes[0])
+    if current_packetSize > 63:
+        print(f'UNKNOWN TOO LARGE DATAPACKET IS CUTDOWN BY {current_packetSize - 63} samples')
+        current_packetSize = 63  # if there is UNKNOWN TOO MANY DATA, only the first 63 samples of the too large packets are included
+
+    new_lfp_arr[:current_packetSize] = lfp_data[:current_packetSize]
+    # loop over every distance (index for packetsize is + 1 because first difference corresponds to seconds packet)
+    i_lfp = current_packetSize  # index to track which lfp values are already used
+    i_arr = current_packetSize  # index to track of new array index
+    
+    i_packet = 1
+
+    for diff in ticksDiffs:
+        if diff == 250:
+            # only lfp values, no nans if distance was 250 ms
+            current_packetSize = int(packetSizes[i_packet])
+
+            # in case of very rare TOO LARGE packetsize (there is MORE DATA than expected based on the first and last timestamps)
+            if current_packetSize > 63:
+                print(f'UNKNOWN TOO LARGE DATAPACKET IS CUTDOWN BY {current_packetSize - 63} samples')
+                current_packetSize = 63
+
+            new_lfp_arr[
+                i_arr:int(i_arr + current_packetSize)
+            ] = lfp_data[i_lfp:int(i_lfp + current_packetSize)]
+            i_lfp += current_packetSize
+            i_arr += current_packetSize
+            i_packet += 1
+        else:
+            print('add NaNs by skipping')
+            msecs_missing = (diff - 250)  # difference if one packet is missing is 500 ms
+            
+            secs_missing = msecs_missing / 1000
+            samples_missing = int(secs_missing * Fs)
+            # no filling with NaNs, bcs array is created full with NaNs
+            i_arr += samples_missing  # shift array index up by number of NaNs left in the array
+    
+    # correct in case one sample too many was in array shape
+    if np.isnan(new_lfp_arr[-1]): new_lfp_arr = new_lfp_arr[:-1]
+
+    return new_lfp_arr
+
+
+def convert_list_string_floats(
+    string_list
+):
+    try:
+        floats = [float(v) for v in string_list.split(',')]
+    except:
+        floats = [float(v) for v in string_list[:-1].split(',')]
+
+    return floats
 
 
 

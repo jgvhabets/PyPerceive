@@ -44,36 +44,56 @@ class runClass:
 
     def __post_init__(self,):
 
-        ############ LOAD MATLAB FILES ############
-        fname = self.meta_table['perceiveFilename'][0]
+        if not self.import_json:
+            ############ LOAD MATLAB FILES ############
+            fname = self.meta_table['perceiveFilename'][0]
+                
+            # suppress RuntimeWarning
+            warnings.simplefilter(action='ignore', category=RuntimeWarning)
+
+            # load with mne.read_raw_fieldtrip()
+            mne_raw = load_rawfile.load_matfile(self.sub, fname)
             
-        # suppress RuntimeWarning
-        warnings.simplefilter(action='ignore', category=RuntimeWarning)
+            # rename (parts of) ch names with bids Retune convention
+            mne_raw = custom_mne_renaming(mne_raw)
 
-        # load with mne.read_raw_fieldtrip()
-        mne_raw = load_rawfile.load_matfile(self.sub, fname)
-        
-        # rename (parts of) ch names with bids Retune convention
-        mne_raw = custom_mne_renaming(mne_raw)
-
-        setattr(
-            self,
-            'data',
-            mne_raw
-        )
+            setattr(
+                self,
+                'data',
+                mne_raw
+            )
 
 
-        if self.import_json:
+        elif self.import_json:
             ############ LOAD SOURCE JSON FILES ############
+            prc_data_codes = {
+                'signal_test': 'CalibrationTests',
+                'streaming': 'BrainSenseTimeDomain',
+                'survey': 'LfpMontageTimeDomain',
+                'indef_streaming': 'IndefiniteStreaming'
+            }
+
             self.sourceJSON = {} # keys will be named after task, values will be the raw JSON file of the correct row of metadata
             
             fname = self.meta_table['report'][0]
   
+            # create attribute with full JSON content
+            json_data = load_rawfile.load_sourceJSON(self.sub, fname)
             setattr(
                 self,
                 'json',
-                load_rawfile.load_sourceJSON(self.sub, fname)
+                json_data
             )
+
+            # HERE WE HAVE TO EXTRACT THE RELEVANT INFO
+            list_of_streamings = json_data[prc_data_codes[self.modality.lower()]]
+            n_streamings = len(list_of_streamings)
+
+            # CHOOSE DESIRED STREAMING DATA IN JSON TO IMPORT
+            # SEL_DATA_INDEX = .... # FIND IN META DATA TABLE
+            # sel_data = list_of_streamings[SEL_DATA_INDEX]
+            # clean_lfp = check_and_correct_lfp_missings_in_json(sel_data)
+            # TODO: GET ADDITIONAL INFO OUT OF JSON FILE
 
 
 
