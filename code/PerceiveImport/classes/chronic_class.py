@@ -54,6 +54,7 @@ class Chronic:
         # import json (direct Percept output) if defined
         if self.use_json_file:
             # add content of all jsons
+            print(f'extract chronic data from files: {json_files}')
             chronic_df = extract_chronic_from_JSON_list(self.sub, json_files)
             
             setattr(self, 'data', chronic_df)  

@@ -8,7 +8,7 @@ from chronic BrainSense Timeline recordings
 
 # import functions
 import json
-from numpy import array, nan, logical_and
+from numpy import array, nan, logical_and, float64, argsort
 from pandas import DataFrame, concat, isna
 
 from PerceiveImport.methods.load_rawfile import load_sourceJSON
@@ -45,6 +45,7 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     chron_df = create_empty_chronic_df(chronic_df_columns)
 
     for file in json_files:
+        print(f'\t...START CHRONIC EXTRACT: {file}')
         # get dicts (Left/right) with values extracted from every json-file
         try:
             (sense_settings,
@@ -109,8 +110,17 @@ def extract_chronic_from_JSON_list(sub, json_files,):
                 chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
     
     # correct timezone timestamps at end
-    local_times = timezone_handling.convert_times_to_local(chron_df.index)
+    local_times = timezone_handling.convert_times_to_local(chron_df.index,
+                                                           return_datetime_obj=True)
     chron_df['local_time'] = local_times
+
+    # sort in ascending order, from old to new
+    sort_idx = argsort(chron_df['local_time'].values)
+    chron_df = chron_df.iloc[sort_idx, :]
+
+    # convert PSD values to floats instead of strings
+    for side in ['Left', 'Right']:
+        chron_df[f'PSD_{side}'] = [float64(v) for v in chron_df[f'PSD_{side}']]
 
     return chron_df
 
@@ -163,6 +173,7 @@ def extract_chronic_from_json(
 
     # get frequency, contact, groupname
     sense_settings = get_sensing_freq_and_contacts(dat)
+
     # check for presence of SensingChannel
     if logical_and(len(sense_settings['Left']) == 0,
                    len(sense_settings['Right']) == 0):
@@ -176,9 +187,8 @@ def extract_chronic_from_json(
 
     return sense_settings, peak_times, peak_values, peak_stimAmps
 
-def get_chronic_LFPs_and_times(
-    dat
-):
+
+def get_chronic_LFPs_and_times(dat):
     """
     JSON structure used for data extraction:
         DiagnosticData contains LFPTrendLogs
@@ -310,8 +320,7 @@ def get_sensing_freq_and_contacts(dat):
                     'SensingSetup']['ChannelSignalResult']['Channel']
                 sense_settings[sense_side] = {'freq': freq,
                                             'contacts': contacts,
-                                            'group_name': group_name}
-        
+                                            'group_name': group_name}        
 
                 
     return sense_settings
