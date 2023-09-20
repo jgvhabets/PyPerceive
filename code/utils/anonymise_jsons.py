@@ -30,6 +30,41 @@ def anonymise_jsons():
     # if FOLDER STARTSWITH SUB, loop over files in folder
     # if file endswith json, without ANOM_CODE, etc
 
+
+    ####### possible loop #######
+    # for folder in os.listdir(path):
+
+    #     if not os.path.isdir(os.path.join(path, folder)):
+    #         continue
+
+    #     if folder.startswith('sub-'):
+    #         sub_dir = os.path.join(path, folder) # subject folder
+            
+    #         # loop over files in sub-folder
+    #         for f in os.listdir(sub_dir):
+
+    #             if f.endswith('.json'):
+                    
+    #                 # check if JSON is already anonymised
+    #                 if f[-10:-5] == anom_code:
+    #                     print(f'file {f} already converted')
+    #                     continue
+
+    #                 else:
+    #                     with open(os.path.join(path, file), 'r') as f:
+    #                         json_dict = json.load(f)
+
+    #                     del(json_dict['PatientInformation'])
+
+    #                     new_fname = file.split('.')[0] + anom_code + '.json'
+
+    #                     with open(os.path.join(path, new_fname), 'w') as f:
+    #                         json.dump(json_dict, f)
+                        
+    #                     os.remove(os.path.join(path, file))
+
+                
+
     for file in os.listdir(path):
         # loop over all files in folder
         if file.endswith('.json'):
@@ -77,33 +112,50 @@ def get_onedrive_path(
     while os.path.dirname(path)[-5:] != 'Users':
         path = os.path.dirname(path) # path is now leading to Users/username
 
-    # get the onedrive folder containing "onedrive" and "charit" and add it to the path
-    onedrive_f = [
-        f for f in os.listdir(path) if logical_and(
-            'onedrive' in f.lower(),
-            'charit' in f.lower())
-            ]
+    
+    
+    ####### in a specific case, if the Percept_Data_structured folder is in a specific directory #######
+    if 'Charité - Universitätsmedizin Berlin' in os.listdir(path):
 
-    path = os.path.join(path, onedrive_f[0]) # path is now leading to Onedrive folder
+        path = os.path.join(path, 'Charité - Universitätsmedizin Berlin')
+
+        # add the folder DATA-Test to the path and from there open the folders depending on input folder
+        datapath = os.path.join(path, 'AG Bewegungsstörungen - Percept - Percept_Data_structured')
+        if folder == 'onedrive': 
+            return datapath
+
+        elif folder == 'sourcedata':
+            return os.path.join(datapath, 'sourcedata')
+
+    ####### this should be the general case #######
+    else:
+        # get the onedrive folder containing "onedrive" and "charit" and add it to the path
+        onedrive_f = [
+            f for f in os.listdir(path) if np.logical_and(
+                'onedrive' in f.lower(),
+                'charit' in f.lower())
+                ]
+
+        path = os.path.join(path, onedrive_f[0]) # path is now leading to Onedrive folder
 
 
-    # add the folder DATA-Test to the path and from there open the folders depending on input folder
-    path = os.path.join(path, 'Percept_Data_structured')
-    if folder == 'onedrive':
+        # add the folder DATA-Test to the path and from there open the folders depending on input folder
+        path = os.path.join(path, 'Percept_Data_structured')
+        if folder == 'onedrive':
 
-        assert os.path.exists(path), f'wanted path ({path}) not found'
-        
-        return path
-
-    elif folder == 'sourcedata':
-
-        path = os.path.join(path, 'sourcedata')
-        if sub: path = os.path.join(path, f'sub-{sub}')
-
-        assert os.path.exists(path), f'wanted path ({path}) not found'
+            assert os.path.exists(path), f'wanted path ({path}) not found'
             
-        return path
+            return path
 
+        elif folder == 'sourcedata':
+
+            path = os.path.join(path, 'sourcedata')
+            if sub: path = os.path.join(path, f'sub-{sub}')
+
+            assert os.path.exists(path), f'wanted path ({path}) not found'
+                
+            return path
+    
 
 
 if __name__ == '__main__':
