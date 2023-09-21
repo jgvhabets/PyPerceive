@@ -1,5 +1,7 @@
 import os
 import numpy as np
+import sys
+
 
 def find_project_folder():
     """
@@ -58,6 +60,8 @@ def get_onedrive_path(
         elif folder == 'sourcedata':
             return os.path.join(datapath, 'sourcedata')
 
+
+    ####### this should be the general case #######
     else:
         # get the onedrive folder containing "onedrive" and "charit" and add it to the path
         onedrive_f = [
@@ -87,46 +91,34 @@ def get_onedrive_path(
             return path
 
 
-# check if 'Charité - Universitätsmedizin Berlin' is in directory
-    # if 'Charité - Universitätsmedizin Berlin' in os.listdir(path):
+def get_PyPerceive_path(
+        folder = False
+):
+    """
+    get path to PyPerceive repo 
+    Input: 
+        - folder: str ["PerceiveImport", "utils"]
+    """
 
-    #     path = os.path.join(path, 'Charité - Universitätsmedizin Berlin')
+    PyPerceive_path = os.getcwd()
 
-    #     # add the folder DATA-Test to the path and from there open the folders depending on input folder
-    #     datapath = os.path.join(path, 'AG Bewegungsstörungen - Percept - Percept_Data_structured')
-    #     if folder == 'onedrive': 
-    #         return datapath
+    while PyPerceive_path[-10:] != 'PyPerceive':
+        PyPerceive_path = os.path.dirname(PyPerceive_path)
+    
+    code_path = os.path.join(PyPerceive_path, 'code')
+    sys.path.append(code_path)
 
-    #     elif folder == 'sourcedata':
-    #         return os.path.join(datapath, 'sourcedata')
+    # depending on folder input
+    if folder:
 
-    # else:
-    #     # get the onedrive folder containing "onedrive" and "charit" and add it to the path
-    #     onedrive_f = [
-    #         f for f in os.listdir(path) if np.logical_and(
-    #             'onedrive' in f.lower(),
-    #             'charit' in f.lower())
-    #             ]
+        folder_path = os.path.join(code_path, folder)
 
-    #     path = os.path.join(path, onedrive_f[0]) # path is now leading to Onedrive folder
+    return folder_path
 
 
-    #     # add the folder DATA-Test to the path and from there open the folders depending on input folder
-    #     path = os.path.join(path, 'Percept_Data_structured')
-    #     if folder == 'onedrive':
 
-    #         assert os.path.exists(path), f'wanted path ({path}) not found'
-            
-    #         return path
 
-    #     elif folder == 'sourcedata':
 
-    #         path = os.path.join(path, 'sourcedata')
-    #         if sub: path = os.path.join(path, f'sub-{sub}')
-
-    #         assert os.path.exists(path), f'wanted path ({path}) not found'
-                
-    #         return path
 
 def get_local_path(folder: str, sub: str = None):
     """

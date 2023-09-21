@@ -8,6 +8,7 @@ import copy
 
 # import PerceiveImport.classes.Metadata_Class as metaclass
 import PerceiveImport.classes.task_class as taskclass
+import PerceiveImport.methods.metadata_helpers as metaHelp
 
 @dataclass (init=True, repr=True)
 class conditionClass:
@@ -38,7 +39,7 @@ class conditionClass:
 
     def __post_init__(self,):
 
-        allowed_tasks = ["rest", "fingerTap", "fingerTapLeftHand", "fingerTapRightHand", "rota", "updrs", "WalkingMoveArt", "ChangingPositionMoveArt", "HeadMovementsMoveArt", "ArmMovementsMoveArt"]
+        allowed_tasks = metaHelp.get_terminology(key = "task")
 
         # continue to next class: Task_Class and set the attribute of the new selection of metaClass
         for task in self.metaClass.incl_task:

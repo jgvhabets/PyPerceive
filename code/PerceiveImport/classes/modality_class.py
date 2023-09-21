@@ -8,6 +8,7 @@ import copy
 
 import PerceiveImport.methods.find_folders as find_folder
 import PerceiveImport.classes.session_class as sesClass
+import PerceiveImport.methods.metadata_helpers as metaHelp
 
 
 @dataclass (init=True, repr=True)
@@ -42,7 +43,7 @@ class Modality:
         elif self.modality == 'indefinitestreaming':
             self.meta_table = self.meta_table.drop(['contacts'], axis=1)
 
-        allowed_session = ["postop", "fu3m", "fu12m", "fu18m", "fu20m", "fu22m", "fu23m", "fu24m"]
+        allowed_session = metaHelp.get_terminology(key = "session")
 
 
         # for STREAMING OR SURVEY

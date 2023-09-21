@@ -6,6 +6,7 @@ import pandas as pd
 from numpy import array
 import warnings
 import shutil
+import json
 
 # import own functions
 import PerceiveImport.methods.find_folders as find_folder
@@ -116,3 +117,28 @@ def perceive_files_to_raw_perceive(sub):
     for file in perceive_path:
         shutil.copy(file, raw_perceive)
   
+
+def get_terminology(
+        key = False
+):
+    """
+    
+    """
+
+    path = find_folder.get_PyPerceive_path(
+        folder="utils"
+    )
+
+    path = os.path.join(path, "terminology.json")
+    
+    with open(path, "r") as f:
+        terms = json.load(f)
+
+    if key:
+
+        terms = terms[key]
+    
+    return terms
+
+
+
