@@ -46,11 +46,11 @@ class PerceiveData:
     
     # these fields will be initialized 
     sub: str             # note that : is used, not =  
-    incl_modalities: list = field(default_factory=lambda: ["survey", "streaming", "timeline", "indefiniteStreaming"])  # default:_ if no input is given -> automatically input the full list
-    incl_session: list = field(default_factory=lambda: ["postop", "fu3m", "fu12m", "fu18m", "fu20m", "fu22m", "fu23m", "fu24m"])
-    incl_condition: list = field(default_factory=lambda: ["m0s0", "m1s0", "m0s1", "m1s1"])
-    incl_task: list = field(default_factory=lambda: ["rest", "fingerTap", "fingerTapLeftHand", "fingerTapRightHand", "rota", "updrs", "WalkingMoveArt", "ChangingPositionMoveArt", "HeadMovementsMoveArt", "ArmMovementsMoveArt"])
-    incl_contact: list = field(default_factory=lambda: ["RingR", "SegmIntraR", "SegmInterR", "RingL", "SegmIntraL", "SegmInterL", "Bip02", "Bip13", "Ring", "Segments"])
+    incl_modalities: list = field(default_factory=lambda: metaHelp.get_terminology(key = "modalities"))  # default:_ if no input is given -> automatically input the full list
+    incl_session: list = field(default_factory=lambda: metaHelp.get_terminology(key = "session"))
+    incl_condition: list = field(default_factory=lambda: metaHelp.get_terminology(key = "condition"))
+    incl_task: list = field(default_factory=lambda: metaHelp.get_terminology(key = "task"))
+    incl_contact: list = field(default_factory=lambda: metaHelp.get_terminology(key = "contact"))
     import_json: bool = False
     warn_for_metaNaNs: bool = True
     use_chronic_json_file: bool = True
@@ -59,7 +59,7 @@ class PerceiveData:
     # note that every defined method contains (self,) don´t forget the comma after self!
     def __post_init__(self,):  # post__init__ function runs after class initialisation
 
-        allowed_modalities = ["survey", "streaming", "chronic", "indefiniteStreaming"] # this shows allowed values for incl_modalities
+        allowed_modalities = metaHelp.get_terminology(key = "modalities") # this shows allowed values for incl_modalities
 
         self.perceivedata = find_folder.get_onedrive_path("sourcedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')

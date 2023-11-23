@@ -7,6 +7,7 @@ import warnings
 
 from PerceiveImport.classes.run_class import runClass
 import PerceiveImport.classes.contact_class as contactclass
+import PerceiveImport.methods.metadata_helpers as metaHelp
 
 
 @dataclass (init=True, repr=True)
@@ -44,10 +45,7 @@ class taskClass:
 
         if self.modality.lower() == 'survey':
         
-            allowed_contacts = [
-                "RingR", "SegmIntraR", "SegmInterR",
-                "RingL", "SegmIntraL", "SegmInterL", 
-            ]
+            allowed_contacts = metaHelp.get_terminology(key = "contact")
 
             # continue to next class: Contact_Class and set the attribute of the new selection of metaClass
             for cont in self.metaClass.incl_contact:

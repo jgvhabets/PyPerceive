@@ -4,6 +4,7 @@ import pandas as pd
 from dataclasses import dataclass
 
 import PerceiveImport.classes.condition_class as condclass
+import PerceiveImport.methods.metadata_helpers as metaHelp
 
 
 @dataclass (init=True, repr=True)
@@ -33,7 +34,7 @@ class sessionClass:
 
     def __post_init__(self,):        
         
-        allowed_condition = ["m0s0", "m1s0", "m0s1", "m1s1"]
+        allowed_condition = metaHelp.get_terminology(key = "condition")
 
         # continue to next class: Condition_Class and set the attribute of the new selection of metaClass
         for cond in self.metaClass.incl_condition:
