@@ -64,10 +64,8 @@ class PerceiveData:
         self.perceivedata = find_folder.get_onedrive_path("sourcedata")
         self.subject_path = os.path.join(self.perceivedata, f'sub-{self.sub}')
         self.meta_table = metaHelp.read_excel_wOut_warning(
-            os.path.join(
-                self.subject_path,
-                f'metadata_{self.sub}_perceiveFiles.xlsx'
-            ),
+            os.path.abspath(os.path.join(self.subject_path,
+                            f'metadata_{self.sub}_perceiveFiles.xlsx')),
             sheet_name="recordingInfo"
         )
         if not self.allow_NaNs_in_metadata:
