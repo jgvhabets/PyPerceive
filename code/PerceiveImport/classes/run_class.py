@@ -57,12 +57,7 @@ class runClass:
             # rename (parts of) ch names with bids Retune convention
             mne_raw = custom_mne_renaming(mne_raw)
 
-            setattr(
-                self,
-                'data',
-                mne_raw
-            )
-
+            setattr(self, 'data', mne_raw)
 
         elif self.import_json:
             ############ LOAD SOURCE JSON FILES ############
@@ -72,18 +67,13 @@ class runClass:
                 'survey': 'LfpMontageTimeDomain',
                 'indef_streaming': 'IndefiniteStreaming'
             }
-
-            self.sourceJSON = {} # keys will be named after task, values will be the raw JSON file of the correct row of metadata
             
-            fname = self.meta_table['report'][0]
+            self.json_name = self.meta_table['report'][0]
+            print('JSON name', self.json_name)
   
             # create attribute with full JSON content
-            json_data = load_rawfile.load_sourceJSON(self.sub, fname)
-            setattr(
-                self,
-                'json',
-                json_data
-            )
+            json_data = load_rawfile.load_sourceJSON(self.sub, self.json_name)
+            setattr(self, 'json', json_data)
 
             # HERE WE HAVE TO EXTRACT THE RELEVANT INFO
             list_of_streamings = json_data[prc_data_codes[self.modality.lower()]]

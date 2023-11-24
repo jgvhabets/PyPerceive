@@ -180,14 +180,15 @@ def extract_chronic_from_json(sub, json_filename):
     # get LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)
 
+    # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
+    TO_DO = get_chronic_LFPs_and_times(dat)
+
     return sense_settings, peak_times, peak_values, peak_stimAmps
 
 
-def get_chronic_LFPs_and_times(
-    dat
-):
+def get_chronic_LFPs_and_times(dat):
     """
-    JSON structure used for data extraction:
+    JSON structure used for chronic passive LFP data extraction:
         DiagnosticData contains LFPTrendLogs
             - DateTime is timestamp
             - LFP is peak PSD in microVolt
@@ -239,6 +240,23 @@ def get_chronic_LFPs_and_times(
     
     return peak_times, peak_values, stim_amps
 
+
+def get_chronic_SnapshotEvents(dat):
+    """
+    actively induced LFP SnapShot extraction:
+        DiagnosticData contains LfpFrequencySnapshotEvents
+            - ...
+
+    Input:
+        - dat: imported JSON-file
+    
+    Returns:
+        - ...
+    """
+    if 'LfpFrequencySnapshotEvents' in dat['DiagnosticData'].keys():
+        print('extract snapshots')
+    
+    return 'TODO'
 
 def get_sensing_freq_and_contacts(dat):
     """

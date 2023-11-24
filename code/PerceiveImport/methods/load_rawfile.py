@@ -48,6 +48,27 @@ def load_matfile(sub: str, filename: str):
     return data
 
 
+def find_all_present_jsons(sub):
+    """
+    get a list of all JSONs available in
+    sourcedata
+    """
+    # search main source code subjects folder
+    datapath = find_folder.get_onedrive_path("sourcedata")
+    source_path = join(datapath, f'sub-{sub}')
+    json_files = [file for file in listdir(source_path)
+                  if file.endswith(".json")]
+    # search additoinal raw jsons folder if present
+    extra_json_path = join(source_path, 'raw_jsons')
+    if exists(extra_json_path):
+        json_files.extend([file for file in listdir(extra_json_path)
+                            if file.endswith(".json")])
+    # remove duplicates
+    json_files = list(set(json_files))
+    
+    return json_files
+
+
 def load_sourceJSON(sub: str, filename: str):
 
     """
@@ -98,41 +119,22 @@ def load_sourceJSON(sub: str, filename: str):
     
 
 
-
-def find_all_present_jsons(sub):
-    """
-    get a list of all JSONs available in
-    sourcedata
-    """
-    # search main source code subjects folder
-    datapath = find_folder.get_onedrive_path("sourcedata")
-    source_path = join(datapath, f'sub-{sub}')
-    json_files = [file for file in listdir(source_path)
-                  if file.endswith(".json")]
-    # search additoinal raw jsons folder if present
-    extra_json_path = join(source_path, 'raw_jsons')
-    if exists(extra_json_path):
-        json_files.extend([file for file in listdir(extra_json_path)
-                            if file.endswith(".json")])
-    # remove duplicates
-    json_files = list(set(json_files))
-    
-    return json_files
-
-
 def check_and_correct_lfp_missingData_in_json(streaming_data: dict):
     """"
     Function checks missing packets based on start and endtime
     of first and last received packets, and the time-differences
     between consecutive packets. In case of a missing packet,
     the missing time window is filled with NaNs.
+
+    TODO: debug for BRAINSENSELFP OR SURVEY, STREAMING?
+    BRAINSENSETIMEDOMAIN DATA STRUCTURE works?
     """
     Fs = streaming_data['SampleRateInHz']
-    ticksMsec = convert_list_string_floats(dat['TicksInMses'])
+    ticksMsec = convert_list_string_floats(streaming_data['TicksInMses'])
     ticksDiffs = np.diff(np.array(ticksMsec))
     data_is_missing = (ticksDiffs != 250).any()
-    packetSizes = convert_list_string_floats(dat['GlobalPacketSizes'])
-    lfp_data = dat['TimeDomainData']
+    packetSizes = convert_list_string_floats(streaming_data['GlobalPacketSizes'])
+    lfp_data = streaming_data['TimeDomainData']
 
     if data_is_missing:
         print('LFP Data is missing!! perform function to fill NaNs in')
