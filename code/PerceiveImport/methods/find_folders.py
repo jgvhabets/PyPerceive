@@ -21,18 +21,15 @@ def find_project_folder():
     return project_path, data_path
 
 
-def get_onedrive_path(
-    folder: str = 'onedrive', sub: str = None
-):
+def get_onedrive_path(folder: str = 'onedrive',
+                      sub: str = None):
     """
     Device and OS independent function to find
     the synced-OneDrive folder where data is stored
     Folder has to be in ['onedrive', 'Percept_Data_structured', 'sourcedata']
     """
 
-    folder_options = [
-        'onedrive', 'sourcedata'
-        ]
+    folder_options = ['onedrive', 'sourcedata']
 
     # Error checking, if folder input is in folder options
     if folder.lower() not in folder_options:
@@ -48,12 +45,19 @@ def get_onedrive_path(
 
     
     ####### in a specific case, if the Percept_Data_structured folder is in a specific directory #######
-    if 'Charité - Universitätsmedizin Berlin' in os.listdir(path):
-
-        path = os.path.join(path, 'Charité - Universitätsmedizin Berlin')
+    if np.logical_and(
+        'Charité - Universitätsmedizin Berlin' in os.listdir(path),
+        os.path.exists(os.path.join(path,
+                                    'Charité - Universitätsmedizin Berlin',
+                                    'AG Bewegungsstörungen - Percept - '
+                                    'Percept_Data_structured'))
+    ):
 
         # add the folder DATA-Test to the path and from there open the folders depending on input folder
-        datapath = os.path.join(path, 'AG Bewegungsstörungen - Percept - Percept_Data_structured')
+        datapath = os.path.join(
+            path, 'Charité - Universitätsmedizin Berlin',
+            'AG Bewegungsstörungen - Percept - Percept_Data_structured'
+        )
         if folder == 'onedrive': 
             return datapath
 

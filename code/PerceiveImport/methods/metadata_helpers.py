@@ -19,10 +19,7 @@ def read_excel_wOut_warning(path: str, sheet_name: None):
     bceause of Excel-Dropdown menus
     """
     warnings.simplefilter(action='ignore', category=UserWarning)
-    print(path)
-    print(os.path.exists(path))
-    print(f'sheet: {sheet_name}')
-    print(pd.read_excel(path, sheet_name=sheet_name))
+    
     return pd.read_excel(os.path.abspath(fr'{path}'),
                          sheet_name=sheet_name, converters={"run": str}) # column run integers should be converted to strings
 
@@ -123,9 +120,7 @@ def perceive_files_to_raw_perceive(sub):
         shutil.copy(file, raw_perceive)
   
 
-def get_terminology(
-        key = False
-):
+def get_terminology(key = False):
     """
     
     """

@@ -3,7 +3,8 @@
         "survey",
         "streaming",
         "timeline", 
-        "indefiniteStreaming"
+        "indefiniteStreaming",
+        "chronic"
     ],
     "session": [
         "postop", 

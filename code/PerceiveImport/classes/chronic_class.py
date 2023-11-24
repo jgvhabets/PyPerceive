@@ -55,7 +55,6 @@ class Chronic:
         if self.use_json_file:
             # add content of all jsons
             chronic_df = extract_chronic_from_JSON_list(self.sub, json_files)
-            
             setattr(self, 'data', chronic_df)  
 
         # import mat-file (result of Perceive) if defined

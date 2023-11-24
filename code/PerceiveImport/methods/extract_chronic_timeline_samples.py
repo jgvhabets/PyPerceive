@@ -34,7 +34,7 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     """
     # if not isinstance(chron_df, pd.DataFrame):
     chronic_df_columns = ['local_time', 'PSD', 'freq',
-                            'contact', 'group_name', 'stim_amp']
+                          'contact', 'group_name', 'stimAmp']
     # create columns names for dataframes
     chron_cols = {}
     chron_cols['Left'] = chronic_df_columns[:1] + [f'{c}_Left' for c in chronic_df_columns[1:]]
@@ -46,16 +46,12 @@ def extract_chronic_from_JSON_list(sub, json_files,):
 
     for file in json_files:
         # get dicts (Left/right) with values extracted from every json-file
-        try:
-            (sense_settings,
-                peak_times,
-                peak_values,
-                peak_stimAmps
-            ) = extract_chronic_from_json(sub, file)
-        except KeyError:
-            print(f'No LFPTrendLogs in JSON: {file} '
-                  '(KeyError extract_chronic_from_json())')
-            continue
+        print(f'\n...START extraction chronic LFPs from: {file}')
+        (sense_settings,
+            peak_times,
+            peak_values,
+            peak_stimAmps
+        ) = extract_chronic_from_json(sub, file)
 
         if isinstance(sense_settings, str):
             if sense_settings == 'NO_SETTINGS':
@@ -73,11 +69,11 @@ def extract_chronic_from_JSON_list(sub, json_files,):
                 try:
                     values.append([
                         t,
-                        int(peak_values[side][i]),
-                        float(sense_settings[side]['freq']),
+                        peak_values[side][i],
+                        sense_settings[side]['freq'],
                         sense_settings[side]['contacts'],
                         sense_settings[side]['group_name'],
-                        float(peak_stimAmps[side][i])
+                        peak_stimAmps[side][i]
                     ])
                 except KeyError:
                     # happens when either freq, contacts or group_name
@@ -91,19 +87,18 @@ def extract_chronic_from_JSON_list(sub, json_files,):
                         print('##### WARNING #####\n\t'
                               'added NaN values for sense settings'
                               f' for {side} side in {file}')
-            values = array(values)  # convert all rows into array for DataFrame creation
+            # convert all rows into array for DataFrame creation
+            values = array(values)
             file_df = DataFrame(data=values,
-                            columns=chron_cols[side],
-                            index=peak_times[side])
-
+                                columns=chron_cols[side],
+                                index=peak_times[side])
             file_df.index.name='utc_time'  # set index name
             # APPEND DATAFRAME FROM FILE TO OVERALL CHRONIC DATAFRAME
             idx_present = [new_i in chron_df.index for new_i in file_df.index]
             # add values per present index to ensure correct insertion            
             present_indices = file_df.index[idx_present]
             for ind in present_indices:
-                chron_df.loc[ind,
-                             chron_cols[side]] = file_df.loc[ind].values
+                chron_df.loc[ind, chron_cols[side]] = file_df.loc[ind].values
             # add values with new indices (if present)
             if sum(~array(idx_present)) > 0:
                 chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
@@ -111,6 +106,13 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     # correct timezone timestamps at end
     local_times = timezone_handling.convert_times_to_local(chron_df.index)
     chron_df['local_time'] = local_times
+
+    # correct datatypes per column
+    for i_col, col in enumerate(chron_df.keys()):
+        if 'PSD' in col: chron_df[col] = [int(v) for v in chron_df[col]]
+        if 'freq' in col or 'stimAmp' in col:
+            chron_df[col] = [float(v) for v in chron_df[col]]
+        
 
     return chron_df
 
@@ -128,9 +130,7 @@ def create_empty_chronic_df(chronic_df_columns):
     return chron
 
 
-def extract_chronic_from_json(
-    sub, json_filename
-):
+def extract_chronic_from_json(sub, json_filename):
     """
     Main function to extract bandwidth peaks from
     chronic 'Timeline' data, including timestamps,
@@ -163,18 +163,25 @@ def extract_chronic_from_json(
 
     # get frequency, contact, groupname
     sense_settings = get_sensing_freq_and_contacts(dat)
+
+    # check for empty settings
+    if isinstance(sense_settings, bool):
+        if not sense_settings:
+            return 'NO_SETTINGS', 'NA', 'NA', 'NA'
+
     # check for presence of SensingChannel
     if logical_and(len(sense_settings['Left']) == 0,
                    len(sense_settings['Right']) == 0):
         # no sensing channel defined in Initial Groups of JSON
-        return 'NO_SETTINGS', None, None, None
+        return 'NO_SETTINGS', 'NA', 'NA', 'NA'
 
     # continues if SensingChannel was defined in Initial Groups
 
     # get LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
-    peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)    
+    peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)
 
     return sense_settings, peak_times, peak_values, peak_stimAmps
+
 
 def get_chronic_LFPs_and_times(
     dat
@@ -202,9 +209,15 @@ def get_chronic_LFPs_and_times(
         peak_values[s] = []
         peak_times[s] = []
         stim_amps[s] = []
+    
+    # check if any chronic LFPs are present
+    if 'LFPTrendLogs' not in dat['DiagnosticData'].keys():
+        print(f'\tNo chronic LFPs present, although settings were found'
+              ' (LFPTrendLogs missing in DiagnosticData)')
+        # returns empty dictionaries
+        return peak_times, peak_values, stim_amps
 
     # collect present session per side
-    # date_keys = {}
     for side in sides:
         # skip hemispheres not present
         if f'HemisphereLocationDef.{side}' not in dat['DiagnosticData']['LFPTrendLogs'].keys():
@@ -253,13 +266,16 @@ def get_sensing_freq_and_contacts(dat):
     for s in sides: sense_settings[s] = {}
 
     groups = dat['Groups']['Initial']  # groups[0]['GroupId'] -> 'GroupIdDef.GROUP_A' 
+    
+    # CHECK FOR EMPTY GROUPS
+    if len(groups) == 0: return False
 
     # find active group
     for group_i in range(len(groups)):
         if groups[group_i]['ActiveGroup']:
             act_group_i = group_i
             act_group_name = groups[group_i]["GroupId"]
-    
+
     # first try to extract freq and contact from active group
     group_settings = groups[act_group_i]['ProgramSettings']
     
