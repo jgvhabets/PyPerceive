@@ -3,8 +3,10 @@ Convert timestamps to defined timezones
 especially import for chronic Percept data
 """
 
+from numpy import ndarray
 
-def get_timezones(LOCAL_CITY: str = 'Berlin'):
+def get_timezones(LOCAL_CITY: str = 'Berlin',
+                  verbose: bool = True):
 
     from sys import version_info
     if version_info.major >= 3 and version_info.minor >= 9:
@@ -13,7 +15,7 @@ def get_timezones(LOCAL_CITY: str = 'Berlin'):
 
         for z in zoneinfo.available_timezones():
             if z.split('/')[-1] == LOCAL_CITY: break
-        print(f'Timezone select for local-time: {z}')
+        if verbose: print(f'Timezone select for local-time: {z}')
         local_tz = zoneinfo.ZoneInfo(z)
         utc = timezone.utc
 
@@ -30,15 +32,24 @@ def convert_times_to_local(og_times):
     
     from datetime import datetime
 
-    utc, local_tz = get_timezones()
     time_format = '%Y-%m-%d %H:%M:%S %Z%z'
 
-    local_times = []
-
-    for t in og_times:
-        if t[-1] == 'Z': t = t[:-1]
-        t = datetime.fromisoformat(t)
+    if isinstance(og_times, str):
+        utc, local_tz = get_timezones(verbose=False)
+        if og_times[-1] == 'Z': og_times = og_times[:-1]
+        t = datetime.fromisoformat(og_times)
         t = t.replace(tzinfo=utc).astimezone(tz=local_tz)
-        local_times.append(t.strftime(time_format))
-    
-    return local_times
+
+        return t
+
+    else:
+        local_times = []
+        utc, local_tz = get_timezones()
+
+        for t in og_times:
+            if t[-1] == 'Z': t = t[:-1]
+            t = datetime.fromisoformat(t)
+            t = t.replace(tzinfo=utc).astimezone(tz=local_tz)
+            local_times.append(t.strftime(time_format))
+        
+        return local_times

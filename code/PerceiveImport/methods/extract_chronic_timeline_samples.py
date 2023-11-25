@@ -13,6 +13,9 @@ from pandas import DataFrame, concat, isna
 
 from PerceiveImport.methods.load_rawfile import load_sourceJSON
 from PerceiveImport.methods import timezone_handling
+from PerceiveImport.classes.chronic_class import (
+    singleSnapshotEvent
+)
 
 
 def extract_chronic_from_JSON_list(sub, json_files,):
@@ -32,105 +35,60 @@ def extract_chronic_from_JSON_list(sub, json_files,):
             columns are local_time, PSD, freq, contact, group_name,
             and stim_amp for all available sensed samples per side
     """
-    # if not isinstance(chron_df, pd.DataFrame):
-    chronic_df_columns = ['local_time', 'PSD', 'freq',
-                          'contact', 'group_name', 'stimAmp']
-    # create columns names for dataframes
-    chron_cols = {}
-    chron_cols['Left'] = chronic_df_columns[:1] + [f'{c}_Left' for c in chronic_df_columns[1:]]
-    chron_cols['Right'] = chronic_df_columns[:1] + [f'{c}_Right' for c in chronic_df_columns[1:]]
-    chron_cols['All'] = chronic_df_columns[:1] + chron_cols['Left'][1:] + chron_cols['Right'][1:]
+    # create overall empty base and columns chronic dataframe
+    overall_chron_df, chron_cols = create_empty_chronic_df()
+    overall_snap_list = []
 
-    # create empty base chronic dataframe
-    chron_df = create_empty_chronic_df(chronic_df_columns)
-
+    # loop over all josn files
     for file in json_files:
         # get dicts (Left/right) with values extracted from every json-file
         print(f'\n...START extraction chronic LFPs from: {file}')
         (sense_settings,
-            peak_times,
-            peak_values,
-            peak_stimAmps
-        ) = extract_chronic_from_json(sub, file)
+         overall_chron_df,
+         overall_snap_list
+        ) = extract_chronic_from_json(sub=sub, json_filename=file,
+                                      overall_chron_df=overall_chron_df,
+                                      chron_cols=chron_cols,
+                                      overall_snap_list=overall_snap_list)
 
         if isinstance(sense_settings, str):
             if sense_settings == 'NO_SETTINGS':
                 print(f'No Initial Group SensingChannel set in {file}')
                 continue
-
-        # continues if Sensing Channel and LFP-values were found 
-        
-        # convert values into temp-DataFrame
-        for side in ['Left', 'Right']:
-            values = []
-            if len(peak_times[side]) == 0: continue  # skip sides without recordings
-            for i, t in enumerate(peak_times[side]):
-                # loop over every row with values and per row to list
-                try:
-                    values.append([
-                        t,
-                        peak_values[side][i],
-                        sense_settings[side]['freq'],
-                        sense_settings[side]['contacts'],
-                        sense_settings[side]['group_name'],
-                        peak_stimAmps[side][i]
-                    ])
-                except KeyError:
-                    # happens when either freq, contacts or group_name
-                    # are not present in side dict sense setings
-                    values.append([
-                        t,
-                        peak_values[side][i], nan, nan, nan,
-                        peak_stimAmps[side][i]
-                    ])
-                    if i == 0:
-                        print('##### WARNING #####\n\t'
-                              'added NaN values for sense settings'
-                              f' for {side} side in {file}')
-            # convert all rows into array for DataFrame creation
-            values = array(values)
-            file_df = DataFrame(data=values,
-                                columns=chron_cols[side],
-                                index=peak_times[side])
-            file_df.index.name='utc_time'  # set index name
-            # APPEND DATAFRAME FROM FILE TO OVERALL CHRONIC DATAFRAME
-            idx_present = [new_i in chron_df.index for new_i in file_df.index]
-            # add values per present index to ensure correct insertion            
-            present_indices = file_df.index[idx_present]
-            for ind in present_indices:
-                chron_df.loc[ind, chron_cols[side]] = file_df.loc[ind].values
-            # add values with new indices (if present)
-            if sum(~array(idx_present)) > 0:
-                chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
     
     # correct timezone timestamps at end
-    local_times = timezone_handling.convert_times_to_local(chron_df.index)
-    chron_df['local_time'] = local_times
+    local_times = timezone_handling.convert_times_to_local(overall_chron_df.index)
+    overall_chron_df['local_time'] = local_times
 
     # correct datatypes per column
-    for i_col, col in enumerate(chron_df.keys()):
-        if 'PSD' in col: chron_df[col] = [int(v) for v in chron_df[col]]
+    for i_col, col in enumerate(overall_chron_df.keys()):
+        if 'PSD' in col:
+            overall_chron_df[col] = [int(v) for v in overall_chron_df[col]]
         if 'freq' in col or 'stimAmp' in col:
-            chron_df[col] = [float(v) for v in chron_df[col]]
+            overall_chron_df[col] = [float(v) for v in overall_chron_df[col]]
         
 
-    return chron_df
+    return overall_chron_df, overall_snap_list
 
 
-
-def create_empty_chronic_df(chronic_df_columns):
+def create_empty_chronic_df(
+    chronic_df_columns = ['local_time', 'PSD', 'freq',
+                          'contact', 'group_name', 'stimAmp']
+):
+    # create columns names for dataframes    
     chron_cols = {}
     chron_cols['Left'] = chronic_df_columns[:1]+ [f'{c}_Left' for c in chronic_df_columns[1:]]
     chron_cols['Right'] = chronic_df_columns[:1]+ [f'{c}_Right' for c in chronic_df_columns[1:]]
     chron_cols['All'] = chronic_df_columns[:1] + chron_cols['Left'][1:] + chron_cols['Right'][1:]
 
-    chron = DataFrame(columns=chron_cols['All'],)
-    chron.index.name='utc_time'
+    chron_df = DataFrame(columns=chron_cols['All'],)
+    chron_df.index.name='utc_time'
 
-    return chron
+    return chron_df, chron_cols
 
 
-def extract_chronic_from_json(sub, json_filename):
+def extract_chronic_from_json(sub, json_filename, overall_chron_df,
+                              chron_cols, overall_snap_list):
     """
     Main function to extract bandwidth peaks from
     chronic 'Timeline' data, including timestamps,
@@ -151,12 +109,13 @@ def extract_chronic_from_json(sub, json_filename):
     Returns:
         - sense_settings: dict with ['Left', 'Right'], if available,
             Left is dict with ['freq', 'contacts', 'group_name'];
-        - peak_times: dict with ['Left', 'Right'], if available,
-            Left is list with string-timestamps;
-        - peak_values: dict with ['Left', 'Right'], if available,
-            Left is list with power values;
-        - peak_stimAmps: dict with ['Left', 'Right'], if available,
-            Left is list with stim amplitude in mA
+        - overall_chronc_df: every time added;
+        - overall_snap_list: everything added
+        
+        # dict with ['Left', 'Right'], if available,
+        #     Left is list with power values;
+        # - peak_stimAmps: dict with ['Left', 'Right'], if available,
+        #     Left is list with stim amplitude in mA
     """
     # load json-data
     dat = load_sourceJSON(sub, json_filename)
@@ -167,23 +126,32 @@ def extract_chronic_from_json(sub, json_filename):
     # check for empty settings
     if isinstance(sense_settings, bool):
         if not sense_settings:
-            return 'NO_SETTINGS', 'NA', 'NA', 'NA'
-
+            return 'NO_SETTINGS', overall_chron_df, overall_snap_list
+    
     # check for presence of SensingChannel
-    if logical_and(len(sense_settings['Left']) == 0,
-                   len(sense_settings['Right']) == 0):
+    elif logical_and(len(sense_settings['Left']) == 0,
+                     len(sense_settings['Right']) == 0):
         # no sensing channel defined in Initial Groups of JSON
-        return 'NO_SETTINGS', 'NA', 'NA', 'NA'
+        return 'NO_SETTINGS', overall_chron_df, overall_snap_list
 
     # continues if SensingChannel was defined in Initial Groups
 
     # get LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     peak_times, peak_values, peak_stimAmps = get_chronic_LFPs_and_times(dat)
+    # add extracted chronic values to overall-DataFrame
+    overall_chron_df = add_chronic_values2df(
+        sense_settings=sense_settings,
+        chron_df=overall_chron_df, chron_cols=chron_cols,
+        peak_times=peak_times,
+        peak_values=peak_values,
+        peak_stimAmps=peak_stimAmps,
+        json_file=json_filename)
 
     # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
-    TO_DO = get_chronic_LFPs_and_times(dat)
+    new_snaps = get_snapshotEvents(dat, sub, sense_settings)
+    if len(new_snaps) >= 1: overall_snap_list.append(new_snaps)
 
-    return sense_settings, peak_times, peak_values, peak_stimAmps
+    return sense_settings, overall_chron_df, overall_snap_list
 
 
 def get_chronic_LFPs_and_times(dat):
@@ -203,10 +171,8 @@ def get_chronic_LFPs_and_times(dat):
         - stim_amps: dict with Left and Right stim-
             amplitude parallel to recorded powers
     """
-    sides = ['Left', 'Right']
-
     peak_values, peak_times, stim_amps = {}, {}, {}
-    for s in sides:
+    for s in ['Left', 'Right']:
         peak_values[s] = []
         peak_times[s] = []
         stim_amps[s] = []
@@ -219,7 +185,7 @@ def get_chronic_LFPs_and_times(dat):
         return peak_times, peak_values, stim_amps
 
     # collect present session per side
-    for side in sides:
+    for side in ['Left', 'Right']:
         # skip hemispheres not present
         if f'HemisphereLocationDef.{side}' not in dat['DiagnosticData']['LFPTrendLogs'].keys():
             print(f'{side} hemisphere not present')
@@ -241,7 +207,64 @@ def get_chronic_LFPs_and_times(dat):
     return peak_times, peak_values, stim_amps
 
 
-def get_chronic_SnapshotEvents(dat):
+def add_chronic_values2df(sense_settings, peak_times,
+                          peak_values, peak_stimAmps,
+                          json_file, chron_df, chron_cols):
+    """
+    Convert extracted chronic times, values, and
+    stim-settings into dataframe
+    """
+    for side in ['Left', 'Right']:
+        values = []
+        if len(peak_times[side]) == 0: continue  # skip sides without recordings
+        for i, t in enumerate(peak_times[side]):
+            # loop over every row with values and per row to list
+            try:
+                values.append([
+                    t,
+                    peak_values[side][i],
+                    sense_settings[side]['freq'],
+                    sense_settings[side]['contacts'],
+                    sense_settings[side]['group_name'],
+                    peak_stimAmps[side][i]
+                ])
+            except KeyError:
+                # happens when either freq, contacts or group_name
+                # are not present in side dict sense setings
+                values.append([
+                    t,
+                    peak_values[side][i], nan, nan, nan,
+                    peak_stimAmps[side][i]
+                ])
+                if i == 0:
+                    print('##### WARNING #####\n\t'
+                            'added NaN values for sense settings'
+                            f' for {side} side in {json_file}')
+        
+        # convert all rows into array for DataFrame creation
+        values = array(values)
+        file_df = DataFrame(data=values,
+                            columns=chron_cols[side],
+                            index=peak_times[side])
+        file_df.index.name='utc_time'  # set index name
+        
+        # APPEND side-DATAFRAME FROM FILE TO OVERALL CHRONIC DATAFRAME
+        idx_present = [new_i in chron_df.index for new_i in file_df.index]
+        
+        # add values per present index to ensure correct insertion            
+        present_indices = file_df.index[idx_present]
+        for ind in present_indices:
+            chron_df.loc[ind, chron_cols[side]] = file_df.loc[ind].values
+        
+        # add values with new indices (if present)
+        if sum(~array(idx_present)) > 0:
+            chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
+    
+    return chron_df
+
+
+def get_snapshotEvents(dat, sub: str, sense_settings: dict,
+                       LFP_events_key: str = 'LfpFrequencySnapshotEvents'):
     """
     actively induced LFP SnapShot extraction:
         DiagnosticData contains LfpFrequencySnapshotEvents
@@ -253,10 +276,29 @@ def get_chronic_SnapshotEvents(dat):
     Returns:
         - ...
     """
-    if 'LfpFrequencySnapshotEvents' in dat['DiagnosticData'].keys():
-        print('extract snapshots')
+    snap_list_out = []
+
+    if LFP_events_key in dat['DiagnosticData'].keys():
+        event_list = dat['DiagnosticData'][LFP_events_key]
+        if len(event_list) == 0:
+            print('event list is empty')
+            return snap_list_out
+        
+        for event in event_list:
+            snap_class = singleSnapshotEvent(sub=sub,
+                                            sensing_settings=sense_settings,
+                                            json_event_dict=event)
+            snap_list_out.append(snap_class)
+            print(f'created snap class, t={snap_class.time}'
+                  f', contains LFP: {snap_class.contains_LFP}\n')
+            
+    # check if any chronic LFPs are present
+    else:
+        print(f'\tNo snapshot Events present, although settings were found'
+              f' ({LFP_events_key} missing in DiagnosticData)')
     
-    return 'TODO'
+    return snap_list_out
+
 
 def get_sensing_freq_and_contacts(dat):
     """
@@ -345,7 +387,5 @@ def get_sensing_freq_and_contacts(dat):
                 sense_settings[sense_side] = {'freq': freq,
                                             'contacts': contacts,
                                             'group_name': group_name}
-        
-
-                
+              
     return sense_settings
