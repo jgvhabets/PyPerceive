@@ -40,9 +40,10 @@ def get_onedrive_path(folder: str = 'onedrive',
     # from your cwd get the path and stop at 'Users'
     path = os.getcwd()
 
-    while os.path.dirname(path)[-5:] != 'Users':
-        path = os.path.dirname(path) # path is now leading to Users/username
-
+    for i in range(20):
+        if os.path.dirname(path)[-5:] != 'Users':
+            path = os.path.dirname(path) # path is now leading to Users/username
+    assert path != os.getcwd(), '"Users" path not found'
     
     ####### in a specific case, if the Percept_Data_structured folder is in a specific directory #######
     if np.logical_and(
@@ -73,31 +74,22 @@ def get_onedrive_path(folder: str = 'onedrive',
                 'onedrive' in f.lower(),
                 'charit' in f.lower())
                 ]
-
         path = os.path.join(path, onedrive_f[0]) # path is now leading to Onedrive folder
 
 
-        # add the folder DATA-Test to the path and from there open the folders depending on input folder
+        # add the folder name
         path = os.path.join(path, 'Percept_Data_structured')
-        if folder == 'onedrive':
-
-            assert os.path.exists(path), f'wanted path ({path}) not found'
-            
-            return path
-
-        elif folder == 'sourcedata':
-
+        if folder == 'sourcedata':
             path = os.path.join(path, 'sourcedata')
             if sub: path = os.path.join(path, f'sub-{sub}')
+        # if folder == onedrive: no additional adding
 
-            assert os.path.exists(path), f'wanted path ({path}) not found'
-                
-            return path
+        assert os.path.exists(path), f'wanted path ({path}) not found'
+            
+        return path
 
 
-def get_PyPerceive_path(
-        folder = False
-):
+def get_PyPerceive_path(folder = False):
     """
     get path to PyPerceive repo 
     Input: 
@@ -106,21 +98,22 @@ def get_PyPerceive_path(
 
     PyPerceive_path = os.getcwd()
 
-    while PyPerceive_path[-10:] != 'PyPerceive':
-        PyPerceive_path = os.path.dirname(PyPerceive_path)
+    for i in range(10):
+        if not PyPerceive_path.endswith('PyPerceive'):
+            PyPerceive_path = os.path.dirname(PyPerceive_path)
     
+    # use HARCODED path in json if finding was not successful
+    if not PyPerceive_path.endswith('PyPerceive'):
+        PyPerceive_path = "C:\\Users\\habetsj\\Research\\projects\\PyPerceive"
+        print(f'use hardcoded PyPerceive repo directory: {PyPerceive_path}')
+
     code_path = os.path.join(PyPerceive_path, 'code')
     sys.path.append(code_path)
 
     # depending on folder input
-    if folder:
-
-        folder_path = os.path.join(code_path, folder)
+    if folder: folder_path = os.path.join(code_path, folder)
 
     return folder_path
-
-
-
 
 
 
@@ -144,10 +137,10 @@ def get_local_path(folder: str, sub: str = None):
     path = os.getcwd()
 
     while os.path.dirname(path)[-5:] != 'Users':
+        print('careful: while loop in get_local_path()')
         path = os.path.dirname(path) # path is now leading to Users/username
 
     # get the Research folder and add it to the path
-
     path = os.path.join(path, 'Research') # path is now leading to Research folder
 
 

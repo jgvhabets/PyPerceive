@@ -10,12 +10,12 @@ from chronic BrainSense Timeline recordings
 import json
 from numpy import array, nan, logical_and
 from pandas import DataFrame, concat, isna
+from dataclasses import dataclass, field
 
-from PerceiveImport.methods.load_rawfile import load_sourceJSON
-from PerceiveImport.methods import timezone_handling
-from PerceiveImport.classes.chronic_class import (
-    singleSnapshotEvent
+from PerceiveImport.methods.timezone_handling import (
+    convert_times_to_local
 )
+from PerceiveImport.methods.load_rawfile import load_sourceJSON
 
 
 def extract_chronic_from_JSON_list(sub, json_files,):
@@ -57,7 +57,7 @@ def extract_chronic_from_JSON_list(sub, json_files,):
                 continue
     
     # correct timezone timestamps at end
-    local_times = timezone_handling.convert_times_to_local(overall_chron_df.index)
+    local_times = convert_times_to_local(overall_chron_df.index)
     overall_chron_df['local_time'] = local_times
 
     # correct datatypes per column
@@ -298,6 +298,48 @@ def get_snapshotEvents(dat, sub: str, sense_settings: dict,
               f' ({LFP_events_key} missing in DiagnosticData)')
     
     return snap_list_out
+
+
+
+@dataclass(init=True,)
+class singleSnapshotEvent:
+    """
+    Stores all data for one single actively
+    induced snapshot (Ereignis) event
+    """
+    sub: str
+    sensing_settings: list
+    json_event_dict: dict
+    contains_LFP: bool = False
+    LFP_events_key: str = field(
+        default_factory=lambda:
+        'LfpFrequencySnapshotEvents'
+    )
+    convert_times_local: bool = True
+
+    def __post_init__(self,):
+        self.time = self.json_event_dict['DateTime']
+        if self.convert_times_local:
+            self.time = convert_times_to_local(self.time)
+        self.name = self.json_event_dict['EventName']
+        # add neurophys if present
+        if self.LFP_events_key in self.json_event_dict.keys():
+            self.contains_LFP = True
+            # get dict with present hemispheres
+            ephys_temp = self.json_event_dict[self.LFP_events_key]
+            # loop over hemispheres
+            for side in ephys_temp.keys():
+                lfp_side = side.split('.')[1].lower()  # get current hemisphere
+                lfp_t = ephys_temp[side]['DateTime']  # get time of lfp, is 30 sec's of vs t_event (?)
+                if self.convert_times_local:
+                    lfp_t = convert_times_to_local(lfp_t)
+                setattr(self,
+                        f'lfp_{lfp_side}',
+                        {'time': lfp_t,
+                         'group': ephys_temp[side]['GroupId'],
+                         'psd': ephys_temp[side]['FFTBinData'],
+                         'freq': ephys_temp[side]['Frequency']})
+                
 
 
 def get_sensing_freq_and_contacts(dat):
