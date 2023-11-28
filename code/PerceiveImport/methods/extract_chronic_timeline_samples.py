@@ -11,6 +11,7 @@ import json
 from numpy import array, nan, logical_and
 from pandas import DataFrame, concat, isna
 from dataclasses import dataclass, field
+from itertools import compress
 
 from PerceiveImport.methods.timezone_handling import (
     convert_times_to_local
@@ -34,6 +35,8 @@ def extract_chronic_from_JSON_list(sub, json_files,):
         - chron_df: DataFrame with all data, index is utc_time,
             columns are local_time, PSD, freq, contact, group_name,
             and stim_amp for all available sensed samples per side
+        - overall_snap_list: list with one event dataclass per
+            recorded event, duplicates removed.
     """
     # create overall empty base and columns chronic dataframe
     overall_chron_df, chron_cols = create_empty_chronic_df()
@@ -60,13 +63,13 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     local_times = convert_times_to_local(overall_chron_df.index)
     overall_chron_df['local_time'] = local_times
 
-    # correct datatypes per column
+    # correct datatypes per column in chronic df
     for i_col, col in enumerate(overall_chron_df.keys()):
         if 'PSD' in col:
             overall_chron_df[col] = [int(v) for v in overall_chron_df[col]]
         if 'freq' in col or 'stimAmp' in col:
             overall_chron_df[col] = [float(v) for v in overall_chron_df[col]]
-        
+    
 
     return overall_chron_df, overall_snap_list
 
@@ -149,7 +152,10 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
 
     # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     new_snaps = get_snapshotEvents(dat, sub, sense_settings)
-    if len(new_snaps) >= 1: overall_snap_list.append(new_snaps)
+    if len(new_snaps) >= 1: overall_snap_list.extend(new_snaps)
+    # select out duplicate events
+    overall_snap_list = select_unique_events(overall_snap_list)
+
 
     return sense_settings, overall_chron_df, overall_snap_list
 
@@ -299,6 +305,21 @@ def get_snapshotEvents(dat, sub: str, sense_settings: dict,
     
     return snap_list_out
 
+
+def select_unique_events(list_all_events):
+    
+    # create a set that gathers all unique times
+    seen = set()
+    unique_bool = []
+
+    for event in list_all_events:
+        # add True if time not yet in set, otherwise adds False
+        unique_bool.append(event.time not in seen)
+        seen.add(event.time)
+    # selects out all events marked as True (seen first time)
+    unique_events = list(compress(list_all_events, unique_bool))
+
+    return unique_events
 
 
 @dataclass(init=True,)
