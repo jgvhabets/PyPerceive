@@ -12,6 +12,7 @@ from numpy import array, nan, logical_and
 from pandas import DataFrame, concat, isna
 from dataclasses import dataclass, field
 from itertools import compress
+from datetime import datetime as dt
 
 from PerceiveImport.methods.timezone_handling import (
     convert_times_to_local
@@ -62,6 +63,8 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     # correct timezone timestamps at end
     local_times = convert_times_to_local(overall_chron_df.index)
     overall_chron_df['local_time'] = local_times
+    # sort dataframe on utc timestamp index
+    overall_chron_df = sort_chronic_df(overall_chron_df)
 
     # correct datatypes per column in chronic df
     for i_col, col in enumerate(overall_chron_df.keys()):
@@ -72,6 +75,20 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     
 
     return overall_chron_df, overall_snap_list
+
+
+def sort_chronic_df(chron_df):
+    """
+    sorting dataframe on utc times, also converts
+    utc time index into datetime timestamps
+    """
+    dtimes = [dt.strptime(t[:-1], '%Y-%m-%dT%H:%M:%S')
+              for t in chron_df.index[:]]
+    chron_df['utc_datetimes'] = dtimes
+    chron_df = chron_df.set_index('utc_datetimes')
+    chron_df = chron_df.sort_index()
+
+    return chron_df
 
 
 def create_empty_chronic_df(
@@ -153,7 +170,7 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
     # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     new_snaps = get_snapshotEvents(dat, sub, sense_settings)
     if len(new_snaps) >= 1: overall_snap_list.extend(new_snaps)
-    # select out duplicate events
+    # select out duplicate events (only add new events)
     overall_snap_list = select_unique_events(overall_snap_list)
 
 
