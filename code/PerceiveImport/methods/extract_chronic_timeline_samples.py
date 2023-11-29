@@ -8,7 +8,7 @@ from chronic BrainSense Timeline recordings
 
 # import functions
 import json
-from numpy import array, nan, logical_and
+from numpy import array, nan, logical_and, unique
 from pandas import DataFrame, concat, isna
 from dataclasses import dataclass, field
 from itertools import compress
@@ -60,6 +60,9 @@ def extract_chronic_from_JSON_list(sub, json_files,):
                 print(f'No Initial Group SensingChannel set in {file}')
                 continue
     
+    # remove duplicate events
+    overall_snap_list = select_unique_events(overall_snap_list)
+
     # correct timezone timestamps at end
     local_times = convert_times_to_local(overall_chron_df.index)
     overall_chron_df['local_time'] = local_times
@@ -169,10 +172,8 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
 
     # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     new_snaps = get_snapshotEvents(dat, sub, sense_settings)
+    print(f'JSON-file: {json_filename}: # new events: {len(new_snaps)}')
     if len(new_snaps) >= 1: overall_snap_list.extend(new_snaps)
-    # select out duplicate events (only add new events)
-    overall_snap_list = select_unique_events(overall_snap_list)
-
 
     return sense_settings, overall_chron_df, overall_snap_list
 
@@ -309,8 +310,8 @@ def get_snapshotEvents(dat, sub: str, sense_settings: dict,
         
         for event in event_list:
             snap_class = singleSnapshotEvent(sub=sub,
-                                            sensing_settings=sense_settings,
-                                            json_event_dict=event)
+                                             sensing_settings=sense_settings,
+                                             json_event_dict=event)
             snap_list_out.append(snap_class)
             print(f'created snap class, t={snap_class.time}'
                   f', contains LFP: {snap_class.contains_LFP}\n')
@@ -324,19 +325,32 @@ def get_snapshotEvents(dat, sub: str, sense_settings: dict,
 
 
 def select_unique_events(list_all_events):
-    
-    # create a set that gathers all unique times
-    seen = set()
-    unique_bool = []
+    """
+    selects out duplicates in LFP-events. Medtronic tablet stores
+    the LFP data in Events only during the first connection,
+    afterwards the event will still be stored every connection,
+    but WITHOUT LFP-data. Therefore, many time duplicate arrise
+    of Events without LFP data. 
+    """
+    # first take all unique events with LFP data
+    lfp_events = [e for e in list_all_events if e.contains_LFP]
+    uniq_lfp_times, uniq_lfp_idx = unique([e.time for e in lfp_events],
+                                          return_index=True)
+    uniq_lfp_events = list(array(lfp_events)[uniq_lfp_idx])
+    # get all unique events W7O LFP data, not included yet
+    nolfp_events = [e for e in list_all_events if not e.contains_LFP]
+    uniq_nolfp_times, uniq_noLFP_idx = unique(
+        [e.time for e in nolfp_events],
+        return_index=True
+    )
+    uniq_nolfp_events = list(array(nolfp_events)[uniq_noLFP_idx])
+    uniq_nolfp_events = [e for e in uniq_nolfp_events
+                         if e.time not in uniq_lfp_times]
+    # add events WITH and W/O LFP data
+    all_uniq_events = uniq_lfp_events
+    all_uniq_events.extend(uniq_nolfp_events)
 
-    for event in list_all_events:
-        # add True if time not yet in set, otherwise adds False
-        unique_bool.append(event.time not in seen)
-        seen.add(event.time)
-    # selects out all events marked as True (seen first time)
-    unique_events = list(compress(list_all_events, unique_bool))
-
-    return unique_events
+    return all_uniq_events
 
 
 @dataclass(init=True,)
