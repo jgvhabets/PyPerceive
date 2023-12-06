@@ -98,8 +98,12 @@ def load_sourceJSON(sub: str, filename: str):
     json_path = join(datapath, f'sub-{sub}') # same path as to perceive files, all in sourcedata folder
 
     if exists(join(json_path, filename)):
-        with open(join(json_path, filename), 'r') as f:
-            json_object = json.loads(f.read())
+        try:
+            with open(join(json_path, filename), 'r') as f:
+                json_object = json.loads(f.read())
+        except json.JSONDecodeError:
+            print(f'json.read FAILED for {json_path, filename} (0 kb file?)')
+            json_object = False
         return json_object
 
     elif exists(join(json_path, 'raw_jsons', filename)):

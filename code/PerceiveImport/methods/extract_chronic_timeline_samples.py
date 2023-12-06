@@ -142,6 +142,9 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
     """
     # load json-data
     dat = load_sourceJSON(sub, json_filename)
+    if isinstance(dat, bool):
+        if not dat:
+            return 'NO_JSONFILE', overall_chron_df, overall_snap_list
 
     # get frequency, contact, groupname
     sense_settings = get_sensing_freq_and_contacts(dat)
@@ -172,13 +175,13 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
 
     # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     new_snaps = get_snapshotEvents(dat, sub, sense_settings)
-    print(f'JSON-file: {json_filename}: # new events: {len(new_snaps)}')
+
     if len(new_snaps) >= 1: overall_snap_list.extend(new_snaps)
 
     return sense_settings, overall_chron_df, overall_snap_list
 
 
-def get_chronic_LFPs_and_times(dat):
+def get_chronic_LFPs_and_times(dat, verbose=False,):
     """
     JSON structure used for chronic passive LFP data extraction:
         DiagnosticData contains LFPTrendLogs
@@ -203,8 +206,9 @@ def get_chronic_LFPs_and_times(dat):
     
     # check if any chronic LFPs are present
     if 'LFPTrendLogs' not in dat['DiagnosticData'].keys():
-        print(f'\tNo chronic LFPs present, although settings were found'
-              ' (LFPTrendLogs missing in DiagnosticData)')
+        if verbose: 
+            print(f'\tNo chronic LFPs present, although settings were found'
+                  ' (LFPTrendLogs missing in DiagnosticData)')
         # returns empty dictionaries
         return peak_times, peak_values, stim_amps
 
@@ -212,7 +216,7 @@ def get_chronic_LFPs_and_times(dat):
     for side in ['Left', 'Right']:
         # skip hemispheres not present
         if f'HemisphereLocationDef.{side}' not in dat['DiagnosticData']['LFPTrendLogs'].keys():
-            print(f'{side} hemisphere not present')
+            if verbose: print(f'{side} hemisphere not present')
             continue
         
         # if hemisphere is present
@@ -220,7 +224,7 @@ def get_chronic_LFPs_and_times(dat):
         
         # loop over present sessions
         for k in hemi.keys():
-            print(f'\nAdd session {k} from {side} hemisphere')
+            if verbose: print(f'\nAdd session {k} from {side} hemisphere')
         
             # loop over present samples
             for sample in hemi[k]:
@@ -233,7 +237,8 @@ def get_chronic_LFPs_and_times(dat):
 
 def add_chronic_values2df(sense_settings, peak_times,
                           peak_values, peak_stimAmps,
-                          json_file, chron_df, chron_cols):
+                          json_file, chron_df, chron_cols,
+                          verbose: bool = False,):
     """
     Convert extracted chronic times, values, and
     stim-settings into dataframe
@@ -260,7 +265,7 @@ def add_chronic_values2df(sense_settings, peak_times,
                     peak_values[side][i], nan, nan, nan,
                     peak_stimAmps[side][i]
                 ])
-                if i == 0:
+                if i == 0 and verbose:
                     print('##### WARNING #####\n\t'
                             'added NaN values for sense settings'
                             f' for {side} side in {json_file}')
@@ -288,7 +293,8 @@ def add_chronic_values2df(sense_settings, peak_times,
 
 
 def get_snapshotEvents(dat, sub: str, sense_settings: dict,
-                       LFP_events_key: str = 'LfpFrequencySnapshotEvents'):
+                       LFP_events_key: str = 'LfpFrequencySnapshotEvents',
+                       verbose: bool = False,):
     """
     actively induced LFP SnapShot extraction:
         DiagnosticData contains LfpFrequencySnapshotEvents
@@ -305,7 +311,7 @@ def get_snapshotEvents(dat, sub: str, sense_settings: dict,
     if LFP_events_key in dat['DiagnosticData'].keys():
         event_list = dat['DiagnosticData'][LFP_events_key]
         if len(event_list) == 0:
-            print('event list is empty')
+            if verbose: print('event list is empty')
             return snap_list_out
         
         for event in event_list:
@@ -313,13 +319,15 @@ def get_snapshotEvents(dat, sub: str, sense_settings: dict,
                                              sensing_settings=sense_settings,
                                              json_event_dict=event)
             snap_list_out.append(snap_class)
-            print(f'created snap class, t={snap_class.time}'
-                  f', contains LFP: {snap_class.contains_LFP}\n')
+            if verbose: print(f'created snap class, t={snap_class.time}'
+                              f', contains LFP: {snap_class.contains_LFP}\n')
             
     # check if any chronic LFPs are present
     else:
-        print(f'\tNo snapshot Events present, although settings were found'
-              f' ({LFP_events_key} missing in DiagnosticData)')
+        if verbose: print(
+            f'\tNo snapshot Events present, although settings were found'
+            f' ({LFP_events_key} missing in DiagnosticData)'
+        )
     
     return snap_list_out
 
@@ -394,7 +402,7 @@ class singleSnapshotEvent:
                 
 
 
-def get_sensing_freq_and_contacts(dat):
+def get_sensing_freq_and_contacts(dat, verbose: bool = False,):
     """
     JSON structure used for data extraction:
     'Groups' contains 'Initial' containing Group-Info.
@@ -461,7 +469,7 @@ def get_sensing_freq_and_contacts(dat):
             if group_i == act_group_i: continue  # skip active channel
 
             if not 'SensingChannel' in groups[group_i]['ProgramSettings'].keys():
-                print(f'no sensing channel in group index {group_i}')
+                if verbose: print(f'no sensing channel in group index {group_i}')
                 continue
             # if SensingChannel is present in keys
             group_settings = groups[group_i]['ProgramSettings']
