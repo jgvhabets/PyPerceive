@@ -47,16 +47,16 @@ class runClass:
         if not self.import_json:
             ############ LOAD MATLAB FILES ############
             fname = self.meta_table['perceiveFilename'][0]
-                
+            print(f'file name in runClass {fname}')
             # suppress RuntimeWarning
             warnings.simplefilter(action='ignore', category=RuntimeWarning)
 
             # load with mne.read_raw_fieldtrip()
             mne_raw = load_rawfile.load_matfile(self.sub, fname)
-            
+            print('mne raw loaded')
             # rename (parts of) ch names with bids Retune convention
             mne_raw = custom_mne_renaming(mne_raw)
-
+            print('mne raw renamed')
             setattr(self, 'data', mne_raw)
 
         elif self.import_json:

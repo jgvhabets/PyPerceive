@@ -88,7 +88,7 @@ def load_sourceJSON(sub: str, filename: str):
     assert len(sub) == 3, f'Subject string ({sub}) INCORRECT' 
     
     # Error if filename doesn´t end with .mat
-    assert filename[-5:] == '.json', (
+    assert filename.endswith('.json'), (
         f'filename no .json INCORRECT extension: {filename}'
     )
 
@@ -98,28 +98,37 @@ def load_sourceJSON(sub: str, filename: str):
     json_path = join(datapath, f'sub-{sub}') # same path as to perceive files, all in sourcedata folder
 
     if exists(join(json_path, filename)):
+
         try:
             with open(join(json_path, filename), 'r') as f:
                 json_object = json.loads(f.read())
+
         except json.JSONDecodeError:
             print(f'json.read FAILED for {json_path, filename} (0 kb file?)')
             json_object = False
+
         return json_object
 
     elif exists(join(json_path, 'raw_jsons', filename)):
+
         with open(join(json_path,'raw_jsons', filename), 'r') as f:
             json_object = json.loads(f.read())
+
         return json_object
     
     anom_name = filename.split('.')[0] + '_ANOM' + '.json'
+
     if exists(join(json_path, anom_name)):
+
         with open(join(json_path, anom_name), 'r') as f:
             json_object = json.loads(f.read())
+
         return json_object
-    
+     
     else:
         raise ValueError(f'JSON file ({filename}) not found '
-                         f'in {json_path}, and "raw_jsons" folder')
+                         f'in {json_path}, and "raw_jsons" folder,'
+                         f' NOR {anom_name}')
     
 
 
