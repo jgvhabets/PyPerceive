@@ -30,10 +30,15 @@ def load_matfile(sub: str, filename: str):
     # Error if sub str is not exactly 3 letters e.g. 024
     assert len(sub) == 3, f'Subject string ({sub}) INCORRECT' 
     
-    # Error if filename doesn´t end with .mat
-    assert filename[-4:] == '.mat', (
-        f'filename no .mat INCORRECT extension: {filename}'
-    )
+    # # Error if filename doesn´t end with .mat
+    # assert filename[-4:] == '.mat', (
+    #     f'filename no .mat INCORRECT extension: {filename}'
+    # )
+
+    # to allow for table input without .mat extension added
+    if filename[-4:] != '.mat':
+        print(f'added ".mat" to {filename}')
+        filename = filename + '.mat'
 
     # find the path to the raw_perceive folder of a subject
     datapath = find_folder.get_onedrive_path("sourcedata")

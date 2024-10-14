@@ -61,10 +61,12 @@ class Modality:
             )
 
             #Error checking: is sessionInput in session_list of Metadata?
+            print(f'### ERROR: checking {ses} in {allowed_session}')
             if ses.lower() not in [s.lower() for s in session_list]:
 
                 print(
                     f'inserted session ({ses}, {self.modality}) can not be found in the metadata table'
+                    f'\nNB: CHECK METADATA TABLE ({self.sub}) for incomplete rows'
                 )
             
             else:

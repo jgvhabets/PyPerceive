@@ -46,8 +46,8 @@ class conditionClass:
 
             # Error checking: if stim is not in allowed_stimulation -> Error message
             assert task.lower() in [t.lower() for t in allowed_tasks], (
-                f'inserted modality ({task}) should'
-                f' be in {allowed_tasks}'
+                f'inserted modality ({task}) should be in {allowed_tasks}'
+                f'\nNB: CHECK METADATA TABLE ({self.sub}) for incomplete rows'
             )
 
             # select out only meta_table for current session

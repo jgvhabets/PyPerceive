@@ -14,7 +14,9 @@
         "fu20m", 
         "fu22m", 
         "fu23m", 
-        "fu24m"
+        "fu24m", 
+        "fu26m",
+        "fu36m"
     ],
     "condition": [
         "m0s0", 
