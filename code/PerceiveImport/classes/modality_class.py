@@ -61,7 +61,6 @@ class Modality:
             )
 
             #Error checking: is sessionInput in session_list of Metadata?
-            print(f'### ERROR: checking {ses} in {allowed_session}')
             if ses.lower() not in [s.lower() for s in session_list]:
 
                 print(

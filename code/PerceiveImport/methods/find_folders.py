@@ -105,7 +105,7 @@ def get_PyPerceive_path(folder = False):
     # use HARCODED path in json if finding was not successful
     if not PyPerceive_path.endswith('PyPerceive'):
         PyPerceive_path = "C:\\Users\\habetsj\\Research\\projects\\PyPerceive"
-        print(f'use hardcoded PyPerceive repo directory: {PyPerceive_path}')
+        # print(f'use hardcoded PyPerceive repo directory: {PyPerceive_path}')
 
     code_path = os.path.join(PyPerceive_path, 'code')
     sys.path.append(code_path)
