@@ -7,7 +7,7 @@ import os
 import sys
 
 sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(), 'PerceiveImport'))
+sys.path.append(os.path.join(os.getcwd(), "PerceiveImport"))
 
 from numpy import logical_and
 
@@ -21,50 +21,61 @@ def anonymise_jsons():
     Command: python code/utils/anonymise_jsons.py
     """
 
-    anom_code = '_ANOM'
+    anom_code = "_ANOM"
 
-    path = find_folders.get_onedrive_path('onedrive')  # gives PerceptDataStructured
-    
-     
-    path = os.path.join(path, 'sourcedata')
+    path = find_folders.get_onedrive_path("onedrive")  # gives PerceptDataStructured
 
+    path = os.path.join(path, "sourcedata")
 
     for folder in os.listdir(path):
 
         if not os.path.isdir(os.path.join(path, folder)):
             continue
 
-        if folder.startswith('sub-'):
-            sub_dir = os.path.join(path, folder) # subject folder
-            
+        if folder.startswith("sub-"):
+            sub_dir = os.path.join(path, folder)  # subject folder
+
             # loop over files in sub-folder
             for filename in os.listdir(sub_dir):
-                
-                if not filename.endswith('.json'): continue
-                
-                # check if JSON is already anonymised
-                if anom_code in filename:
-                    print(f'file {filename} already converted')
+
+                if not filename.endswith(".json"):
                     continue
 
-                with open(os.path.join(sub_dir, filename), 'r') as f:
-                    json_dict = json.load(f)
+                # check if JSON is already anonymised
+                if anom_code in filename:
+                    print(f"file {filename} already converted")
+                    continue
 
-                del(json_dict['PatientInformation'])
+                # check if JSON is empty
+                try:
+                    with open(os.path.join(sub_dir, filename), "r") as f:
+                        content = f.read().strip()
 
-                new_fname = filename.split('.')[0] + anom_code + '.json'
+                        if not content:
+                            print(f"Warning: {filename} is empty. Skipping.")
+                            continue  # Skip empty files
 
-                with open(os.path.join(sub_dir, new_fname), 'w') as f:
-                    json.dump(json_dict, f)
-                
-                os.remove(os.path.join(sub_dir, filename))
+                        json_dict = json.load(content)
 
-                print(f"Anonimysed JSON: {new_fname}")
+                    del json_dict["PatientInformation"]
 
-        print(f"Finished folder {folder}")    
+                    new_fname = filename.split(".")[0] + anom_code + ".json"
+
+                    with open(os.path.join(sub_dir, new_fname), "w") as f:
+                        json.dump(json_dict, f)
+
+                    os.remove(os.path.join(sub_dir, filename))
+
+                    print(f"Anonimysed JSON: {new_fname}")
+
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON in {filename}: {e}")
+                except Exception as e:
+                    print(f"Unexpected error with {filename}: {e}")
+
+        print(f"Finished folder {folder}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     anonymise_jsons()
-
