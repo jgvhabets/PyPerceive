@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import sys
+from pathlib import Path
 
 
 def find_project_folder():
@@ -13,108 +14,146 @@ def find_project_folder():
 
     # from the cwd get path to PyPerceive_Project (=Git Repository)
     project_path = os.getcwd()
-    while project_path[-10:] != 'pyPerceive':
+    while project_path[-10:] != "pyPerceive":
         project_path = os.path.dirname(project_path)
-    
-    data_path = os.path.join(project_path, 'data')
-    
+
+    data_path = os.path.join(project_path, "data")
+
     return project_path, data_path
 
 
-def get_onedrive_path(folder: str = 'onedrive',
-                      sub: str = None):
+def get_onedrive_path(folder: str = "onedrive", sub: str = None):
     """
     Device and OS independent function to find
     the synced-OneDrive folder where data is stored
     Folder has to be in ['onedrive', 'Percept_Data_structured', 'sourcedata']
     """
 
-    folder_options = ['onedrive', 'sourcedata']
+    folder_options = ["onedrive", "sourcedata"]
 
     # Error checking, if folder input is in folder options
     if folder.lower() not in folder_options:
         raise ValueError(
-            f'given folder: {folder} is incorrect, '
-            f'should be {folder_options}')
+            f"given folder: {folder} is incorrect, " f"should be {folder_options}"
+        )
 
     # from your cwd get the path and stop at 'Users'
     path = os.getcwd()
 
     for i in range(20):
-        if os.path.dirname(path)[-5:] != 'Users':
-            path = os.path.dirname(path) # path is now leading to Users/username
+        if os.path.dirname(path)[-5:] != "Users":
+            path = os.path.dirname(path)  # path is now leading to Users/username
     assert path != os.getcwd(), '"Users" path not found'
-    
+
     ####### in a specific case, if the Percept_Data_structured folder is in a specific directory #######
     if np.logical_and(
-        'Charité - Universitätsmedizin Berlin' in os.listdir(path),
-        os.path.exists(os.path.join(path,
-                                    'Charité - Universitätsmedizin Berlin',
-                                    'AG Bewegungsstörungen - Percept - '
-                                    'Percept_Data_structured'))
+        "Charité - Universitätsmedizin Berlin" in os.listdir(path),
+        os.path.exists(
+            os.path.join(
+                path,
+                "Charité - Universitätsmedizin Berlin",
+                "AG Bewegungsstörungen - Percept - " "Percept_Data_structured",
+            )
+        ),
     ):
 
         # add the folder DATA-Test to the path and from there open the folders depending on input folder
         datapath = os.path.join(
-            path, 'Charité - Universitätsmedizin Berlin',
-            'AG Bewegungsstörungen - Percept - Percept_Data_structured'
+            path,
+            "Charité - Universitätsmedizin Berlin",
+            "AG Bewegungsstörungen - Percept - Percept_Data_structured",
         )
-        if folder == 'onedrive': 
+        if folder == "onedrive":
             return datapath
 
-        elif folder == 'sourcedata':
-            return os.path.join(datapath, 'sourcedata')
-
+        elif folder == "sourcedata":
+            return os.path.join(datapath, "sourcedata")
 
     ####### this should be the general case #######
     else:
         # get the onedrive folder containing "onedrive" and "charit" and add it to the path
         onedrive_f = [
-            f for f in os.listdir(path) if np.logical_and(
-                'onedrive' in f.lower(),
-                'charit' in f.lower())
-                ]
-        path = os.path.join(path, onedrive_f[0]) # path is now leading to Onedrive folder
-
+            f
+            for f in os.listdir(path)
+            if np.logical_and("onedrive" in f.lower(), "charit" in f.lower())
+        ]
+        path = os.path.join(
+            path, onedrive_f[0]
+        )  # path is now leading to Onedrive folder
 
         # add the folder name
-        path = os.path.join(path, 'Percept_Data_structured')
-        if folder == 'sourcedata':
-            path = os.path.join(path, 'sourcedata')
-            if sub: path = os.path.join(path, f'sub-{sub}')
+        path = os.path.join(path, "Percept_Data_structured")
+        if folder == "sourcedata":
+            path = os.path.join(path, "sourcedata")
+            if sub:
+                path = os.path.join(path, f"sub-{sub}")
         # if folder == onedrive: no additional adding
 
-        assert os.path.exists(path), f'wanted path ({path}) not found'
-            
+        assert os.path.exists(path), f"wanted path ({path}) not found"
+
         return path
 
 
-def get_PyPerceive_path(folder = False):
+def get_PyPerceive_path(folder=False):
     """
-    get path to PyPerceive repo 
-    Input: 
+    get path to PyPerceive repo
+    Input:
         - folder: str ["PerceiveImport", "utils"]
     """
-
-    PyPerceive_path = os.getcwd()
+    # optional
+    # PyPerceive_path = os.getcwd()
+    PyPerceive_path = find_folder_in_parentfolders(os.getcwd(), "PyPerceive")
 
     for i in range(10):
-        if not PyPerceive_path.endswith('PyPerceive'):
+        if not PyPerceive_path.endswith("PyPerceive"):
             PyPerceive_path = os.path.dirname(PyPerceive_path)
-    
+
     # use HARCODED path in json if finding was not successful
-    if not PyPerceive_path.endswith('PyPerceive'):
+    if not PyPerceive_path.endswith("PyPerceive"):
         PyPerceive_path = "C:\\Users\\habetsj\\Research\\projects\\PyPerceive"
         # print(f'use hardcoded PyPerceive repo directory: {PyPerceive_path}')
 
-    code_path = os.path.join(PyPerceive_path, 'code')
+    code_path = os.path.join(PyPerceive_path, "code")
     sys.path.append(code_path)
 
     # depending on folder input
-    if folder: folder_path = os.path.join(code_path, folder)
+    if folder:
+        folder_path = os.path.join(code_path, folder)
 
     return folder_path
 
+
+def find_folder_in_parentfolders(start_path, target_folder_name):
+    """
+    Start from the given path and move up one folder at a time to locate the target folder
+    within each parent directory. Stops searching if the user's home directory is reached.
+
+    NOTE: Only works if target folder is within the same parent folder as current working directory (or start path)!
+
+    Args:
+        start_path (str): The starting directory path. Eg, current working directory
+        target_folder_name (str): The name of the target folder to locate in the parent folders.
+
+    Returns:
+        str: The path to the target folder.
+
+    Raises:
+        FileNotFoundError: If the target folder is not found up to the user's home directory.
+    """
+    current_path = Path(start_path).resolve()
+    home_directory = Path.home()
+
+    while current_path != home_directory:
+        target_folder = current_path.parent / target_folder_name
+        if target_folder.is_dir():
+            return str(target_folder)
+
+        current_path = current_path.parent
+
+    # If target folder was not found
+    raise FileNotFoundError(
+        f"Folder '{target_folder_name}' not found in the hierarchy up to the user's home directory."
+    )
 
 
 def get_local_path(folder: str, sub: str = None):
@@ -123,36 +162,33 @@ def get_local_path(folder: str, sub: str = None):
 
     """
 
-    folder_options = [
-        'Research', 'Longterm_beta_project', 'results', 'figures'
-        ]
+    folder_options = ["Research", "Longterm_beta_project", "results", "figures"]
 
     # Error checking, if folder input is in folder options
-    #if folder.lower() not in folder_options:
-        # raise ValueError(
-        #     f'given folder: {folder} is incorrect, '
-        #     f'should be {folder_options}')
+    # if folder.lower() not in folder_options:
+    # raise ValueError(
+    #     f'given folder: {folder} is incorrect, '
+    #     f'should be {folder_options}')
 
     # from your cwd get the path and stop at 'Users'
     path = os.getcwd()
 
-    while os.path.dirname(path)[-5:] != 'Users':
-        print('careful: while loop in get_local_path()')
-        path = os.path.dirname(path) # path is now leading to Users/username
+    while os.path.dirname(path)[-5:] != "Users":
+        print("careful: while loop in get_local_path()")
+        path = os.path.dirname(path)  # path is now leading to Users/username
 
     # get the Research folder and add it to the path
-    path = os.path.join(path, 'Research') # path is now leading to Research folder
-
+    path = os.path.join(path, "Research")  # path is now leading to Research folder
 
     # add the folder to the path and from there open the folders depending on input folder
-    if folder == 'Research':
+    if folder == "Research":
         return path
 
-    elif folder == 'Longterm_beta_project': 
+    elif folder == "Longterm_beta_project":
         return os.path.join(path, "Longterm_beta_project")
 
-    elif folder == 'results':
+    elif folder == "results":
         return os.path.join(path, "Longterm_beta_project", "results", f"sub-{sub}")
 
-    elif folder == 'figures':
+    elif folder == "figures":
         return os.path.join(path, "Longterm_beta_project", "figures", f"sub-{sub}")

@@ -66,3 +66,5 @@ bash install.sh
 
 **requirements_dev.txt** 
  
+### Folder structure
+To ensure that the PyPerceive Repo is found, make sure the PyPerceive Repo is stored in the same folder as your analysis repository that you are working with.
