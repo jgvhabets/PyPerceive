@@ -2,6 +2,7 @@
 
 # import public packages
 import pandas as pd
+import numpy as np
 from dataclasses import dataclass
 import warnings
 
@@ -79,11 +80,36 @@ class runClass:
             list_of_streamings = json_data[prc_data_codes[self.modality.lower()]]
             n_streamings = len(list_of_streamings)
 
-            # CHOOSE DESIRED STREAMING DATA IN JSON TO IMPORT
-            # SEL_DATA_INDEX = .... # FIND IN META DATA TABLE
-            # sel_data = list_of_streamings[SEL_DATA_INDEX]
-            # clean_lfp = check_and_correct_lfp_missings_in_json(sel_data)
-            # TODO: GET ADDITIONAL INFO OUT OF JSON FILE
+            # CHOOSE DESIRED STREAMING DATA IN JSON TO IMPORT: FIND IN META DATA TABLE
+            list_of_streamings = json_data[prc_data_codes[self.modality]]
+            n_streamings = len(list_of_streamings)  # the JSON contains # n_streamings
+
+            # the recording table should be used to find the correct order of the recordings, for the required/requested streaming file
+            ### find Modality (Streaming)-recordings within this json, by using json_name
+            temp = self.metaClass.orig_meta_table[self.metaClass.orig_meta_table['report'] == self.json_name]  # select on JSON name
+            print(temp.keys())
+            temp = temp[temp['contacts'] == 'Bip']  # select BS-Streamings (Bip)  # TODO: take into account incorrect documentation here (e.g. exclude all Survey codes)
+            temp = temp.reset_index(drop=True)
+
+            ### each Streaming recording contains 2 dictionaries in JSON, one for LEFT electrode, one for RIGHT electrode
+            N_TABLE = temp.shape[0] * 2
+            N_JSON = n_streamings
+
+            assert N_TABLE == N_JSON, 'not matching number of Streaming-files in table vs JSON'
+            print(f'CORRECT, {N_TABLE} bilateral recordings led to {N_JSON} files!')
+
+            ### find order of required recording: match table with required meta-data of recording
+            order_check = [
+                (temp['session'] == self.session).values,
+                (temp['condition'] == self.condition).values,
+                (temp['task'] == self.task).values
+            ]
+            # find n-recording which is true for all objects
+            N_REC = np.where(np.all(order_check, axis=0))[0][0]
+            I_REC = [N_REC * 2, N_REC * 2 + 1]  # ASSUMING THAT EVERY REC LEADS TO TWO (BILAT) FILES
+            SEL_STREAMS = [list_of_streamings[i] for i in I_REC]
+
+            self.clean_lfp = [check_and_correct_lfp_missings_in_json(s) for s in SEL_STREAMS]
 
 
 

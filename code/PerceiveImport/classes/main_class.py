@@ -68,6 +68,9 @@ class PerceiveData:
                             f'metadata_{self.sub}_perceiveFiles.xlsx')),
             sheet_name="recordingInfo"
         )
+        # # one original copy for JSON-import
+        # self.og_meta_table = self.meta_table.copy()
+
         if not self.allow_NaNs_in_metadata:
             # clean rows with NaNs in MetaData Table
             self.meta_table = metaHelp.clean_metadata_nanRows(
