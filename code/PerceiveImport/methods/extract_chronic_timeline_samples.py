@@ -80,12 +80,21 @@ def extract_chronic_from_JSON_list(sub, json_files,):
     return overall_chron_df, overall_snap_list
 
 
+def convert_time_string_to_stamp(time_string):
+
+    stamp = dt.strptime(time_string[:-1], '%Y-%m-%dT%H:%M:%S')
+
+    return stamp
+
+
 def sort_chronic_df(chron_df):
     """
     sorting dataframe on utc times, also converts
     utc time index into datetime timestamps
     """
-    dtimes = [dt.strptime(t[:-1], '%Y-%m-%dT%H:%M:%S')
+    # dtimes = [dt.strptime(t[:-1], '%Y-%m-%dT%H:%M:%S')
+    #           for t in chron_df.index[:]]
+    dtimes = [convert_time_string_to_stamp(t)
               for t in chron_df.index[:]]
     chron_df['utc_datetimes'] = dtimes
     chron_df = chron_df.set_index('utc_datetimes')
@@ -146,8 +155,21 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
         if not dat:
             return 'NO_JSONFILE', overall_chron_df, overall_snap_list
 
-    # get frequency, contact, groupname
-    sense_settings = get_sensing_freq_and_contacts(dat)
+    # get frequency, contact, groupname current session
+    sense_settings, setting_date = get_active_sensing_freq_and_contacts(dat)
+
+    # get initial settings from historical sessions
+    (
+        hist_sess_dates,
+        hist_sess_settings
+    ) = get_history_sensing_freq_and_contacts(dat)
+
+    all_settings = {'session_date': [setting_date,],
+                    'settings': [sense_settings,]}
+    for d, s in zip(hist_sess_dates, hist_sess_settings):
+        all_settings['session_date'].append(d)
+        all_settings['settings'].append(s)
+
 
     # check for empty settings
     if isinstance(sense_settings, bool):
@@ -171,7 +193,9 @@ def extract_chronic_from_json(sub, json_filename, overall_chron_df,
         peak_times=peak_times,
         peak_values=peak_values,
         peak_stimAmps=peak_stimAmps,
-        json_file=json_filename)
+        json_file=json_filename,
+        all_session_settings=all_settings,
+    )
 
     # get SnapShot LFP-values and timestamps, and parallel stimAmps (dicts with Left and Right)
     new_snaps = get_snapshotEvents(dat, sub, sense_settings)
@@ -238,6 +262,7 @@ def get_chronic_LFPs_and_times(dat, verbose=False,):
 def add_chronic_values2df(sense_settings, peak_times,
                           peak_values, peak_stimAmps,
                           json_file, chron_df, chron_cols,
+                          all_session_settings = None,
                           verbose: bool = False,):
     """
     Convert extracted chronic times, values, and
@@ -288,7 +313,46 @@ def add_chronic_values2df(sense_settings, peak_times,
         # add values with new indices (if present)
         if sum(~array(idx_present)) > 0:
             chron_df = concat([chron_df, file_df[~array(idx_present)]], axis=0,)
+
+        
+        # CORRECT sense settings
+        utc_times = chron_df.index.values
+        utc_times = array([convert_time_string_to_stamp(t) for t in utc_times])
+
+        if type(all_session_settings['session_date'][0]) == str:
+            utc_sessiontimes = [
+                convert_time_string_to_stamp(t)
+                for t in all_session_settings['session_date']
+            ]
+            all_session_settings['session_date'] = utc_sessiontimes
+
+        # find per session, all preceding values and correct settings
+        for sess_time, sess_sett in zip(
+            all_session_settings['session_date'],
+            all_session_settings['settings']
+        ):
+            times_before_sess = utc_times < sess_time
+
+            if sum(times_before_sess) == 0 or sess_sett == None:
+                if verbose:
+                    print(f'SKIP correction for {sess_time}, settings: {sess_sett},'
+                          f' and # preceding samples: {sum(times_before_sess)}')
+                continue
+
+            if verbose:
+                print(f'CORERECT For session time {sess_time}, # {sum(times_before_sess)}')
+                print(f'settings are: {sess_sett}')
+            
+            for side in ['Left', 'Right']:
+                chron_df.loc[times_before_sess, [
+                    f'freq_{side}', f'contact_{side}', f'group_name_{side}'
+                ]] = [
+                    [sess_sett[side]['freq'],
+                    sess_sett[side]['contacts'],
+                    sess_sett[side]['group_name']]
+                ] * sum(times_before_sess)
     
+
     return chron_df
 
 
@@ -402,7 +466,7 @@ class singleSnapshotEvent:
                 
 
 
-def get_sensing_freq_and_contacts(dat, verbose: bool = False,):
+def get_active_sensing_freq_and_contacts(dat, verbose: bool = False,):
     """
     JSON structure used for data extraction:
     'Groups' contains 'Initial' containing Group-Info.
@@ -423,20 +487,63 @@ def get_sensing_freq_and_contacts(dat, verbose: bool = False,):
         - stim_amps: dict with Left and Right stim-
             amplitude parallel to recorded powers
     """
-    sense_settings = {}
-    sides = ['Left', 'Right']
-    for s in sides: sense_settings[s] = {}
-
+    sense_settings = {'Left': {}, 'Right':{}}
     groups = dat['Groups']['Initial']  # groups[0]['GroupId'] -> 'GroupIdDef.GROUP_A' 
-    
+    ses_date = dat['SessionDate']
+
     # CHECK FOR EMPTY GROUPS
-    if len(groups) == 0: return False
+    if len(groups) == 0: return False, False
+    
+    sense_settings = get_sensing_settings_from_groups(groups=groups)
+
+
+    return sense_settings, ses_date
+
+
+def get_history_sensing_freq_and_contacts(dat, verbose: bool = False,):
+
+    groupHist = dat['GroupHistory']
+
+    session_dates = []
+    session_settings = []
+
+    for hist_ses in groupHist:
+        ses_date = hist_ses['SessionDate']
+        # get historical settings for session
+        ses_setting = get_sensing_settings_from_groups(groups=hist_ses['Groups'],
+                                                       HISTORICAL=True,)
+
+        session_dates.append(ses_date)
+        session_settings.append(ses_setting)
+    
+    return session_dates, session_settings
+
+
+def get_sensing_settings_from_groups(
+    groups, HISTORICAL: bool = False, verbose: bool = False,
+):
+    """
+    groups: list with group dictionaries from JSON
+    """
+    # dict to store
+    sense_settings = {}
 
     # find active group
     for group_i in range(len(groups)):
-        if groups[group_i]['ActiveGroup']:
-            act_group_i = group_i
-            act_group_name = groups[group_i]["GroupId"]
+    
+        if 'ActiveGroup' in groups[group_i].keys():
+        
+            if groups[group_i]['ActiveGroup']:
+                act_group_i = group_i
+                act_group_name = groups[group_i]["GroupId"]
+                if verbose:
+                    print(f'SELECT GROUP {group_i}: {act_group_name} as ACTIVE')
+                
+        else:
+            if verbose:
+                print(f'#### Session has no active group, initiation? -> skip')
+            
+            continue
 
     # first try to extract freq and contact from active group
     group_settings = groups[act_group_i]['ProgramSettings']
@@ -450,15 +557,26 @@ def get_sensing_freq_and_contacts(dat, verbose: bool = False,):
                 'SensingSetup']['FrequencyInHertz']
             sense_side = group_settings["SensingChannel"][i_ch][
                 'HemisphereLocation'].split('.')[1]
-            contacts = group_settings["SensingChannel"][i_ch][
-                'SensingSetup']['ChannelSignalResult']['Channel']
+            # for contacts, different between current and historical
+            try:
+                contacts = group_settings["SensingChannel"][i_ch][
+                    'SensingSetup']['ChannelSignalResult']['Channel']
+            except:
+                contacts = group_settings["SensingChannel"][i_ch]['Channel']
+
             sense_settings[sense_side] = {'freq': freq,
                                           'contacts': contacts,
                                           'group_name': act_group_name}
         
     else:
-        print('\n\t### WARNING ###\n\tNo SensingChannel in active group'
-              ', sensing info from NON-ACTIVE group is searched')
+        if verbose:
+            print('\n\t### WARNING ###\n\tNo SensingChannel in active group'
+                  ', sensing info from NON-ACTIVE group is searched')
+
+        if HISTORICAL:
+            if verbose:
+                print(f'no SENSING CHANNEL IN HISTORICAL settings, return None')
+            return None
 
         # search for sensing channel in other groups
         # here the user should know that the Medtronic-
@@ -475,8 +593,9 @@ def get_sensing_freq_and_contacts(dat, verbose: bool = False,):
             group_settings = groups[group_i]['ProgramSettings']
             group_name = groups[group_i]["GroupId"]
             
-            print('\n\t### WARNING #2 ###\n\tSensingChannel from'
-              f' inactive group {group_name} is taken')
+            if verbose:
+                print('\n\t### WARNING #2 ###\n\tSensingChannel from'
+                      f' inactive group {group_name} is taken')
 
             for i_ch in range(len(group_settings["SensingChannel"])):
                 # loop over channels present (left / right)
