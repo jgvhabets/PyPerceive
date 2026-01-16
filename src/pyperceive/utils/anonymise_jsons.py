@@ -9,9 +9,7 @@ import sys
 sys.path.append(os.getcwd())
 sys.path.append(os.path.join(os.getcwd(), "PerceiveImport"))
 
-from numpy import logical_and
-
-from PerceiveImport.methods import find_folders
+from pyperceive.import_methods import find_folders
 
 
 def anonymise_jsons():

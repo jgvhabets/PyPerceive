@@ -3,7 +3,6 @@ Convert timestamps to defined timezones
 especially import for chronic Percept data
 """
 
-from numpy import ndarray
 
 def get_timezones(LOCAL_CITY: str = 'Berlin',
                   verbose: bool = True):

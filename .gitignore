@@ -5,9 +5,12 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*.pyc
-*/*.pyc
+src/pyperceive/*.pyc
+src/pyperceive/*/*.pyc
 *$py.class
+src/pyperceive/__pycache__/*.*
+src/pyperceive/*/__pycache__/*.*
+src/pyperceive/import_classes/__pycache__/*.*
 
 # C extensions
 *.so

@@ -1,14 +1,12 @@
 """ Create a recording modality Class """
 
 from dataclasses import dataclass, field
-import os
 import pandas as pd
-from numpy import array
 import warnings
 
 # import own functions
-import PerceiveImport.methods.load_rawfile as load_rawfile
-from PerceiveImport.methods.extract_chronic_timeline_samples import (
+from pyperceive.import_methods import  load_rawfile
+from pyperceive.import_methods.extract_chronic_timeline_samples import (
     extract_chronic_from_JSON_list
 )
 

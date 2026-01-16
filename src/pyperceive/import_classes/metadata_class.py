@@ -1,6 +1,6 @@
 """ Metadata Class """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(init=True, repr=True) 

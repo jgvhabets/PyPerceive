@@ -3,11 +3,11 @@
 import pandas as pd
 from dataclasses import dataclass
 from numpy import unique
-import warnings
 
-from PerceiveImport.classes.run_class import runClass
-import PerceiveImport.classes.contact_class as contactclass
-import PerceiveImport.methods.metadata_helpers as metaHelp
+
+from pyperceive.import_classes.run_class import runClass
+import pyperceive.import_classes.contact_class as contactclass
+import pyperceive.import_methods.metadata_helpers as metaHelp
 
 
 @dataclass (init=True, repr=True)

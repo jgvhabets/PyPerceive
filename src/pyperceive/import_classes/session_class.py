@@ -3,8 +3,8 @@
 import pandas as pd
 from dataclasses import dataclass
 
-import PerceiveImport.classes.condition_class as condclass
-import PerceiveImport.methods.metadata_helpers as metaHelp
+import pyperceive.import_classes.condition_class as condclass
+import pyperceive.import_methods.metadata_helpers as metaHelp
 
 
 @dataclass (init=True, repr=True)

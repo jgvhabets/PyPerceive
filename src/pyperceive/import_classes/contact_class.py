@@ -3,10 +3,9 @@
 import pandas as pd
 from numpy import unique
 from dataclasses import dataclass
-import warnings
 
 # import PerceiveImport.methods.load_rawfile as load_rawfile
-from PerceiveImport.classes.run_class import runClass
+from pyperceive.import_classes.run_class import runClass
 
 
 @dataclass (init=True, repr=True)

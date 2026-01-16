@@ -4,15 +4,11 @@ adjusting .mat files and metadata
 """
 # import packages
 import os 
-
 import pandas as pd
-import xlrd
-
 import mne 
-import mne_bids
 
 # import PerceiveImport.FilterInput as filterinput
-import PerceiveImport.methods.find_folders as find_folder
+import pyperceive.import_methods.find_folders as find_folder
 
 
 ## sub = filterinput.FilterInput["sub"]

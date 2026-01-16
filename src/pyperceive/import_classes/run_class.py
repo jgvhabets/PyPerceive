@@ -7,8 +7,8 @@ from dataclasses import dataclass
 import warnings
 
 # import own functions
-import PerceiveImport.methods.load_rawfile as load_rawfile
-from PerceiveImport.methods.ch_renaming import custom_mne_renaming
+import pyperceive.import_methods.load_rawfile as load_rawfile
+from pyperceive.import_methods.ch_renaming import custom_mne_renaming
 
 @dataclass (init=True, repr=True)
 class runClass:
@@ -109,7 +109,7 @@ class runClass:
             I_REC = [N_REC * 2, N_REC * 2 + 1]  # ASSUMING THAT EVERY REC LEADS TO TWO (BILAT) FILES
             SEL_STREAMS = [list_of_streamings[i] for i in I_REC]
 
-            self.clean_lfp = [check_and_correct_lfp_missings_in_json(s) for s in SEL_STREAMS]
+            self.clean_lfp = [load_rawfile.check_and_correct_lfp_missingData_in_json(s) for s in SEL_STREAMS]
 
 
 

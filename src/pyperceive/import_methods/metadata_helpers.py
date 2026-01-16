@@ -9,7 +9,7 @@ import shutil
 import json
 
 # import own functions
-import PerceiveImport.methods.find_folders as find_folder
+import pyperceive.import_methods.find_folders as find_folder
 
 
 

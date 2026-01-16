@@ -7,17 +7,15 @@ from chronic BrainSense Timeline recordings
 """
 
 # import functions
-import json
 from numpy import array, nan, logical_and, unique
-from pandas import DataFrame, concat, isna
+from pandas import DataFrame, concat
 from dataclasses import dataclass, field
-from itertools import compress
 from datetime import datetime as dt
 
-from PerceiveImport.methods.timezone_handling import (
+from pyperceive.import_methods.timezone_handling import (
     convert_times_to_local
 )
-from PerceiveImport.methods.load_rawfile import load_sourceJSON
+from pyperceive.import_methods.load_rawfile import load_sourceJSON
 
 
 def extract_chronic_from_JSON_list(sub, json_files,):

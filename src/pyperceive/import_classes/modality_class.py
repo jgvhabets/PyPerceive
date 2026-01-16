@@ -1,14 +1,13 @@
 """ Create a recording modality Class """
 
 from dataclasses import dataclass
-import os
 
 import pandas as pd
-import copy
 
-import PerceiveImport.methods.find_folders as find_folder
-import PerceiveImport.classes.session_class as sesClass
-import PerceiveImport.methods.metadata_helpers as metaHelp
+
+import pyperceive.import_methods.find_folders as find_folder
+import pyperceive.import_classes.session_class as sesClass
+import pyperceive.import_methods.metadata_helpers as metaHelp
 
 
 @dataclass (init=True, repr=True)

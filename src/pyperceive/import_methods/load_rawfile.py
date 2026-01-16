@@ -10,7 +10,7 @@ from mne.io import read_raw_fieldtrip
 import json
 import numpy as np
 
-import PerceiveImport.methods.find_folders as find_folder
+import pyperceive.import_methods.find_folders as find_folder
 
 
 def load_matfile(sub: str, filename: str):

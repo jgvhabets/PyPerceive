@@ -100,20 +100,21 @@ def get_PyPerceive_path(folder=False):
     Input:
         - folder: str ["PerceiveImport", "utils"]
     """
-    # optional
-    # PyPerceive_path = os.getcwd()
-    PyPerceive_path = find_folder_in_parentfolders(os.getcwd(), "PyPerceive")
+    
+    curr_path = Path(__file__).resolve().parent
 
     for i in range(10):
-        if not PyPerceive_path.endswith("PyPerceive"):
-            PyPerceive_path = os.path.dirname(PyPerceive_path)
+        if not str(curr_path).endswith("PyPerceive"):
+            curr_path = os.path.dirname(curr_path)
+    
+    PyPerceive_path = curr_path
 
     # use HARCODED path in json if finding was not successful
-    if not PyPerceive_path.endswith("PyPerceive"):
+    if not str(PyPerceive_path).endswith("PyPerceive"):
         PyPerceive_path = "C:\\Users\\habetsj\\Research\\projects\\PyPerceive"
         # print(f'use hardcoded PyPerceive repo directory: {PyPerceive_path}')
 
-    code_path = os.path.join(PyPerceive_path, "code")
+    code_path = os.path.join(PyPerceive_path, "src", "pyperceive")
     sys.path.append(code_path)
 
     # depending on folder input
@@ -142,10 +143,14 @@ def find_folder_in_parentfolders(start_path, target_folder_name):
     """
     current_path = Path(start_path).resolve()
     home_directory = Path.home()
+    print('home dir', home_directory)
+    print('current path', current_path)
+    print('target', target_folder_name)
 
     while current_path != home_directory:
         target_folder = current_path.parent / target_folder_name
         if target_folder.is_dir():
+            print(f'returned: {target_folder}')
             return str(target_folder)
 
         current_path = current_path.parent

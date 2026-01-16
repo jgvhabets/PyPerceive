@@ -4,11 +4,10 @@
 import pandas as pd
 from dataclasses import dataclass
 
-import copy
-
 # import PerceiveImport.classes.Metadata_Class as metaclass
-import PerceiveImport.classes.task_class as taskclass
-import PerceiveImport.methods.metadata_helpers as metaHelp
+import pyperceive.import_classes.task_class as taskclass
+import pyperceive.import_methods.metadata_helpers as metaHelp
+
 
 @dataclass (init=True, repr=True)
 class conditionClass:
