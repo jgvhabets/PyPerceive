@@ -18,7 +18,9 @@ class Chronic:
     this is a separatae class since its functionality is different
     then the other modalities.
     For Chronic: all available data recorded in all extracted JSON-
-    files are combined into one data class. 
+    files are combined into one data class.
+
+    TODO: add stimContact, vs senseContacts
     
     parameters:
         - sub: e.g. "021"
